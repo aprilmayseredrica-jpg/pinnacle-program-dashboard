@@ -24,7 +24,6 @@
             background-color: white;
             border-radius: 0.75rem;
             box-shadow: 0 4px_6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            transition: all 0.3s ease-in-out;
         }
         .chart-title {
             color: #334155; /* slate-700 */
@@ -37,25 +36,17 @@
         .mmm-gray { color: #64748b; } /* slate-500 */
         .mmm-primary-bg { background-color: #0f766e; }
         .mmm-accent-bg { background-color: #f59e0b; }
-        .gemini-btn {
-            background-color: #1e40af; /* blue-800 */
-            color: white;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.5rem;
-            transition: background-color 0.3s;
-        }
-        .gemini-btn:hover {
-            background-color: #1d4ed8; /* blue-700 */
-        }
+
         .loader {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #1e40af;
+            border-top: 4px solid #0d9488;
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            width: 24px;
+            height: 24px;
             animation: spin 1s linear infinite;
+            margin: 1rem auto;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -74,21 +65,25 @@
         <div class="mb-12">
             <h2 class="text-2xl font-bold text-center main-title mb-6">The Pinnacle Program Fee Schedule</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                <!-- Tier 1 -->
                 <div class="card p-6 border-t-4 border-teal-600">
                     <p class="text-sm font-semibold text-gray-500">Tenure: 91 Days - 1 Year</p>
                     <p class="text-4xl font-bold main-title my-2">$25,000</p>
                     <p class="text-gray-600">Secures our initial investment and the full non-solicitation value.</p>
                 </div>
+                <!-- Tier 2 -->
                 <div class="card p-6 border-t-4 border-teal-500">
                     <p class="text-sm font-semibold text-gray-500">Tenure: 1 - 2 Years</p>
                     <p class="text-4xl font-bold main-title my-2">$20,000</p>
                     <p class="text-gray-600">Rewards the first year of successful partnership.</p>
                 </div>
+                <!-- Tier 3 -->
                 <div class="card p-6 border-t-4 border-teal-400">
                     <p class="text-sm font-semibold text-gray-500">Tenure: 2 - 3 Years</p>
                     <p class="text-4xl font-bold main-title my-2">$15,000</p>
                     <p class="text-gray-600">Recognizes a significant, multi-year client relationship.</p>
                 </div>
+                <!-- Tier 4 -->
                 <div class="card p-6 border-t-4 border-amber-500">
                     <p class="text-sm font-semibold text-gray-500">Tenure: 3+ Years</p>
                     <p class="text-4xl font-bold main-title my-2">$10,000</p>
@@ -98,8 +93,8 @@
         </div>
 
         <!-- Section 2: Financial Justification -->
-        <div class="mb-12">
-            <h2 class="text-2xl font-bold text-center main-title mb-6">Financial Justification: A Win-Win Model</h2>
+        <div>
+            <h2 class="text-2xl font-bold text-center main-title mb-12">Financial Justification & Interactive Tools</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2 card p-6">
                     <h3 class="chart-title mb-4">Pinnacle Program Fee vs. MMM's Cumulative Profit</h3>
@@ -111,47 +106,152 @@
                      <p class="mt-2 text-md font-semibold subtitle">In the first 20 Months</p>
                      <p class="text-sm text-gray-600 mt-4">Based on a conservative estimate of converting 20% of applicable VA resignations into Pinnacle Program partnerships.</p>
                 </div>
-            </div>
-        </div>
-        
-        <!-- Section 3: Gemini API Powered Tools -->
-        <div>
-            <h2 class="text-2xl font-bold text-center main-title mb-6">✨ AI-Powered Success Tools</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Buyout Readiness Analysis -->
-                <div class="card p-6">
-                    <h3 class="chart-title mb-4">Buyout Readiness Analysis</h3>
-                    <p class="text-gray-600 mb-4">Enter a VA's tenure to get an AI-powered readiness score and justification.</p>
-                    <div class="flex items-center gap-4">
-                        <input type="number" id="tenureInput" placeholder="Enter VA Tenure (days)" class="w-full p-2 border border-gray-300 rounded-md">
-                        <button id="analyzeBtn" class="gemini-btn flex-shrink-0">Analyze</button>
-                    </div>
-                    <div id="readinessResult" class="mt-6 text-center hidden">
-                        <div id="readinessLoader" class="loader mx-auto my-4"></div>
-                        <div id="readinessContent">
-                             <p class="text-gray-600">Buyout Readiness Score</p>
-                             <p id="readinessScore" class="text-7xl font-bold mmm-primary my-2"></p>
-                             <p id="readinessJustification" class="text-gray-700 font-medium italic"></p>
-                             <button id="talkingPointsBtn" class="gemini-btn mt-6">✨ Generate Talking Points</button>
+
+                <!-- Gemini API Features -->
+                <div class="lg:col-span-3 card p-6 mt-8">
+                    <h3 class="text-xl font-bold main-title mb-4">Client Conversation Toolkit (AI-Powered)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Buyout Readiness Analysis -->
+                        <div>
+                            <label for="tenureInput" class="block text-sm font-medium text-gray-700">Enter VA Tenure (days)</label>
+                            <div class="mt-1 flex rounded-md shadow-sm">
+                                <input type="number" id="tenureInput" class="block w-full rounded-l-md border-gray-300 focus:border-teal-500 focus:ring-teal-500 sm:text-sm" placeholder="e.g., 400">
+                                <button id="analyzeBtn" class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Analyze</button>
+                            </div>
+                            <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                                <h4 class="font-semibold text-gray-800">Buyout Readiness Score</h4>
+                                <div id="readinessLoader" class="loader hidden"></div>
+                                <p id="readinessScoreEl" class="text-3xl font-bold mmm-secondary mt-1">-- / 100</p>
+                                <p id="readinessJustificationEl" class="text-sm text-gray-600 mt-1">Enter a tenure to see the analysis.</p>
+                            </div>
+                        </div>
+                        <!-- Talking Points Generator -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Generate Conversation Starters</label>
+                            <button id="talkingPointsBtn" class="mt-1 w-full rounded-md border border-transparent bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-700">Generate Talking Points</button>
+                            <div class="mt-4 p-4 bg-gray-50 rounded-lg h-48 overflow-y-auto">
+                                <h4 class="font-semibold text-gray-800">Key Talking Points</h4>
+                                <div id="talkingPointsLoader" class="loader hidden"></div>
+                                <div id="talkingPointsResult" class="text-sm text-gray-600 mt-2 space-y-2">Click the button to generate talking points based on the VA's tenure.</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Conversation Starters -->
-                <div class="card p-6">
-                     <h3 class="chart-title mb-4">Client Conversation Starters</h3>
-                     <div id="talkingPointsResult" class="text-gray-600">
-                         <p>AI-generated talking points for your client conversations will appear here.</p>
-                     </div>
-                     <div id="talkingPointsLoader" class="loader mx-auto my-4 hidden"></div>
-                </div>
             </div>
         </div>
-
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
+            const tenureInput = document.getElementById('tenureInput');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const readinessLoader = document.getElementById('readinessLoader');
+            const readinessScoreEl = document.getElementById('readinessScoreEl');
+            const readinessJustificationEl = document.getElementById('readinessJustification');
+            
+            const talkingPointsBtn = document.getElementById('talkingPointsBtn');
+            const talkingPointsResult = document.getElementById('talkingPointsResult');
+            const talkingPointsLoader = document.getElementById('talkingPointsLoader');
+
+            const API_KEY = "AIzaSyB3cbctAyDUexcLt71hg5JnxpYQ1yE1D9U"; 
+            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+            
+            let currentTenure = 0;
+
+            async function callGeminiAPI(prompt, systemInstruction) {
+                try {
+                    const payload = {
+                        contents: [{ parts: [{ text: prompt }] }],
+                    };
+                    if (systemInstruction) {
+                        payload.systemInstruction = { parts: [{ text: systemInstruction }] };
+                    }
+
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        console.error("API Error Response:", await response.text());
+                        return "Error: Could not get a response from the API.";
+                    }
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0].text) {
+                        return result.candidates[0].content.parts[0].text;
+                    } else {
+                        console.error("Unexpected API response structure:", result);
+                        return "Error: Unexpected response format from API.";
+                    }
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    return "Error: An exception occurred while calling the API.";
+                }
+            }
+
+            async function analyzeReadiness() {
+                const tenure = parseInt(tenureInput.value);
+                if (isNaN(tenure) || tenure <= 0) {
+                    readinessScoreEl.textContent = "-- / 100";
+                    readinessJustificationEl.textContent = "Please enter a valid number of days.";
+                    return;
+                }
+                
+                currentTenure = tenure;
+                readinessLoader.classList.remove('hidden');
+                readinessScoreEl.textContent = "...";
+                readinessJustificationEl.textContent = "Analyzing...";
+
+                const prompt = `A virtual assistant (VA) has a tenure of ${tenure} days with a client. Based on this tenure, calculate a "Buyout Readiness Score" out of 100. The score should reflect the client's likely attachment and the strategic value of initiating a buyout conversation. A low tenure (<90 days) should have a very low score. A tenure around 1 year (365 days) should be high (around 80-90). Tenure beyond 2 years should be very high (95+). Provide a single integer score followed by a colon, then a brief one-sentence justification. Example: 85:The VA is highly integrated into the client's operations, making this an ideal time for a buyout discussion.`;
+                const systemInstruction = "You are a business analyst for an outsourcing company. Provide a concise, data-driven readiness score and justification.";
+                
+                const response = await callGeminiAPI(prompt, systemInstruction);
+
+                readinessLoader.classList.add('hidden');
+                if (response.includes(':')) {
+                    const [score, justification] = response.split(':', 2);
+                    const numericScore = parseInt(score.trim());
+                    if (!isNaN(numericScore)) {
+                        readinessScoreEl.textContent = `${numericScore} / 100`;
+                        readinessJustificationEl.textContent = justification.trim();
+                    } else {
+                        readinessScoreEl.textContent = "Error";
+                        readinessJustificationEl.textContent = "Could not parse score.";
+                    }
+                } else {
+                    readinessScoreEl.textContent = "Error";
+                    readinessJustificationEl.textContent = "Could not generate justification.";
+                }
+            }
+
+            async function generateTalkingPoints() {
+                if (currentTenure <= 0) {
+                    talkingPointsResult.innerHTML = '<p>Please analyze a tenure first to generate relevant talking points.</p>';
+                    return;
+                }
+
+                talkingPointsLoader.classList.remove('hidden');
+                talkingPointsResult.innerHTML = '';
+
+                const prompt = `A client's virtual assistant has been with them for ${currentTenure} days. Generate 3-4 concise, strategic talking points for a Client Success Manager to use when introducing the "Pinnacle Program" (a VA buyout option). The tone should be positive, proactive, and focused on partnership. Frame it as a testament to the VA's success. Use markdown for bullet points.`;
+                const systemInstruction = "You are a communications expert crafting talking points for a Client Success Manager at a premium outsourcing firm called My Mountain Mover. Be professional, client-centric, and strategic.";
+
+                const response = await callGeminiAPI(prompt, systemInstruction);
+                
+                talkingPointsLoader.classList.add('hidden');
+                // Simple markdown to HTML conversion for bullets
+                let htmlResponse = response.replace(/\* (.*?)\n/g, '<li class="mb-1"><strong>-</strong> $1</li>');
+                htmlResponse = `<ul>${htmlResponse}</ul>`;
+                talkingPointsResult.innerHTML = htmlResponse.replace(/<\/strong> (.*?)(<\/li>|<ul>)/g, '</strong> <span class="text-gray-700">$1</span>$2');
+
+            }
+
+            analyzeBtn.addEventListener('click', analyzeReadiness);
+            talkingPointsBtn.addEventListener('click', generateTalkingPoints);
+
             // Chart.js implementation
             const roiCtx = document.getElementById('roiChart').getContext('2d');
             new Chart(roiCtx, {
@@ -163,7 +263,7 @@
                             type: 'line',
                             label: 'Pinnacle Program Fee',
                             data: [25000, 20000, 15000, 10000, 10000],
-                            borderColor: '#f59e0b',
+                            borderColor: '#f59e0b', // amber-500
                             backgroundColor: 'rgba(245, 158, 11, 0.2)',
                             borderWidth: 3,
                             pointBackgroundColor: '#f59e0b',
@@ -175,7 +275,7 @@
                             type: 'bar',
                             label: "MMM's Cumulative Profit",
                             data: [10236, 20779, 31638, 42823, 54344],
-                            backgroundColor: '#0d9488',
+                            backgroundColor: '#0d9488', // teal-600
                             borderRadius: 4,
                             order: 2
                         },
@@ -184,12 +284,16 @@
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: { position: 'top' },
+                        legend: {
+                            position: 'top',
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
                                     let label = context.dataset.label || '';
-                                    if (label) { label += ': '; }
+                                    if (label) {
+                                        label += ': ';
+                                    }
                                     if (context.parsed.y !== null) {
                                         label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(context.parsed.y);
                                     }
@@ -202,130 +306,15 @@
                         y: {
                             beginAtZero: true,
                             ticks: {
-                                callback: (value) => '$' + (value / 1000) + 'k'
+                                callback: function(value, index, values) {
+                                    return '$' + (value / 1000) + 'k';
+                                }
                             }
                         }
                     }
                 }
             });
-
-            // Gemini API Functionality
-            const analyzeBtn = document.getElementById('analyzeBtn');
-            const tenureInput = document.getElementById('tenureInput');
-            const readinessResult = document.getElementById('readinessResult');
-            const readinessLoader = document.getElementById('readinessLoader');
-            const readinessContent = document.getElementById('readinessContent');
-            const readinessScoreEl = document.getElementById('readinessScore');
-            const readinessJustificationEl = document.getElementById('readinessJustification');
-            
-            const talkingPointsBtn = document.getElementById('talkingPointsBtn');
-            const talkingPointsResult = document.getElementById('talkingPointsResult');
-            const talkingPointsLoader = document.getElementById('talkingPointsLoader');
-
-            const API_KEY = ""; // Keep this empty
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-            
-            let currentTenure = 0;
-
-            async function callGeminiAPI(prompt, systemInstruction) {
-                const payload = {
-                    contents: [{ parts: [{ text: prompt }] }],
-                    systemInstruction: { parts: [{ text: systemInstruction }] }
-                };
-
-                // Add exponential backoff for retries
-                let response;
-                let delay = 1000;
-                for (let i = 0; i < 5; i++) {
-                    try {
-                        response = await fetch(API_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        if (response.ok) {
-                             const result = await response.json();
-                             return result.candidates?.[0]?.content?.parts?.[0]?.text || "No content generated.";
-                        }
-                         // Don't retry on client-side errors, only server-side
-                        if (response.status < 500 && response.status !== 429) {
-                            throw new Error(`API call failed with status: ${response.status}`);
-                        }
-                    } catch (error) {
-                        console.error("Gemini API Error:", error);
-                        // Stop retrying on critical errors
-                        if (!response || (response.status < 500 && response.status !== 429) ) {
-                             return "Error generating content. Please check the console.";
-                        }
-                    }
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2;
-                }
-                 return "API is currently unavailable. Please try again later.";
-            }
-            
-            analyzeBtn.addEventListener('click', async () => {
-                currentTenure = parseInt(tenureInput.value);
-                if (!currentTenure || currentTenure <= 0) {
-                    alert("Please enter a valid tenure in days.");
-                    return;
-                }
-
-                readinessResult.classList.remove('hidden');
-                readinessContent.classList.add('hidden');
-                readinessLoader.classList.remove('hidden');
-                talkingPointsResult.innerHTML = '<p>AI-generated talking points for your client conversations will appear here.</p>';
-
-                const systemInstruction = "You are a business analyst for My Mountain Mover, a VA agency. Your task is to assess the likelihood of a client wanting to buy out their VA based on tenure. A longer tenure means a stronger relationship and higher value. Provide a 'Buyout Readiness Score' from 1-100 and a concise, one-sentence justification. Format your response as: SCORE | JUSTIFICATION";
-                const prompt = `VA Tenure: ${currentTenure} days.`;
-                
-                const resultText = await callGeminiAPI(prompt, systemInstruction);
-                
-                const [score, justification] = resultText.split('|').map(s => s.trim());
-
-                readinessScoreEl.textContent = score || 'N/A';
-                readinessJustificationEl.textContent = justification || 'Could not generate justification.';
-                
-                readinessLoader.classList.add('hidden');
-                readinessContent.classList.remove('hidden');
-            });
-
-            talkingPointsBtn.addEventListener('click', async () => {
-                talkingPointsLoader.classList.remove('hidden');
-                talkingPointsResult.innerHTML = '';
-                
-                let tierName = "91 Days - 1 Year";
-                let fee = 25000;
-                if (currentTenure > 1095) {
-                    tierName = "3+ Years";
-                    fee = 10000;
-                } else if (currentTenure > 730) {
-                    tierName = "2 - 3 Years";
-                    fee = 15000;
-                } else if (currentTenure > 365) {
-                    tierName = "1 - 2 Years";
-                    fee = 20000;
-                }
-
-                const systemInstruction = "You are an expert Client Success Manager at My Mountain Mover. Your goal is to help your colleagues proactively and positively discuss 'The Pinnacle Program' (a VA buyout option) with clients. Generate 3 distinct, concise, and strategic conversation starters for a client whose VA has been with them for a specific tenure. Frame it as a benefit and a long-term partnership opportunity. The tone should be professional, confident, and client-focused. Format as a numbered list.";
-                const prompt = `The VA's tenure is ${currentTenure} days, which places them in the '${tierName}' buyout category with a fee of $${fee.toLocaleString()}.`;
-                
-                const resultText = await callGeminiAPI(prompt, systemInstruction);
-                const points = resultText.split(/\d\.\s/).filter(p => p.trim() !== '');
-
-                const list = document.createElement('ul');
-                list.className = 'list-disc list-inside space-y-3';
-                points.forEach(point => {
-                    const item = document.createElement('li');
-                    item.textContent = point.trim();
-                    list.appendChild(item);
-                });
-                
-                talkingPointsLoader.classList.add('hidden');
-                talkingPointsResult.appendChild(list);
-            });
         });
     </script>
 </body>
 </html>
-
