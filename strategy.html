@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMM | The Pinnacle Program Strategy Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mmm-teal-dark: #00585E;
+            --mmm-teal-light: #00A99D;
+            --mmm-orange: #F37A20;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .main-title {
+            color: #1e293b; /* slate-800 */
+        }
+        .subtitle {
+            color: #475569; /* slate-600 */
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .chart-title {
+            color: #334155; /* slate-700 */
+            font-weight: 600;
+        }
+        .details {
+             color: #475569; /* slate-600 */
+        }
+        .footer {
+            color: #94a3b8; /* slate-400 */
+            font-style: italic;
+        }
+        /* MMM Brand Colors */
+        .mmm-primary { color: var(--mmm-teal-dark); }
+        .mmm-secondary { color: var(--mmm-teal-light); }
+        .mmm-accent { color: var(--mmm-orange); }
+        .mmm-border-secondary { border-color: var(--mmm-teal-light); }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+
+    <header class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold main-title tracking-tight mmm-primary">The Pinnacle Program</h1>
+        <p class="mt-2 text-lg subtitle">A Data-Driven Strategy to Increase Revenue & Retention</p>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- Infographic 1: The Core Problem -->
+        <div class="card p-6 col-span-1 lg:col-span-2">
+            <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">1. The Real Reason We Lose Placements</h2>
+            <p class="details mb-6">Nearly HALF of all cancellations are due to VA Resignations. These are our most experienced, client-integrated VAs, representing a significant loss of proven talent.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div>
+                    <h3 class="chart-title text-center mb-2">Breakdown of 853 Cancellations</h3>
+                    <canvas id="cancellationReasonsChart"></canvas>
+                </div>
+                <div>
+                    <h3 class="chart-title text-center mb-2">Avg. Tenure by Cancellation Reason (Days)</h3>
+                    <canvas id="tenureByReasonChart"></canvas>
+                </div>
+            </div>
+            <p class="footer text-center mt-6">Source: Full analysis of 853 internal cancellation records.</p>
+        </div>
+
+        <!-- Infographic 2: Forecasting the Opportunity -->
+        <div class="card p-6">
+            <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">2. Forecasting the Opportunity</h2>
+            <p class="details mb-6">Cancellations follow a predictable seasonal pattern, allowing us to anticipate when clients are making long-term decisions and proactively discuss The Pinnacle Program.</p>
+            <div>
+                 <h3 class="chart-title text-center mb-2">Monthly Cancellation Trends (2022-2025)</h3>
+                <canvas id="monthlyTrendsChart"></canvas>
+            </div>
+            <p class="footer text-center mt-6">Source: Aggregated monthly cancellation data from 2022-2025.</p>
+        </div>
+
+        <!-- Infographic 3: The Financial Impact -->
+        <div class="card p-6 flex flex-col justify-center">
+            <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">3. The Financial Impact</h2>
+            <p class="details mb-6">By converting a conservative estimate of 20% of applicable cancellations into formal buyouts, we can create a significant, high-margin revenue stream.</p>
+            <div class="text-center my-8">
+                <p class="text-6xl md:text-7xl font-extrabold mmm-primary">$1,660,000</p>
+                <p class="text-lg font-semibold subtitle">Projected Profit (Jan 2024 - Sep 2025)</p>
+            </div>
+            <div class="flex justify-around text-center">
+                <div>
+                    <p class="text-3xl font-bold main-title">415</p>
+                    <p class="font-medium subtitle">Cancellations in Period</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold main-title">83</p>
+                    <p class="font-medium subtitle">Potential Buyouts (20%)</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold main-title">$20k</p>
+                    <p class="font-medium subtitle">Avg. Buyout Fee</p>
+                </div>
+            </div>
+             <p class="footer text-center mt-6">Source: Based on analysis of 415 cancellations from Jan 2024 - Sep 2025.</p>
+        </div>
+
+        <!-- Infographic 4: The Rollout Plan -->
+        <div class="card p-6 col-span-1 lg:col-span-2">
+            <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">4. Our Strategic 4-Phase Rollout Plan</h2>
+            <p class="details mb-8">A methodical, proactive launch over the next quarter will ensure a smooth transition for existing clients and establish the policy as a premium feature for new business.</p>
+            <div class="relative">
+                <!-- Timeline Line -->
+                <div class="absolute left-1/2 -ml-0.5 w-1 h-full bg-slate-200 hidden md:block"></div>
+                
+                <div class="space-y-12 md:space-y-0">
+                    <!-- Phase 1 -->
+                    <div class="md:grid md:grid-cols-2 md:gap-x-8 items-center">
+                        <div class="md:text-right md:pr-8">
+                            <p class="font-bold text-lg mmm-primary">Phase 1: Internal Prep</p>
+                            <p class="font-semibold subtitle">Next 30 Days</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute w-6 h-6 rounded-full bg-white border-4 mmm-border-secondary left-1/2 -ml-3 -top-3 md:top-auto md:-left-3 md:top-1/2 md:-mt-3 hidden md:block"></div>
+                            <div class="bg-slate-100 p-4 rounded-lg mt-4 md:mt-0 md:ml-8">
+                                <ul class="list-disc list-inside details">
+                                    <li>Finalize Legal Agreements</li>
+                                    <li>Train Sales & Client Success Teams</li>
+                                    <li>Update CRM & Internal Systems</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Phase 2 -->
+                    <div class="md:grid md:grid-cols-2 md:gap-x-8 items-center">
+                        <div class="md:col-start-2 md:text-left md:pl-8">
+                             <p class="font-bold text-lg mmm-secondary">Phase 2: New Clients & VAs</p>
+                            <p class="font-semibold subtitle">Starting Oct 2025</p>
+                        </div>
+                        <div class="relative md:col-start-1 md:row-start-1">
+                             <div class="absolute w-6 h-6 rounded-full bg-white border-4 mmm-border-secondary left-1/2 -ml-3 -top-3 md:top-auto md:-right-3 md:left-auto md:top-1/2 md:-mt-3 hidden md:block"></div>
+                            <div class="bg-slate-100 p-4 rounded-lg mt-4 md:mt-0 md:mr-8 text-right md:text-left">
+                                <ul class="list-disc list-inside details text-left">
+                                    <li>Implement New Agreements</li>
+                                    <li>Integrate into Sales Process</li>
+                                    <li>Onboard VAs with New ICA</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Phase 3 -->
+                    <div class="md:grid md:grid-cols-2 md:gap-x-8 items-center">
+                         <div class="md:text-right md:pr-8">
+                            <p class="font-bold text-lg mmm-primary">Phase 3: Existing Clients</p>
+                            <p class="font-semibold subtitle">Oct - Dec 2025</p>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute w-6 h-6 rounded-full bg-white border-4 mmm-border-secondary left-1/2 -ml-3 -top-3 md:top-auto md:-left-3 md:top-1/2 md:-mt-3 hidden md:block"></div>
+                            <div class="bg-slate-100 p-4 rounded-lg mt-4 md:mt-0 md:ml-8">
+                                <ul class="list-disc list-inside details">
+                                     <li>Segment Clients by VA Tenure</li>
+                                     <li>Conduct Proactive 10-Month Reviews</li>
+                                     <li>Use Personalized Communication</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                     <!-- Phase 4 -->
+                     <div class="md:grid md:grid-cols-2 md:gap-x-8 items-center">
+                        <div class="md:col-start-2 md:text-left md:pl-8">
+                            <p class="font-bold text-lg mmm-secondary">Phase 4: Ongoing Management</p>
+                            <p class="font-semibold subtitle">Starting Jan 2026</p>
+                        </div>
+                        <div class="relative md:col-start-1 md:row-start-1">
+                             <div class="absolute w-6 h-6 rounded-full bg-white border-4 mmm-border-secondary left-1/2 -ml-3 -top-3 md:top-auto md:-right-3 md:left-auto md:top-1/2 md:-mt-3 hidden md:block"></div>
+                            <div class="bg-slate-100 p-4 rounded-lg mt-4 md:mt-0 md:mr-8 text-right md:text-left">
+                                <ul class="list-disc list-inside details text-left">
+                                    <li>Track KPIs Quarterly (Revenue, Retention)</li>
+                                    <li>Gather Client & VA Feedback</li>
+                                    <li>Conduct Annual Review of Fee Structure</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="footer text-center mt-8">A structured approach to turning strategy into action.</p>
+        </div>
+    </div>
+
+    <script>
+        const mmmColors = {
+            primary: '#00585E',   // MMM Teal Dark
+            secondary: '#00A99D', // MMM Teal Light
+            accent: '#F37A20',    // MMM Orange
+            gray: '#64748b',      // slate-500
+        };
+
+        // Chart 1: Cancellation Reasons
+        new Chart(document.getElementById('cancellationReasonsChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['VA Resignations', 'Client Set-Up Issues', 'Financial Reasons'],
+                datasets: [{
+                    label: 'Cancellations',
+                    data: [418, 279, 156],
+                    backgroundColor: [mmmColors.primary, mmmColors.secondary, mmmColors.accent],
+                    borderColor: '#ffffff',
+                    borderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+
+        // Chart 2: Tenure by Reason
+        new Chart(document.getElementById('tenureByReasonChart'), {
+            type: 'bar',
+            data: {
+                labels: ['VA Resignations', 'Client Set-Up Issues', 'Financial Reasons'],
+                datasets: [{
+                    label: 'Avg. Tenure in Days',
+                    data: [452, 268, 304], // Reordered to match donut chart colors
+                    backgroundColor: [mmmColors.primary, mmmColors.secondary, mmmColors.accent],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Monthly Trends
+        new Chart(document.getElementById('monthlyTrendsChart'), {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Avg. Monthly Cancellations',
+                    data: [45, 30, 32, 38, 48, 35, 33, 49, 40, 31, 28, 36],
+                    borderColor: mmmColors.primary,
+                    backgroundColor: 'rgba(0, 169, 157, 0.1)', // Light Teal with transparency
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: mmmColors.primary,
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: mmmColors.primary
+                }]
+            },
+            options: {
+                 plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
