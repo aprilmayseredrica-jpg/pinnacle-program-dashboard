@@ -26,10 +26,31 @@
             width: 100%;
             height: 250px;
         }
+        .pareto-chart-container {
+            width: 100%;
+            height: 200px;
+        }
         .tab-button.active {
             background-color: #ddf2f0;
             color: #26a69a;
             border-bottom: 2px solid #26a69a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #26a69a;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f0f9ff;
         }
     </style>
 </head>
@@ -132,18 +153,18 @@
                 <p class="text-gray-600 mb-6">A deep dive into the open-ended feedback reveals the most impactful areas for improvement.</p>
                 
                 <h3 class="text-xl font-bold mt-8 mb-4 text-gray-800">Top Requested Benefits: A Pareto Analysis</h3>
-                <p class="text-gray-600 mb-4">The top 4 requests from our VAs account for over 80% of open-text mentions. Focusing on these priorities will yield the highest return on investment in VA satisfaction.  </p>
-                <canvas id="paretoChart" class="chart-container"></canvas>
+                <p class="text-gray-600 mb-4">The top 4 requests from our VAs account for over 80% of open-text mentions. Focusing on these priorities will yield the highest return on investment in VA satisfaction. </p>
+                <canvas id="paretoChart" class="pareto-chart-container"></canvas>
                 <p class="text-xs text-gray-500 mt-2">*Top Requests: 1) More Frequent Bonuses, 2) Improved HMO/Health Benefits, 3) Higher Christmas Bonus, 4) Tenure-Based Salary Increases.</p>
 
                 <div class="mt-12 space-y-6">
                     <div>
                         <h4 class="font-bold text-lg text-gray-800">Analysis: The Power of Frequency & Loyalty</h4>
                         <p class="text-gray-600 mt-2">
-                            The Pareto chart clearly shows that **more frequent bonuses** are the top priority for VAs, with **193 mentions**. This indicates that annual bonuses, while appreciated, are not enough to drive consistent motivation. VAs are looking for more regular recognition for their hard work.
+                            ✍️ The Pareto chart clearly shows that **More Frequent Bonuses** are the top priority for VAs, with **193 mentions**. This indicates that annual bonuses, while appreciated, are not enough to drive consistent motivation. VAs are looking for more regular recognition for their hard work.
                         </p>
                         <p class="text-gray-600 mt-2">
-                            Furthermore, a significant portion of feedback points to a sense of inequity for our tenured VAs. Many feel their long-term commitment is not rewarded proportionally to the starting salaries of new hires. Addressing this **tenure-based salary increase** is critical for long-term retention and morale.
+                            ✍️ A significant portion of feedback points to a sense of inequity for our tenured VAs. Many feel their long-term commitment is not rewarded proportionally to the starting salaries of new hires. Addressing this **Tenure-Based Salary Increase** is critical for long-term retention and morale.
                         </p>
                     </div>
                 </div>
@@ -152,77 +173,70 @@
             <!-- Financial Proposals Tab -->
             <div id="proposals" class="tab-content hidden">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-mmm-teal pb-2">Financial Analysis & Proposed Initiatives</h2>
-                <p class="text-gray-600 mb-6">Our proposals are backed by financial projections to ensure they are both impactful and sustainable.</p>
+                <p class="text-gray-600 mb-6">Our proposals are backed by financial projections and designed to maximize VA satisfaction and long-term retention.</p>
                 
-                <div class="mt-12 space-y-8">
-                    <!-- Proposal 1: Christmas Bonus Adjustment -->
-                    <div class="bg-mmm-teal-light rounded-2xl p-6 sm:p-8">
-                        <h3 class="text-lg font-bold text-mmm-teal mb-2">Proposal: Adjust Christmas Bonus</h3>
-                        <p class="text-gray-600 mb-4">
-                            ✍️ Reasoning: It's worth it to adjust the bonus *before* it's even given out. The survey shows that 16% of VAs are neutral or unenthusiastic about the current bonus amount. A modest increase can significantly boost morale and create a powerful first impression, ensuring the bonus is a true motivator.
-                        </p>
-                        <div class="bg-white p-4 rounded-lg shadow-sm">
-                            <h4 class="font-semibold text-gray-800">Financial Breakdown:</h4>
-                            <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
-                                <li>✍️ Projected 2025 Cost (Current Plan): $63,200</li>
-                                <li>✍️ Projected 2025 Cost (Proposed Flat $100): $72,900 (729 VAs x $100)</li>
-                                <li>✍️ Incremental Cost: $9,700</li>
-                            </ul>
-                            <p class="mt-2 text-sm text-gray-800 font-bold">This small investment is projected to have a large return in morale and loyalty, converting a neutral group into an enthusiastic one.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Proposal 2: Quarterly Attendance Bonus -->
-                    <div class="bg-mmm-teal-light rounded-2xl p-6 sm:p-8">
-                        <h3 class="text-lg font-bold text-mmm-teal mb-2">Proposal: Reallocate AM-VA Engagement Fund</h3>
-                        <p class="text-gray-600 mb-4">
-                            ✍️ Reasoning: VAs overwhelmingly requested more frequent bonuses tied to performance. We can fund this by reallocating the AM-VA Engagement fund, which the survey indicates is perceived as less valuable. This is a strategic trade-off.
-                        </p>
-                        <div class="bg-white p-4 rounded-lg shadow-sm">
-                            <h4 class="font-semibold text-gray-800">Financial Breakdown:</h4>
-                            <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
-                                <li>✍️ Projected AM-VA Engagement Fund (EOY 2025): $7,987.39</li>
-                                <li>✍️ Proposed Quarterly Attendance Bonus: Award $25 to 50 VAs per quarter.</li>
-                                <li>✍️ Projected Annual Cost: $5,000 (200 VAs x $25)</li>
-                            </ul>
-                            <p class="mt-2 text-sm text-gray-800 font-bold">By reallocating this fund, we save over $2,900 annually while directly addressing a top VA request. This is a cost-effective way to provide more consistent and impactful recognition.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Proposal 3: Tenured VA Loyalty Program -->
-                    <div class="bg-mmm-teal-light rounded-2xl p-6 sm:p-8">
-                        <h3 class="text-lg font-bold text-mmm-teal mb-2">Proposal: Formalize Tenured VA Loyalty</h3>
-                        <p class="text-gray-600 mb-4">
-                            ✍️ Reasoning: Our most-loyal VAs are concerned that their tenure is not being adequately rewarded with salary increases. This proposal creates a clear path for growth and acknowledges their long-term commitment.
-                        </p>
-                        <div class="bg-white p-4 rounded-lg shadow-sm">
-                            <h4 class="font-semibold text-gray-800">How to Implement:</h4>
-                            <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
-                                <li>✍️ Guaranteed Salary Review: Introduce an annual salary review policy for all VAs with **2+ years of tenure**. This provides a clear, predictable path for compensation growth.</li>
-                                <li>✍️ Enhanced Anniversary Merch: For VAs reaching their **3rd, 4th, or 5+ year anniversaries**, offer a choice of higher-value merchandise or a cash-in-lieu option to make their loyalty feel more substantial.</li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="mt-8 overflow-x-auto">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Proposal</th>
+                                <th>Justification</th>
+                                <th>Projected Cost (2025)</th>
+                                <th>Projected Savings/Gain</th>
+                                <th>Net Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-semibold text-mmm-teal">Adjust Christmas Bonus Tier</td>
+                                <td>✍️ The current flat rate proposal doesn't reward tenure. A new tiered system addresses this key concern from VAs and makes the bonus a stronger retention tool.</td>
+                                <td>
+                                    <ul class="list-disc list-inside text-sm">
+                                        <li>Year 1-2: $75 x 578 VAs = $43,350</li>
+                                        <li>Year 3: $100 x 78 VAs = $7,800</li>
+                                        <li>Year 4: $150 x 39 VAs = $5,850</li>
+                                        <li>5+ Years: $200 x 34 VAs = $6,800</li>
+                                        <li>Total: $63,800</li>
+                                    </ul>
+                                </td>
+                                <td>None</td>
+                                <td>✍️ A strategic investment of **$600** over the current plan's **$63,200** to significantly boost morale and loyalty for all VAs, especially those with more tenure.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold text-mmm-teal">Quarterly Attendance Bonus</td>
+                                <td>✍️ VAs overwhelmingly requested more frequent rewards. This proposal funds a high-impact initiative by reallocating a less effective fund.</td>
+                                <td>$5,000</td>
+                                <td>
+                                    <ul class="list-disc list-inside text-sm">
+                                        <li>AM-VA Engagement Fund (2025): $7,987.39</li>
+                                        <li>New Cost: $5,000</li>
+                                    </ul>
+                                </td>
+                                <td>✍️ A net savings of **$2,987.39** while directly addressing a top VA request.</td>
+                            </tr>
+                            <tr>
+                                <td class="font-semibold text-mmm-teal">Formalize Tenured VA Loyalty</td>
+                                <td>✍️ Our most loyal VAs feel their long-term commitment is not adequately rewarded, which poses a significant retention risk. This program provides a clear, predictable path for growth.</td>
+                                <td>Variable</td>
+                                <td>N/A</td>
+                                <td>✍️ This is a strategic, non-monetary investment in our most valuable VAs. It's a proactive step to prevent high-performers from leaving for perceived better compensation elsewhere.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
 
-            <!-- Anticipated Questions Section -->
-            <div class="bg-gray-50 rounded-xl p-6 sm:p-8 mt-12">
-                <h2 class="text-xl font-bold mb-4 text-gray-800">Anticipated Questions & Direct Answers</h2>
-                <ul class="space-y-4 text-gray-700">
-                    <li class="p-4 rounded-lg bg-white shadow">
-                        <h4 class="font-bold text-lg text-gray-800">Q: Why not just give out merch at the Summit to save on shipping?</h4>
-                        <p class="mt-2">
-                            ✍️ A: This could backfire. The survey feedback shows that the Anniversary Incentive is a key motivator. Limiting its fulfillment to an event that not all VAs can attend risks making a significant portion of our VAs feel excluded. The small cost savings of **$1,200** annually do not justify the potential negative impact on morale and retention.
-                        </p>
-                    </li>
-                    <li class="p-4 rounded-lg bg-white shadow">
-                        <h4 class="font-bold text-lg text-gray-800">Q: How do we address the HMO feedback?</h4>
-                        <p class="mt-2">
-                            ✍️ A: The data indicates that 21% of VAs feel our current HMO coverage is insufficient, especially for those in provinces. We should investigate a provider that offers better, more accessible coverage or a flexible benefit that VAs can use for other health-related expenses.
-                        </p>
-                    </li>
-                </ul>
+                <!-- Anticipated Questions Section -->
+                <div class="bg-gray-50 rounded-xl p-6 sm:p-8 mt-12">
+                    <h2 class="text-xl font-bold mb-4 text-gray-800">Anticipated Questions & Direct Answers</h2>
+                    <ul class="space-y-4 text-gray-700">
+                        <li class="p-4 rounded-lg bg-white shadow">
+                            <h4 class="font-bold text-lg text-gray-800">Q: Why not just give out merch at the Summit to save on shipping?</h4>
+                            <p class="mt-2">
+                                ✍️ A: This could backfire. The survey feedback shows that the Anniversary Incentive is a key motivator. Limiting its fulfillment to an event that not all VAs can attend risks making a significant portion of our VAs feel excluded. The small cost savings of **$1,200** annually do not justify the potential negative impact on morale and retention.
+                            </p>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </main>
 
