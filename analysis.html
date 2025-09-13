@@ -20,12 +20,16 @@
         .bg-mmm-teal-light { background-color: #ddf2f0; }
         .text-mmm-cyan { color: #46bdc6; }
         .border-mmm-cyan { border-color: #46bdc6; }
-        .bg-orange { background-color: #fb923c; }
         .bg-mmm-orange { background-color: #fb923c; }
 
         .chart-container {
             width: 100%;
             height: 250px;
+        }
+        .tab-button.active {
+            background-color: #ddf2f0;
+            color: #26a69a;
+            border-bottom: 2px solid #26a69a;
         }
     </style>
 </head>
@@ -37,9 +41,17 @@
             <p class="text-sm sm:text-base font-medium opacity-80">Data-Driven Insights from 729 VA Responses</p>
         </header>
 
+        <!-- Tabs Navigation -->
+        <div class="flex border-b border-gray-200">
+            <button class="tab-button active flex-1 py-4 text-center text-gray-700 font-semibold focus:outline-none transition-colors duration-200" onclick="showTab('general-breakdown')">General Breakdown</button>
+            <button class="tab-button flex-1 py-4 text-center text-gray-700 font-semibold focus:outline-none transition-colors duration-200" onclick="showTab('in-depth-analysis')">In-depth Analysis</button>
+            <button class="tab-button flex-1 py-4 text-center text-gray-700 font-semibold focus:outline-none transition-colors duration-200" onclick="showTab('proposals')">Financial Proposals</button>
+        </div>
+
         <main class="p-6 sm:p-10">
-            <!-- Overall Survey Feedback -->
-            <div class="mb-12">
+
+            <!-- General Breakdown Tab -->
+            <div id="general-breakdown" class="tab-content">
                 <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-mmm-teal pb-2">Overall Survey Feedback</h2>
                 <p class="text-gray-600 mb-6">A clear majority of VAs are highly motivated by our current benefits and feel confident that their feedback is heard.</p>
                 <div class="grid md:grid-cols-3 gap-6 text-center">
@@ -68,82 +80,93 @@
                         </p>
                     </div>
                 </div>
+
+                <div class="mt-12">
+                    <h3 class="text-xl font-bold mt-8 mb-4 text-gray-800">Anniversary Incentive Feedback</h3>
+                    <p class="text-gray-600 mb-4">
+                        Responses by rating:
+                        <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
+                            <li>✍️ Rating 1 (Don't Appreciate): 5 responses</li>
+                            <li>✍️ Rating 2 (Don't Care): 2 responses</li>
+                            <li>✍️ Rating 3 (Neutral): 60 responses</li>
+                            <li>✍️ Rating 4 (Happy): 243 responses</li>
+                            <li>✍️ Rating 5 (Motivated to build a career): 419 responses</li>
+                        </ul>
+                    </p>
+                    <canvas id="anniversaryChart" class="chart-container"></canvas>
+                    <p class="text-xs text-gray-500 mt-2">*Ratings: 1-Don't Appreciate, 2-Don't Care, 3-Neutral, 4-Happy, 5-Motivated to build a career.</p>
+
+                    <h3 class="text-xl font-bold mt-8 mb-4 text-gray-800">Christmas Bonus Feedback</h3>
+                    <p class="text-gray-600 mb-4">
+                        Responses by rating:
+                        <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
+                            <li>✍️ Rating 1 (Not Excited): 44 responses</li>
+                            <li>✍️ Rating 2 (Don't Care): 4 responses</li>
+                            <li>✍️ Rating 3 (Neutral): 108 responses</li>
+                            <li>✍️ Rating 4 (Looking Forward): 282 responses</li>
+                            <li>✍️ Rating 5 (Very Excited): 291 responses</li>
+                        </ul>
+                    </p>
+                    <canvas id="christmasChart" class="chart-container"></canvas>
+                    <p class="text-xs text-gray-500 mt-2">*Ratings: 1-Not Excited, 2-Don't Care, 3-Neutral, 4-Looking Forward, 5-Very Excited.</p>
+
+                    <h3 class="text-xl font-bold mt-8 mb-4 text-gray-800">Feedback Confidence Feedback</h3>
+                    <p class="text-gray-600 mb-4">
+                        Responses by rating:
+                        <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
+                            <li>✍️ Rating 1 (Not Considered): 1 response</li>
+                            <li>✍️ Rating 2 (Rarely Acknowledged): 1 response</li>
+                            <li>✍️ Rating 3 (Little Change): 43 responses</li>
+                            <li>✍️ Rating 4 (Taken Seriously Sometimes): 137 responses</li>
+                            <li>✍️ Rating 5 (Always Leads to Improvement): 547 responses</li>
+                        </ul>
+                    </p>
+                    <canvas id="feedbackChart" class="chart-container"></canvas>
+                    <p class="text-xs text-gray-500 mt-2">*Ratings: 1-Not Considered, 2-Rarely Acknowledged, 3-Little Change, 4-Taken Seriously Sometimes, 5-Always Leads to Improvement.</p>
+                </div>
             </div>
 
-            <!-- Detailed Breakdown of Responses -->
-            <div class="mb-12">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-mmm-teal pb-2">Detailed Breakdown of Responses</h2>
+            <!-- In-depth Analysis Tab -->
+            <div id="in-depth-analysis" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-mmm-teal pb-2">In-depth Analysis</h2>
+                <p class="text-gray-600 mb-6">A deep dive into the open-ended feedback reveals the most impactful areas for improvement.</p>
                 
-                <!-- Anniversary Incentive Chart -->
-                <h3 class="text-xl font-bold mt-8 mb-4 text-gray-800">Anniversary Incentive Feedback</h3>
-                <p class="text-gray-600 mb-4">
-                    Responses by rating:
-                    <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
-                        <li>✍️ Rating 1 (Don't Appreciate): 5 responses</li>
-                        <li>✍️ Rating 2 (Don't Care): 2 responses</li>
-                        <li>✍️ Rating 3 (Neutral): 60 responses</li>
-                        <li>✍️ Rating 4 (Happy): 243 responses</li>
-                        <li>✍️ Rating 5 (Motivated to build a career): 419 responses</li>
-                    </ul>
-                </p>
-                <canvas id="anniversaryChart" class="chart-container"></canvas>
-                <p class="text-xs text-gray-500 mt-2">*Ratings: 1-Don't Appreciate, 2-Don't Care, 3-Neutral, 4-Happy, 5-Motivated to build a career.</p>
-                
-                <!-- Christmas Bonus Chart -->
-                <h3 class="text-xl font-bold mt-8 mb-4 text-gray-800">Christmas Bonus Feedback</h3>
-                <p class="text-gray-600 mb-4">
-                    Responses by rating:
-                    <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
-                        <li>✍️ Rating 1 (Not Excited): 44 responses</li>
-                        <li>✍️ Rating 2 (Don't Care): 4 responses</li>
-                        <li>✍️ Rating 3 (Neutral): 108 responses</li>
-                        <li>✍️ Rating 4 (Looking Forward): 282 responses</li>
-                        <li>✍️ Rating 5 (Very Excited): 291 responses</li>
-                    </ul>
-                </p>
-                <canvas id="christmasChart" class="chart-container"></canvas>
-                <p class="text-xs text-gray-500 mt-2">*Ratings: 1-Not Excited, 2-Don't Care, 3-Neutral, 4-Looking Forward, 5-Very Excited.</p>
-
-                <!-- Feedback Confidence Chart -->
-                <h3 class="text-xl font-bold mt-8 mb-4 text-gray-800">Feedback Confidence Feedback</h3>
-                <p class="text-gray-600 mb-4">
-                    Responses by rating:
-                    <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
-                        <li>✍️ Rating 1 (Not Considered): 1 response</li>
-                        <li>✍️ Rating 2 (Rarely Acknowledged): 1 response</li>
-                        <li>✍️ Rating 3 (Little Change): 43 responses</li>
-                        <li>✍️ Rating 4 (Taken Seriously Sometimes): 137 responses</li>
-                        <li>✍️ Rating 5 (Always Leads to Improvement): 547 responses</li>
-                    </ul>
-                </p>
-                <canvas id="feedbackChart" class="chart-container"></canvas>
-                <p class="text-xs text-gray-500 mt-2">*Ratings: 1-Not Considered, 2-Rarely Acknowledged, 3-Little Change, 4-Taken Seriously Sometimes, 5-Always Leads to Improvement.</p>
-            </div>
-
-            <!-- Financial Analysis & Proposals -->
-            <div class="mb-12">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-mmm-teal pb-2">Financial Analysis & Proposed Initiatives</h2>
-                <p class="text-gray-600 mb-6">Our proposals are backed by financial projections to ensure they are both impactful and sustainable.</p>
-                
-                <!-- Pareto Chart -->
                 <h3 class="text-xl font-bold mt-8 mb-4 text-gray-800">Top Requested Benefits: A Pareto Analysis</h3>
-                <p class="text-gray-600 mb-4">The top 4 requests from our VAs account for over 80% of open-text mentions.</p>
+                <p class="text-gray-600 mb-4">The top 4 requests from our VAs account for over 80% of open-text mentions. Focusing on these priorities will yield the highest return on investment in VA satisfaction.  </p>
                 <canvas id="paretoChart" class="chart-container"></canvas>
                 <p class="text-xs text-gray-500 mt-2">*Top Requests: 1) More Frequent Bonuses, 2) Improved HMO/Health Benefits, 3) Higher Christmas Bonus, 4) Tenure-Based Salary Increases.</p>
 
+                <div class="mt-12 space-y-6">
+                    <div>
+                        <h4 class="font-bold text-lg text-gray-800">Analysis: The Power of Frequency & Loyalty</h4>
+                        <p class="text-gray-600 mt-2">
+                            The Pareto chart clearly shows that **more frequent bonuses** are the top priority for VAs, with **193 mentions**. This indicates that annual bonuses, while appreciated, are not enough to drive consistent motivation. VAs are looking for more regular recognition for their hard work.
+                        </p>
+                        <p class="text-gray-600 mt-2">
+                            Furthermore, a significant portion of feedback points to a sense of inequity for our tenured VAs. Many feel their long-term commitment is not rewarded proportionally to the starting salaries of new hires. Addressing this **tenure-based salary increase** is critical for long-term retention and morale.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Proposals Tab -->
+            <div id="proposals" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-mmm-teal pb-2">Financial Analysis & Proposed Initiatives</h2>
+                <p class="text-gray-600 mb-6">Our proposals are backed by financial projections to ensure they are both impactful and sustainable.</p>
+                
                 <div class="mt-12 space-y-8">
                     <!-- Proposal 1: Christmas Bonus Adjustment -->
                     <div class="bg-mmm-teal-light rounded-2xl p-6 sm:p-8">
                         <h3 class="text-lg font-bold text-mmm-teal mb-2">Proposal: Adjust Christmas Bonus</h3>
                         <p class="text-gray-600 mb-4">
-                            ✍️ **Reasoning:** It's worth it to adjust the bonus *before* it's even given out. The chart above shows that 16% of VAs are neutral or unenthusiastic about the current bonus amount, even before receiving it. A modest increase can significantly boost morale and create a powerful first impression, ensuring the bonus is a true motivator.
+                            ✍️ Reasoning: It's worth it to adjust the bonus *before* it's even given out. The survey shows that 16% of VAs are neutral or unenthusiastic about the current bonus amount. A modest increase can significantly boost morale and create a powerful first impression, ensuring the bonus is a true motivator.
                         </p>
                         <div class="bg-white p-4 rounded-lg shadow-sm">
                             <h4 class="font-semibold text-gray-800">Financial Breakdown:</h4>
                             <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
-                                <li>✍️ Projected 2025 Cost (Current Plan): **$63,200**</li>
-                                <li>✍️ Projected 2025 Cost (Proposed Flat $100): **$72,900** (729 VAs x $100)</li>
-                                <li>✍️ Incremental Cost: **$9,700**</li>
+                                <li>✍️ Projected 2025 Cost (Current Plan): $63,200</li>
+                                <li>✍️ Projected 2025 Cost (Proposed Flat $100): $72,900 (729 VAs x $100)</li>
+                                <li>✍️ Incremental Cost: $9,700</li>
                             </ul>
                             <p class="mt-2 text-sm text-gray-800 font-bold">This small investment is projected to have a large return in morale and loyalty, converting a neutral group into an enthusiastic one.</p>
                         </div>
@@ -153,16 +176,16 @@
                     <div class="bg-mmm-teal-light rounded-2xl p-6 sm:p-8">
                         <h3 class="text-lg font-bold text-mmm-teal mb-2">Proposal: Reallocate AM-VA Engagement Fund</h3>
                         <p class="text-gray-600 mb-4">
-                            ✍️ **Reasoning:** VAs overwhelmingly requested more frequent bonuses tied to performance. We can fund this by reallocating the AM-VA Engagement fund, which the survey indicates is perceived as less valuable. This is a strategic trade-off.
+                            ✍️ Reasoning: VAs overwhelmingly requested more frequent bonuses tied to performance. We can fund this by reallocating the AM-VA Engagement fund, which the survey indicates is perceived as less valuable. This is a strategic trade-off.
                         </p>
                         <div class="bg-white p-4 rounded-lg shadow-sm">
                             <h4 class="font-semibold text-gray-800">Financial Breakdown:</h4>
                             <ul class="list-disc list-inside text-sm text-gray-600 mt-2">
-                                <li>✍️ Projected AM-VA Engagement Fund (EOY 2025): **$7,987.39**</li>
-                                <li>✍️ Proposed Quarterly Attendance Bonus:** Award **$25** to **50 VAs** per quarter.</li>
-                                <li>✍️ Projected Annual Cost: **$5,000** (200 VAs x $25)</li>
+                                <li>✍️ Projected AM-VA Engagement Fund (EOY 2025): $7,987.39</li>
+                                <li>✍️ Proposed Quarterly Attendance Bonus: Award $25 to 50 VAs per quarter.</li>
+                                <li>✍️ Projected Annual Cost: $5,000 (200 VAs x $25)</li>
                             </ul>
-                            <p class="mt-2 text-sm text-gray-800 font-bold">By reallocating this fund, we save over **$2,900** annually while directly addressing a top VA request. This is a cost-effective way to provide more consistent and impactful recognition.</p>
+                            <p class="mt-2 text-sm text-gray-800 font-bold">By reallocating this fund, we save over $2,900 annually while directly addressing a top VA request. This is a cost-effective way to provide more consistent and impactful recognition.</p>
                         </div>
                     </div>
                     
@@ -170,7 +193,7 @@
                     <div class="bg-mmm-teal-light rounded-2xl p-6 sm:p-8">
                         <h3 class="text-lg font-bold text-mmm-teal mb-2">Proposal: Formalize Tenured VA Loyalty</h3>
                         <p class="text-gray-600 mb-4">
-                            ✍️ **Reasoning:** Our most-loyal VAs are concerned that their tenure is not being adequately rewarded with salary increases. This proposal creates a clear path for growth and acknowledges their long-term commitment.
+                            ✍️ Reasoning: Our most-loyal VAs are concerned that their tenure is not being adequately rewarded with salary increases. This proposal creates a clear path for growth and acknowledges their long-term commitment.
                         </p>
                         <div class="bg-white p-4 rounded-lg shadow-sm">
                             <h4 class="font-semibold text-gray-800">How to Implement:</h4>
@@ -184,19 +207,19 @@
             </div>
 
             <!-- Anticipated Questions Section -->
-            <div class="bg-gray-50 rounded-xl p-6 sm:p-8">
+            <div class="bg-gray-50 rounded-xl p-6 sm:p-8 mt-12">
                 <h2 class="text-xl font-bold mb-4 text-gray-800">Anticipated Questions & Direct Answers</h2>
                 <ul class="space-y-4 text-gray-700">
                     <li class="p-4 rounded-lg bg-white shadow">
                         <h4 class="font-bold text-lg text-gray-800">Q: Why not just give out merch at the Summit to save on shipping?</h4>
                         <p class="mt-2">
-                            ✍️ **A:** This could backfire. The survey feedback shows that the Anniversary Incentive is a key motivator. Limiting its fulfillment to an event that not all VAs can attend risks making a significant portion of our VAs feel excluded. The small cost savings of **$1,200** annually do not justify the potential negative impact on morale and retention.
+                            ✍️ A: This could backfire. The survey feedback shows that the Anniversary Incentive is a key motivator. Limiting its fulfillment to an event that not all VAs can attend risks making a significant portion of our VAs feel excluded. The small cost savings of **$1,200** annually do not justify the potential negative impact on morale and retention.
                         </p>
                     </li>
                     <li class="p-4 rounded-lg bg-white shadow">
                         <h4 class="font-bold text-lg text-gray-800">Q: How do we address the HMO feedback?</h4>
                         <p class="mt-2">
-                            ✍️ **A:** The data indicates that **21% of VAs (154 mentions)** feel our current HMO coverage is insufficient, especially for those in provinces. We should investigate a provider that offers better, more accessible coverage or a flexible benefit that VAs can use for other health-related expenses.
+                            ✍️ A: The data indicates that 21% of VAs feel our current HMO coverage is insufficient, especially for those in provinces. We should investigate a provider that offers better, more accessible coverage or a flexible benefit that VAs can use for other health-related expenses.
                         </p>
                     </li>
                 </ul>
@@ -209,184 +232,148 @@
     </div>
     
     <script>
+        // Tab switching logic
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Anniversary Chart
-            const anniversaryCtx = document.getElementById('anniversaryChart').getContext('2d');
-            new Chart(anniversaryCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['1', '2', '3', '4', '5'],
-                    datasets: [{
-                        label: 'VA Responses',
-                        data: [5, 2, 60, 243, 419],
-                        backgroundColor: [
-                            '#fb923c', '#fb923c', '#fb923c', '#26a69a', '#46bdc6'
-                        ],
-                        borderColor: [
-                            '#ea580c', '#ea580c', '#ea580c', '#047857', '#0e7490'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'Responses per Rating' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Number of Responses' } },
-                        x: { title: { display: true, text: 'Rating (1-5)' } }
-                    }
-                }
-            });
-
-            // Christmas Bonus Chart
-            const christmasCtx = document.getElementById('christmasChart').getContext('2d');
-            new Chart(christmasCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['1', '2', '3', '4', '5'],
-                    datasets: [{
-                        label: 'VA Responses',
-                        data: [44, 4, 108, 282, 291],
-                        backgroundColor: [
-                            '#fb923c', '#fb923c', '#fb923c', '#26a69a', '#46bdc6'
-                        ],
-                        borderColor: [
-                            '#ea580c', '#ea580c', '#ea580c', '#047857', '#0e7490'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'Responses per Rating' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Number of Responses' } },
-                        x: { title: { display: true, text: 'Rating (1-5)' } }
-                    }
-                }
-            });
-
-            // Feedback Confidence Chart
-            const feedbackCtx = document.getElementById('feedbackChart').getContext('2d');
-            new Chart(feedbackCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['1', '2', '3', '4', '5'],
-                    datasets: [{
-                        label: 'VA Responses',
-                        data: [1, 1, 43, 137, 547],
-                        backgroundColor: [
-                            '#fb923c', '#fb923c', '#fb923c', '#26a69a', '#46bdc6'
-                        ],
-                        borderColor: [
-                            '#ea580c', '#ea580c', '#ea580c', '#047857', '#0e7490'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: true, text: 'Responses per Rating' }
-                    },
-                    scales: {
-                        y: { beginAtZero: true, title: { display: true, text: 'Number of Responses' } },
-                        x: { title: { display: true, text: 'Rating (1-5)' } }
-                    }
-                }
-            });
-
-            // Pareto Chart
-            const paretoCtx = document.getElementById('paretoChart').getContext('2d');
-            const data = [
+            // Data for charts
+            const anniversaryData = [5, 2, 60, 243, 419];
+            const christmasData = [44, 4, 108, 282, 291];
+            const feedbackData = [1, 1, 43, 137, 547];
+            const paretoRawData = [
                 { label: 'More Frequent Bonuses', count: 193 },
                 { label: 'Improved HMO/Health Benefits', count: 154 },
                 { label: 'Higher Christmas Bonus', count: 126 },
                 { label: 'Tenure-Based Salary Increases', count: 97 }
             ];
-            
-            const total = data.reduce((sum, item) => sum + item.count, 0);
-            let cumulative = 0;
-            const labels = data.map(item => item.label);
-            const counts = data.map(item => item.count);
-            const cumulativePercentages = data.map(item => {
-                cumulative += item.count;
-                return (cumulative / total * 100).toFixed(2);
-            });
 
-            new Chart(paretoCtx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Number of Mentions',
-                            data: counts,
-                            backgroundColor: '#fb923c',
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'Cumulative Percentage',
-                            data: cumulativePercentages,
-                            type: 'line',
-                            borderColor: '#26a69a',
-                            backgroundColor: '#26a69a',
-                            fill: false,
-                            yAxisID: 'y1',
-                            tension: 0.4
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top' },
-                        tooltip: {
-                            callbacks: {
-                                title: function(context) { return context[0].label; },
-                                label: function(context) {
-                                    if (context.dataset.yAxisID === 'y') {
-                                        return `Mentions: ${context.raw}`;
-                                    } else {
-                                        return `Cumulative %: ${context.raw}%`;
+            // Chart functions
+            function createBarChart(canvasId, data, title, labels, colors) {
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                return new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'VA Responses',
+                            data: data,
+                            backgroundColor: colors,
+                            borderWidth: 1,
+                            borderColor: colors.map(c => c.replace('3c', '0c').replace('a69a', '7857').replace('bdc6', '7490'))
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            title: { display: true, text: title },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Responses: ${context.raw}`;
                                     }
                                 }
                             }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: { display: true, text: 'Number of Mentions' }
                         },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: { display: true, text: 'Cumulative Percentage' },
-                            grid: { drawOnChartArea: false },
-                            min: 0,
-                            max: 100
-                        },
-                        x: {
-                            grid: { display: false }
+                        scales: {
+                            y: { beginAtZero: true, title: { display: true, text: 'Number of Responses' } },
+                            x: { title: { display: true, text: 'Rating (1-5)' } }
                         }
                     }
-                }
-            });
+                });
+            }
+
+            function createParetoChart(canvasId, data) {
+                const total = data.reduce((sum, item) => sum + item.count, 0);
+                let cumulative = 0;
+                const labels = data.map(item => item.label);
+                const counts = data.map(item => item.count);
+                const cumulativePercentages = data.map(item => {
+                    cumulative += item.count;
+                    return (cumulative / total * 100).toFixed(2);
+                });
+
+                const ctx = document.getElementById(canvasId).getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Number of Mentions',
+                                data: counts,
+                                backgroundColor: '#fb923c',
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Cumulative Percentage',
+                                data: cumulativePercentages,
+                                type: 'line',
+                                borderColor: '#26a69a',
+                                backgroundColor: '#26a69a',
+                                fill: false,
+                                yAxisID: 'y1',
+                                tension: 0.4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    title: function(context) { return context[0].label; },
+                                    label: function(context) {
+                                        if (context.dataset.yAxisID === 'y') {
+                                            return `Mentions: ${context.raw}`;
+                                        } else {
+                                            return `Cumulative %: ${context.raw}%`;
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: { display: true, text: 'Number of Mentions' }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: { display: true, text: 'Cumulative Percentage' },
+                                grid: { drawOnChartArea: false },
+                                min: 0,
+                                max: 100
+                            },
+                            x: {
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Render charts
+            createBarChart('anniversaryChart', anniversaryData, 'Anniversary Incentive Feedback', ['1', '2', '3', '4', '5'], ['#fb923c', '#fb923c', '#fb923c', '#26a69a', '#46bdc6']);
+            createBarChart('christmasChart', christmasData, 'Christmas Bonus Feedback', ['1', '2', '3', '4', '5'], ['#fb923c', '#fb923c', '#fb923c', '#26a69a', '#46bdc6']);
+            createBarChart('feedbackChart', feedbackData, 'Feedback Confidence Feedback', ['1', '2', '3', '4', '5'], ['#fb923c', '#fb923c', '#fb923c', '#26a69a', '#46bdc6']);
+            createParetoChart('paretoChart', paretoRawData);
         });
     </script>
 </body>
