@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MMM VA Benefits Infographic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .section-title {
+            position: relative;
+        }
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -8px;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background-color: #38a169;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6 sm:p-10">
+    <div class="container bg-white rounded-2xl shadow-lg overflow-hidden">
+        <header class="bg-blue-600 text-white p-8 text-center rounded-t-2xl">
+            <h1 class="text-3xl sm:text-4xl font-extrabold mb-2">VA Benefits Feedback</h1>
+            <p class="text-sm sm:text-base font-medium">Insights for 2025: What VAs Are Saying</p>
+        </header>
+
+        <main class="p-6 sm:p-10">
+            <div class="grid md:grid-cols-2 gap-8 mb-12">
+                <!-- Section 1: What's Working -->
+                <div class="bg-green-50 border-l-4 border-green-500 rounded-lg p-5">
+                    <h2 class="text-xl font-bold mb-3 text-green-700">What's Working: High Impact Benefits</h2>
+                    <ul class="list-disc list-inside space-y-3 text-gray-700 font-medium">
+                        <li>
+                            <p>
+                                <span class="font-bold text-green-700">Anniversary Incentives:</span>
+                                90% of VAs rate these as a strong motivator for a long-term career. They feel **valued and motivated**.
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                <span class="font-bold text-green-700">Christmas Bonus:</span>
+                                78.5% of VAs are **excited or very excited** about this new benefit. It's a great start!
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                <span class="font-bold text-green-700">Feedback Confidence:</span>
+                                75% of VAs believe their feedback is **"always taken seriously"**. This trust is a major asset.
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Section 2: Areas for Improvement -->
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-5">
+                    <h2 class="text-xl font-bold mb-3 text-yellow-700">Areas to Improve: What's Missing</h2>
+                    <ul class="list-disc list-inside space-y-3 text-gray-700 font-medium">
+                        <li>
+                            <p>
+                                <span class="font-bold text-yellow-700">Christmas Bonus Amount:</span>
+                                14.8% are **neutral** or **not excited**. VAs suggest a higher amount, at least **$100**, to feel more impactful.
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                <span class="font-bold text-yellow-700">More Frequent Incentives:</span>
+                                **"Attendance bonus"** and **"performance rewards"** were the most requested new benefits. VAs want more frequent recognition.
+                            </p>
+                        </li>
+                        <li>
+                            <p>
+                                <span class="font-bold text-yellow-700">Tenured VA Loyalty:</span>
+                                Multiple VAs feel their loyalty isn't adequately rewarded compared to new hires. They want a clearer path for **salary increases**.
+                            </p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Recommended Actions Section -->
+            <div class="bg-gray-50 rounded-xl p-6 mb-12 shadow-sm">
+                <h2 class="section-title text-2xl font-bold text-center mb-8 pb-2 text-gray-800">Recommended Actions</h2>
+                <div class="grid sm:grid-cols-3 gap-6 text-center">
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <div class="text-4xl text-blue-500 mb-3">💰</div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-800">Increase Christmas Bonus</h3>
+                        <p class="text-gray-600 text-sm">Raise the Christmas bonus to a **flat $100** for all VAs to maximize morale and perceived value.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <div class="text-4xl text-blue-500 mb-3">🎯</div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-800">Pilot "Excellence" Bonus</h3>
+                        <p class="text-gray-600 text-sm">Introduce a **quarterly bonus** for perfect attendance or client commendations to reward consistent performance.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+                        <div class="text-4xl text-blue-500 mb-3">📈</div>
+                        <h3 class="font-bold text-lg mb-2 text-gray-800">Reward Tenured VAs</h3>
+                        <p class="text-gray-600 text-sm">Create a formal program for VAs with **2+ years** that includes guaranteed salary reviews and enhanced benefits.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CEO Questions Section -->
+            <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6">
+                <h2 class="text-xl font-bold mb-3 text-red-700">Important Note for the CEO</h2>
+                <ul class="list-disc list-inside space-y-3 text-gray-700 font-medium">
+                    <li>
+                        <p>
+                            **Why not just give out the merch at the Summit?**
+                            The data shows that Anniversary Incentives are highly valued. Linking them exclusively to a single event risks alienating a large portion of VAs who can't attend, undermining the very purpose of the incentive.
+                        </p>
+                    </li>
+                    <li>
+                        <p>
+                            **How does this impact retention?**
+                            The current benefits are a strong motivator. The proposed changes address the desire for more frequent rewards and a clearer path for career growth, which are key drivers of long-term retention.
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </main>
+
+        <footer class="bg-gray-200 text-center p-4 rounded-b-2xl text-sm text-gray-600">
+            <p>&copy; 2025 VA-lueLens. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
