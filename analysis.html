@@ -3,130 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MMM VA Benefits Infographic</title>
+    <title>2025 VA Benefits Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+            background-color: #f8fafc;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
-        .section-title {
-            position: relative;
+        .text-mmm-blue { color: #2563eb; }
+        .bg-mmm-blue-light { background-color: #dbeafe; }
+        .text-mmm-green { color: #10b981; }
+        .bg-mmm-green-light { background-color: #dcfce7; }
+        .ring-mmm-blue-light { --tw-ring-color: #bfdbfe; }
+        
+        .chart-container {
+            width: 100%;
+            height: 250px;
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            padding-bottom: 1rem;
         }
-        .section-title::after {
-            content: '';
+        .chart-bar {
+            background-color: #10b981;
+            width: 25%;
+            position: relative;
+            border-radius: 0.25rem;
+            transition: height 0.5s ease-in-out;
+        }
+        .chart-bar span {
             position: absolute;
+            bottom: calc(100% + 5px);
             left: 50%;
-            bottom: -8px;
             transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background-color: #38a169;
-            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #4b5563;
+        }
+        
+        .pareto-chart-container {
+            display: grid;
+            grid-template-rows: repeat(4, 1fr);
+            gap: 1rem;
+            padding-bottom: 1rem;
+        }
+        .pareto-bar {
+            background-color: #fca5a5;
+            height: 30px;
+            border-radius: 0.25rem;
+            position: relative;
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            padding: 0 0.5rem;
+            color: #7f1d1d;
+            font-weight: 600;
+        }
+        .pareto-label {
+            position: absolute;
+            left: 0.5rem;
+        }
+        .pareto-percentage {
+            position: absolute;
+            right: 0.5rem;
         }
     </style>
 </head>
 <body class="bg-gray-100 p-6 sm:p-10">
-    <div class="container bg-white rounded-2xl shadow-lg overflow-hidden">
-        <header class="bg-blue-600 text-white p-8 text-center rounded-t-2xl">
-            <h1 class="text-3xl sm:text-4xl font-extrabold mb-2">VA Benefits Feedback</h1>
-            <p class="text-sm sm:text-base font-medium">Insights for 2025: What VAs Are Saying</p>
+    <div class="container bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-blue-700 to-blue-500 text-white p-8 text-center rounded-t-2xl">
+            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">2025 VA Benefits Report</h1>
+            <p class="text-sm sm:text-base font-medium opacity-80">Insights from 729 VA Survey Responses</p>
         </header>
 
         <main class="p-6 sm:p-10">
-            <div class="grid md:grid-cols-2 gap-8 mb-12">
-                <!-- Section 1: What's Working -->
-                <div class="bg-green-50 border-l-4 border-green-500 rounded-lg p-5">
-                    <h2 class="text-xl font-bold mb-3 text-green-700">What's Working: High Impact Benefits</h2>
-                    <ul class="list-disc list-inside space-y-3 text-gray-700 font-medium">
-                        <li>
-                            <p>
-                                <span class="font-bold text-green-700">Anniversary Incentives:</span>
-                                90% of VAs rate these as a strong motivator for a long-term career. They feel **valued and motivated**.
-                            </p>
-                        </li>
-                        <li>
-                            <p>
-                                <span class="font-bold text-green-700">Christmas Bonus:</span>
-                                78.5% of VAs are **excited or very excited** about this new benefit. It's a great start!
-                            </p>
-                        </li>
-                        <li>
-                            <p>
-                                <span class="font-bold text-green-700">Feedback Confidence:</span>
-                                75% of VAs believe their feedback is **"always taken seriously"**. This trust is a major asset.
-                            </p>
-                        </li>
-                    </ul>
-                </div>
 
-                <!-- Section 2: Areas for Improvement -->
-                <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-5">
-                    <h2 class="text-xl font-bold mb-3 text-yellow-700">Areas to Improve: What's Missing</h2>
-                    <ul class="list-disc list-inside space-y-3 text-gray-700 font-medium">
-                        <li>
-                            <p>
-                                <span class="font-bold text-yellow-700">Christmas Bonus Amount:</span>
-                                14.8% are **neutral** or **not excited**. VAs suggest a higher amount, at least **$100**, to feel more impactful.
-                            </p>
-                        </li>
-                        <li>
-                            <p>
-                                <span class="font-bold text-yellow-700">More Frequent Incentives:</span>
-                                **"Attendance bonus"** and **"performance rewards"** were the most requested new benefits. VAs want more frequent recognition.
-                            </p>
-                        </li>
-                        <li>
-                            <p>
-                                <span class="font-bold text-yellow-700">Tenured VA Loyalty:</span>
-                                Multiple VAs feel their loyalty isn't adequately rewarded compared to new hires. They want a clearer path for **salary increases**.
-                            </p>
-                        </li>
-                    </ul>
+            <!-- Section 1: What's Working -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-mmm-green pb-2">What's Working: The Core Motivators</h2>
+                <p class="text-gray-600 mb-6">Our current benefits are a strong foundation for retention and motivation.</p>
+                <div class="grid md:grid-cols-3 gap-6 text-center">
+                    <!-- Anniversary Incentive -->
+                    <div class="p-6 bg-mmm-green-light rounded-xl border border-mmm-green">
+                        <p class="text-4xl font-extrabold text-mmm-green">90%</p>
+                        <p class="font-bold text-gray-800 mt-2">Love the Anniversary Bonus</p>
+                        <p class="text-sm text-gray-600 mt-1">
+                            (662 of 729 VAs) rated the tiered bonus as "Happy" or "Motivated to build a long-term career."
+                        </p>
+                    </div>
+                    <!-- Christmas Bonus -->
+                    <div class="p-6 bg-mmm-green-light rounded-xl border border-mmm-green">
+                        <p class="text-4xl font-extrabold text-mmm-green">78.5%</p>
+                        <p class="font-bold text-gray-800 mt-2">Excited About Christmas Bonus</p>
+                        <p class="text-sm text-gray-600 mt-1">
+                            (573 of 729 VAs) are "Looking forward" or "Very excited" about this new initiative.
+                        </p>
+                    </div>
+                    <!-- Feedback Confidence -->
+                    <div class="p-6 bg-mmm-green-light rounded-xl border border-mmm-green">
+                        <p class="text-4xl font-extrabold text-mmm-green">75%</p>
+                        <p class="font-bold text-gray-800 mt-2">Trust Our Feedback Process</p>
+                        <p class="text-sm text-gray-600 mt-1">
+                            (547 of 729 VAs) feel their feedback is "always taken seriously and leads to improvement."
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Recommended Actions Section -->
-            <div class="bg-gray-50 rounded-xl p-6 mb-12 shadow-sm">
-                <h2 class="section-title text-2xl font-bold text-center mb-8 pb-2 text-gray-800">Recommended Actions</h2>
+            <!-- Section 2: What's Missing -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-yellow-400 pb-2">What's Missing: Opportunities for Growth</h2>
+                <p class="text-gray-600 mb-6">A Pareto analysis of open-text feedback shows a clear concentration of requests. </p>
+                <div class="pareto-chart-container">
+                    <div class="relative">
+                        <div class="pareto-bar bg-amber-200" style="width: 100%;">
+                            <span class="pareto-label">More Frequent Bonuses</span>
+                            <span class="pareto-percentage">193 mentions</span>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="pareto-bar bg-amber-300" style="width: 80%;">
+                            <span class="pareto-label">Improved HMO/Health Benefits</span>
+                            <span class="pareto-percentage">154 mentions</span>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="pareto-bar bg-amber-400" style="width: 65%;">
+                            <span class="pareto-label">Higher Christmas Bonus</span>
+                            <span class="pareto-percentage">126 mentions</span>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="pareto-bar bg-amber-500" style="width: 50%;">
+                            <span class="pareto-label">Tenure-Based Salary Increases</span>
+                            <span class="pareto-percentage">97 mentions</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">*Based on frequency of mentions in open-text feedback.</p>
+            </div>
+
+            <!-- Section 3: Actionable Recommendations -->
+            <div class="bg-mmm-blue-light rounded-2xl p-6 sm:p-8 mb-12 shadow-inner">
+                <h2 class="text-2xl font-bold text-center mb-8 pb-2 text-mmm-blue">Proposals for 2025 Initiatives</h2>
                 <div class="grid sm:grid-cols-3 gap-6 text-center">
                     <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <div class="text-4xl text-blue-500 mb-3">💰</div>
-                        <h3 class="font-bold text-lg mb-2 text-gray-800">Increase Christmas Bonus</h3>
-                        <p class="text-gray-600 text-sm">Raise the Christmas bonus to a **flat $100** for all VAs to maximize morale and perceived value.</p>
+                        <div class="text-4xl text-mmm-blue mb-3">💰</div>
+                        <h3 class="font-bold text-lg mb-2">Adjust Christmas Bonus</h3>
+                        <p class="text-gray-600 text-sm">
+                            Increase to a flat **$100** for all VAs to address feedback and maximize morale.
+                        </p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <div class="text-4xl text-blue-500 mb-3">🎯</div>
-                        <h3 class="font-bold text-lg mb-2 text-gray-800">Pilot "Excellence" Bonus</h3>
-                        <p class="text-gray-600 text-sm">Introduce a **quarterly bonus** for perfect attendance or client commendations to reward consistent performance.</p>
+                        <div class="text-4xl text-mmm-blue mb-3">🏆</div>
+                        <h3 class="font-bold text-lg mb-2">Introduce a Performance Bonus</h3>
+                        <p class="text-gray-600 text-sm">
+                            Pilot a **quarterly bonus** for perfect attendance or client commendations.
+                        </p>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                        <div class="text-4xl text-blue-500 mb-3">📈</div>
-                        <h3 class="font-bold text-lg mb-2 text-gray-800">Reward Tenured VAs</h3>
-                        <p class="text-gray-600 text-sm">Create a formal program for VAs with **2+ years** that includes guaranteed salary reviews and enhanced benefits.</p>
+                        <div class="text-4xl text-mmm-blue mb-3">🔒</div>
+                        <h3 class="font-bold text-lg mb-2">Formalize Tenured VA Loyalty</h3>
+                        <p class="text-gray-600 text-sm">
+                            Create a plan for **guaranteed annual salary reviews** for VAs with 2+ years of tenure.
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <!-- CEO Questions Section -->
-            <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-6">
-                <h2 class="text-xl font-bold mb-3 text-red-700">Important Note for the CEO</h2>
-                <ul class="list-disc list-inside space-y-3 text-gray-700 font-medium">
-                    <li>
-                        <p>
-                            **Why not just give out the merch at the Summit?**
-                            The data shows that Anniversary Incentives are highly valued. Linking them exclusively to a single event risks alienating a large portion of VAs who can't attend, undermining the very purpose of the incentive.
+            <!-- Section 4: Anticipated Questions -->
+            <div class="bg-gray-50 rounded-xl p-6 sm:p-8">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">Anticipated Questions & Direct Answers</h2>
+                <ul class="space-y-4 text-gray-700">
+                    <li class="p-4 rounded-lg bg-white shadow">
+                        <h4 class="font-bold text-lg text-gray-800">Q: Why not just give out merch at the Summit to save on shipping?</h4>
+                        <p class="mt-2">
+                            **A:** This could backfire. The survey feedback shows that the Anniversary Incentive is a key motivator. Limiting its fulfillment to an event that not all VAs can attend risks making a significant portion of our VAs feel excluded and devalued. The small cost savings of **$1,200** annually do not justify the potential negative impact on morale and retention.
                         </p>
                     </li>
-                    <li>
-                        <p>
-                            **How does this impact retention?**
-                            The current benefits are a strong motivator. The proposed changes address the desire for more frequent rewards and a clearer path for career growth, which are key drivers of long-term retention.
+                    <li class="p-4 rounded-lg bg-white shadow">
+                        <h4 class="font-bold text-lg text-gray-800">Q: How do we address the HMO feedback?</h4>
+                        <p class="mt-2">
+                            **A:** The data indicates that **21% of VAs (154 mentions)** feel our current HMO coverage is insufficient, especially for those in provinces. We should investigate a provider that offers better, more accessible coverage or a flexible benefit that VAs can use for other health-related expenses.
                         </p>
                     </li>
                 </ul>
