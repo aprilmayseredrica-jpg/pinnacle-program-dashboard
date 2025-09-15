@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VA Benefits & 2026 Budget Proposal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ddf2f0;
+        }
+        .tab-active {
+            background-color: #26a69a;
+            color: white;
+            border-color: #26a69a;
+        }
+        .tab-inactive {
+            background-color: white;
+            color: #26a69a;
+            border-color: #26a69a;
+        }
+        .modal {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            animation: slide-in 0.3s ease-out;
+        }
+        @keyframes slide-in {
+            from {
+                transform: translateY(-20px) scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#26a69a] mb-2">VA Benefits Feedback Survey</h1>
+            <p class="text-xl md:text-2xl text-gray-700">Analysis & 2026 Budget Proposal</p>
+        </header>
+
+        <main>
+            <section id="summary" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                    <div class="md:col-span-2">
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">A Snapshot of Mover Sentiment</h2>
+                        <p class="text-gray-600 mb-4 text-lg">
+                            This report analyzes feedback from the VA Benefits Survey conducted on September 11-12, 2025. The high participation rate underscores our VAs' trust and engagement, providing us with critical insights to shape a more effective and profitable benefits strategy for 2026.
+                        </p>
+                        <div class="flex flex-wrap gap-4 text-center">
+                            <div class="bg-teal-50 p-4 rounded-lg flex-1">
+                                <p class="text-3xl font-bold text-[#46bdc6]">729</p>
+                                <p class="text-gray-600">Total Responses</p>
+                            </div>
+                            <div class="bg-teal-50 p-4 rounded-lg flex-1">
+                                <p class="text-3xl font-bold text-[#46bdc6]">1460</p>
+                                <p class="text-gray-600">VAs Surveyed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container relative h-64 w-full max-w-xs mx-auto">
+                         <canvas id="responseRateChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="survey-findings" class="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-10">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Key Survey Findings</h2>
+                <div>
+                    <div class="mb-6 border-b border-gray-200">
+                        <nav class="flex flex-wrap -mb-px" aria-label="Tabs">
+                            <button class="tab-btn tab-active w-full sm:w-auto text-center border-b-2 font-medium text-lg p-4 rounded-t-lg" data-tab="tab1">VA Bond Policy</button>
+                            <button class="tab-btn tab-inactive w-full sm:w-auto text-center border-b-2 font-medium text-lg p-4" data-tab="tab2">Anniversary Bonus</button>
+                            <button class="tab-btn tab-inactive w-full sm:w-auto text-center border-b-2 font-medium text-lg p-4" data-tab="tab3">Christmas Bonus</button>
+                            <button class="tab-btn tab-inactive w-full sm:w-auto text-center border-b-2 font-medium text-lg p-4" data-tab="tab4">Feedback Confidence</button>
+                            <button class="tab-btn tab-inactive w-full sm:w-auto text-center border-b-2 font-medium text-lg p-4" data-tab="tab5">AM Engagement</button>
+                        </nav>
+                    </div>
+                    <div>
+                        <div id="tab1" class="tab-content p-4">
+                            <h3 class="text-2xl font-semibold text-gray-700 mb-2">The $100 VA Bond is seen as a reasonable commitment tool.</h3>
+                            <p class="text-gray-600 mb-6">The vast majority of VAs understand the policy's purpose of encouraging commitment, with very few finding it stressful or unfair. The policy is functioning as intended.</p>
+                            <div class="chart-container relative h-80 w-full max-w-3xl mx-auto">
+                                <canvas id="bondPolicyChart"></canvas>
+                            </div>
+                        </div>
+                        <div id="tab2" class="tab-content hidden p-4">
+                            <h3 class="text-2xl font-semibold text-gray-700 mb-2">The Anniversary Bonus is a powerful and highly valued retention driver.</h3>
+                            <p class="text-gray-600 mb-6">Feedback is overwhelmingly positive. VAs feel genuinely appreciated and motivated to build long-term careers with MMM, confirming this incentive is a cornerstone of our retention strategy.</p>
+                            <div class="chart-container relative h-80 w-full max-w-3xl mx-auto">
+                                <canvas id="anniversaryChart"></canvas>
+                            </div>
+                        </div>
+                        <div id="tab3" class="tab-content hidden p-4">
+                             <h3 class="text-2xl font-semibold text-gray-700 mb-2">VAs are excited for the Christmas Bonus but feel the amounts are too low.</h3>
+                            <p class="text-gray-600 mb-6">While the introduction of a Christmas Bonus is appreciated, the current amounts are the single biggest opportunity for improvement identified in the survey. Many VAs compare it to the "13th-month pay" cultural standard.</p>
+                            <div class="chart-container relative h-80 w-full max-w-3xl mx-auto">
+                                <canvas id="christmasChart"></canvas>
+                            </div>
+                        </div>
+                         <div id="tab4" class="tab-content hidden p-4">
+                            <h3 class="text-2xl font-semibold text-gray-700 mb-2">VAs have strong confidence that their feedback is heard and valued.</h3>
+                            <p class="text-gray-600 mb-6">This high level of trust is a significant asset for MMM. It fosters a positive culture and indicates that our channels for communication are effective. This survey is a testament to that trust.</p>
+                            <div class="chart-container relative h-80 w-full max-w-3xl mx-auto">
+                                <canvas id="feedbackChart"></canvas>
+                            </div>
+                        </div>
+                        <div id="tab5" class="tab-content hidden p-4">
+                           <h3 class="text-2xl font-semibold text-gray-700 mb-2">AM-VA engagement is effective for some but misses the mark for others.</h3>
+                            <p class="text-gray-600 mb-6">While many VAs feel connected, a notable portion feels the activities are routine or irrelevant, especially those on solo accounts. This suggests a need for a more inclusive and varied engagement strategy.</p>
+                            <div class="chart-container relative h-80 w-full max-w-3xl mx-auto">
+                                <canvas id="engagementChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="proposal" class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">2026 Budget Proposal: Driving Value Through Strategic Reallocation</h2>
+                
+                <div class="mb-10">
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Recap: Key Insights</h3>
+                     <ul class="list-disc list-inside space-y-2 text-gray-600 text-lg">
+                        <li><span class="font-semibold text-[#26a69a]">Christmas Bonus:</span> The #1 opportunity. VAs desire an amount that feels more substantial, akin to a "13th-month pay."</li>
+                        <li><span class="font-semibold text-[#26a69a]">Tenured VA Loyalty:</span> Long-term VAs feel undervalued when new hires receive higher rates, indicating a need to better reward loyalty.</li>
+                        <li><span class="font-semibold text-[#26a69a]">High-Value Perks:</span> VAs are asking for better healthcare options (especially for dependents) and the ability to convert unused leave to cash.</li>
+                        <li><span class="font-semibold text-[#26a69a]">Engagement ROI:</span> The current engagement budget isn't delivering consistent value across the entire VA population.</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Profitable & Value-Driven Recommendations</h3>
+                    <p class="text-gray-600 mb-6 text-lg">The 2026 strategy is to reallocate funds from low-impact initiatives to high-value incentives. This creates a positive, profitable cycle of retention and growth <span class="font-bold">without increasing the overall budget</span>.</p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-[#26a69a] text-white">
+                                <tr>
+                                    <th class="p-4 font-semibold text-sm rounded-tl-lg">Incentive</th>
+                                    <th class="p-4 font-semibold text-sm">Current Budget</th>
+                                    <th class="p-4 font-semibold text-sm">Proposed Change & Rationale</th>
+                                    <th class="p-4 font-semibold text-sm rounded-tr-lg">Budget Reallocation</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white">
+                                <tr class="border-b">
+                                    <td class="p-4 font-semibold text-gray-800">Christmas Bonus</td>
+                                    <td class="p-4 text-gray-600">$63,200</td>
+                                    <td class="p-4 text-gray-600 text-sm cursor-pointer hover:underline text-[#26a69a]" data-incentive="christmas-bonus"><strong>Increase Tiered Amounts.</strong> Addresses the #1 VA request, boosting morale and retention with high ROI by reducing churn.</td>
+                                    <td class="p-4 font-semibold text-green-600">+ $25,000</td>
+                                </tr>
+                                 <tr class="bg-gray-50 border-b">
+                                    <td class="p-4 font-semibold text-gray-800">Anniversary Bonus</td>
+                                    <td class="p-4 text-gray-600">$173,625</td>
+                                    <td class="p-4 text-gray-600 text-sm"><strong>No Change.</strong> A highly effective and well-received core retention tool. Protect what works.</td>
+                                    <td class="p-4 font-semibold text-gray-600">$0 Change</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-4 font-semibold text-gray-800">VA Bond</td>
+                                    <td class="p-4 text-gray-600">$2,300 <span class="text-xs">(Forfeited)</span></td>
+                                    <td class="p-4 text-gray-600 text-sm"><strong>No Change.</strong> An effective screening tool. Forfeited funds directly offset program costs.</td>
+                                    <td class="p-4 font-semibold text-gray-600">$0 Change</td>
+                                </tr>
+                                <tr class="bg-gray-50 border-b">
+                                    <td class="p-4 font-semibold text-gray-800">AM-VA Engagement</td>
+                                    <td class="p-4 text-gray-600">$7,987 <span class="text-xs">(Projected)</span></td>
+                                    <td class="p-4 text-gray-600 text-sm"><strong>Reallocate a portion.</strong> Shift funds from activities with inconsistent ROI to centralized, high-impact incentives.</td>
+                                    <td class="p-4 font-semibold text-orange-600">- $2,000</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="p-4 font-semibold text-gray-800">Anniversary Merch</td>
+                                    <td class="p-4 text-gray-600">$4,399</td>
+                                    <td class="p-4 text-gray-600 text-sm"><strong>Eliminate and Reallocate 100%.</strong> VAs prioritize cash. This move delivers higher perceived value and shows we listen.</td>
+                                    <td class="p-4 font-semibold text-orange-600">- $4,399</td>
+                                </tr>
+                                <tr class="bg-gray-50">
+                                    <td class="p-4 font-semibold text-gray-800 rounded-bl-lg">NEW: Performance Incentive</td>
+                                    <td class="p-4 text-gray-600">$0</td>
+                                    <td class="p-4 text-gray-600 text-sm cursor-pointer hover:underline text-[#26a69a]" data-incentive="performance-incentive"><strong>Fund with reallocated budget.</strong> Launch a quarterly bonus ($25-$50) for perfect attendance & positive client feedback.</td>
+                                    <td class="p-4 font-semibold text-green-600">+ $6,000</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                 <div class="mt-10 bg-[#ddf2f0] p-6 rounded-lg">
+                    <h3 class="text-2xl font-bold text-[#26a69a] mb-4">The Bottom Line</h3>
+                     <p class="text-2xl text-center font-bold text-gray-700">Total 2026 benefits budget will remain at <span class="text-[#46bdc6]">$251,812</span>. We are shifting funds for a better return on investment, with no increase in overall spend.</p>
+                </div>
+
+                <div class="mt-10">
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-4">Next Steps for 2026</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div class="bg-gray-100 p-6 rounded-lg">
+                            <div class="text-4xl text-[#26a69a] mb-2">1</div>
+                            <h4 class="font-bold text-lg mb-2">Implement New Bonus</h4>
+                            <p class="text-gray-600 text-sm">Roll out the increased tiered amounts for the Christmas bonus.</p>
+                        </div>
+                         <div class="bg-gray-100 p-6 rounded-lg">
+                            <div class="text-4xl text-[#26a69a] mb-2">2</div>
+                            <h4 class="font-bold text-lg mb-2">Launch New Incentive</h4>
+                            <p class="text-gray-600 text-sm">Allocate re-purposed budget to a new quarterly performance/attendance program.</p>
+                        </div>
+                        <div class="bg-gray-100 p-6 rounded-lg">
+                            <div class="text-4xl text-[#26a69a] mb-2">3</div>
+                            <h4 class="font-bold text-lg mb-2">Enhance Communication</h4>
+                            <p class="text-gray-600 text-sm">Launch a "We Heard You" campaign to explain the data-driven changes.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Incentive Details -->
+    <div id="incentiveModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden flex justify-center items-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl p-6 md:p-8 w-full max-w-lg relative modal-content">
+            <button id="closeModalBtn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-4"></h3>
+            <div id="modalContent" class="text-gray-600 space-y-4"></div>
+        </div>
+    </div>
+    
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const primaryColor = '#26a69a';
+        const secondaryColor = '#46bdc6';
+        const tertiaryColor = '#ff9800';
+        const lightBg = '#ddf2f0';
+        const grayColor = '#a0aec0';
+        
+        const tooltipPlugin = {
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleFont: {
+                    size: 16,
+                },
+                bodyFont: {
+                    size: 14,
+                },
+                padding: 12,
+                cornerRadius: 8,
+                callbacks: {
+                    title: (tooltipItems) => {
+                        const item = tooltipItems[0];
+                        const rating = item.chart.data.labels[item.dataIndex];
+                        return `Rating: ${rating}`;
+                    },
+                    label: (tooltipItem) => {
+                        const verbatimData = tooltipItem.chart.data.verbatim;
+                        if (verbatimData && verbatimData[tooltipItem.dataIndex]) {
+                             return verbatimData[tooltipItem.dataIndex];
+                        }
+                        return `Count: ${tooltipItem.raw}`;
+                    }
+                }
+            }
+        };
+
+        const chartOptions = (verbatimData = []) => ({
+            maintainAspectRatio: false,
+            responsive: true,
+            indexAxis: 'y',
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                       font: { size: 14 }
+                    }
+                },
+                y: {
+                     grid: {
+                        display: false
+                    },
+                    ticks: {
+                       font: { size: 14, weight: 'bold' }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                ...tooltipPlugin
+            }
+        });
+        
+        new Chart(document.getElementById('responseRateChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Responded', 'Did Not Respond'],
+                datasets: [{
+                    label: 'Response Rate',
+                    data: [49.9, 50.1],
+                    backgroundColor: [secondaryColor, lightBg],
+                    borderColor: ['#ffffff'],
+                    borderWidth: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                         callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed + '%';
+                                }
+                                return label;
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: '49.9% Response Rate',
+                        font: { size: 18, weight: 'bold' },
+                        color: '#333'
+                    }
+                }
+            }
+        });
+        
+        new Chart(document.getElementById('bondPolicyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: 'Count',
+                    data: [25, 40, 150, 280, 234],
+                    backgroundColor: primaryColor,
+                    borderRadius: 6,
+                }],
+                verbatim: [
+                    "Creates stress and is unfair. It's a big amount for a new VA.",
+                    "Doesn’t really help or matter to me.",
+                    "Neutral; doesn’t affect me either way.",
+                    "Reasonable, helps with commitment. I understand the purpose.",
+                    "Strongly encourages me to stay and prevents resignation."
+                ]
+            },
+            options: chartOptions()
+        });
+
+        new Chart(document.getElementById('anniversaryChart'), {
+            type: 'bar',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: 'Count',
+                    data: [15, 25, 110, 310, 269],
+                    backgroundColor: secondaryColor,
+                    borderRadius: 6,
+                }],
+                verbatim: [
+                    "I do not appreciate it at all.",
+                    "I don’t really care about the amount.",
+                    "Neutral; doesn’t make a difference for me.",
+                    "I'm happy about it! It's a nice recognition.",
+                    "I feel valued and motivated to build a long-term career."
+                ]
+            },
+            options: chartOptions()
+        });
+
+        new Chart(document.getElementById('christmasChart'), {
+            type: 'bar',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: 'Count',
+                    data: [80, 70, 180, 250, 149],
+                    backgroundColor: tertiaryColor,
+                    borderRadius: 6,
+                }],
+                verbatim: [
+                    "Not excited at all, the amount is too small.",
+                    "I don’t really care, it won't make a big difference.",
+                    "Neutral about it.",
+                    "I'm looking forward to it. It's a nice gesture.",
+                    "Very excited; I feel valued and appreciated!"
+                ]
+            },
+            options: chartOptions()
+        });
+        
+        new Chart(document.getElementById('feedbackChart'), {
+            type: 'bar',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: 'Count',
+                    data: [30, 60, 150, 280, 209],
+                    backgroundColor: primaryColor,
+                    borderRadius: 6,
+                }],
+                 verbatim: [
+                    "Not considered or implemented at all.",
+                    "Rarely acknowledged.",
+                    "Acknowledged but little change happens.",
+                    "Taken seriously sometimes.",
+                    "Always taken seriously and leads to improvement."
+                ]
+            },
+            options: chartOptions()
+        });
+
+        new Chart(document.getElementById('engagementChart'), {
+            type: 'bar',
+            data: {
+                labels: ['1', '2', '3', '4', '5'],
+                datasets: [{
+                    label: 'Count',
+                    data: [100, 120, 200, 180, 129],
+                    backgroundColor: secondaryColor,
+                    borderRadius: 6,
+                }],
+                verbatim: [
+                    "No impact; just a routine obligation.",
+                    "It has a minimal impact on my morale.",
+                    "Neutral; doesn’t make a difference to me.",
+                    "Fun and somewhat motivating; helps me feel connected.",
+                    "Very effective; I feel recognized, valued, and engaged."
+                ]
+            },
+            options: chartOptions()
+        });
+        
+        const tabs = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const modal = document.getElementById('incentiveModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalContent = document.getElementById('modalContent');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const tableCells = document.querySelectorAll('td[data-incentive]');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(item => {
+                    item.classList.remove('tab-active');
+                    item.classList.add('tab-inactive');
+                });
+                tab.classList.remove('tab-inactive');
+                tab.classList.add('tab-active');
+
+                const target = document.getElementById(tab.dataset.tab);
+                
+                tabContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                target.classList.remove('hidden');
+            });
+        });
+
+        tableCells.forEach(cell => {
+            cell.addEventListener('click', () => {
+                const incentiveType = cell.dataset.incentive;
+                if (incentiveType === 'christmas-bonus') {
+                    modalTitle.textContent = 'Christmas Bonus Proposal';
+                    modalContent.innerHTML = `
+                        <p class="mb-4">To address VA feedback, we are proposing a significant increase to the Christmas Bonus amounts by reallocating budget from other initiatives. This change aims to better reflect our appreciation and boost morale, making the bonus feel more substantial and impactful.</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse rounded-lg">
+                                <thead class="bg-[#ddf2f0]">
+                                    <tr>
+                                        <th class="p-4 font-semibold text-gray-800">VA Tenure</th>
+                                        <th class="p-4 font-semibold text-gray-800">Current Amount</th>
+                                        <th class="p-4 font-semibold text-gray-800">Proposed Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="p-4 text-gray-700">Year 1 & 2</td>
+                                        <td class="p-4 text-gray-700 font-bold">$50</td>
+                                        <td class="p-4 text-gray-700 font-bold text-[#26a69a]">$100</td>
+                                    </tr>
+                                    <tr class="border-b bg-gray-50">
+                                        <td class="p-4 text-gray-700">Year 3</td>
+                                        <td class="p-4 text-gray-700 font-bold">$75</td>
+                                        <td class="p-4 text-gray-700 font-bold text-[#26a69a]">$150</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="p-4 text-gray-700">Year 4</td>
+                                        <td class="p-4 text-gray-700 font-bold">$100</td>
+                                        <td class="p-4 text-gray-700 font-bold text-[#26a69a]">$200</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="p-4 text-gray-700">5+ Years</td>
+                                        <td class="p-4 text-gray-700 font-bold">$150</td>
+                                        <td class="p-4 text-gray-700 font-bold text-[#26a69a]">$250</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                } else if (incentiveType === 'performance-incentive') {
+                    modalTitle.textContent = 'New: Performance Incentive';
+                    modalContent.innerHTML = `
+                        <p class="mb-4">This new incentive is designed to provide continuous, high-impact motivation for our VAs. We are proposing a **quarterly bonus** to recognize two key behaviors that directly contribute to our clients' success and MMM's profitability:</p>
+                        <ul class="list-disc list-inside space-y-2 text-gray-700 mb-6">
+                            <li><strong>Perfect Attendance:</strong> VAs with zero unexcused absences or tardiness in a quarter will be eligible. This promotes reliability and client satisfaction.</li>
+                            <li><strong>Positive Client Feedback:</strong> The bonus will be tied to positive feedback from clients, encouraging VAs to consistently deliver exceptional service.</li>
+                        </ul>
+                        <h4 class="text-xl font-semibold text-gray-800 mb-4">2026 Projected Quarterly Payout</h4>
+                        <p class="text-sm text-gray-500 mb-4">*(Based on 35 new VAs added per month and a projected 50 qualifiers per quarter)*</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse rounded-lg">
+                                <thead class="bg-[#ddf2f0]">
+                                    <tr>
+                                        <th class="p-4 font-semibold text-gray-800">Quarterly Payout</th>
+                                        <th class="p-4 font-semibold text-gray-800">Projected Qualifiers</th>
+                                        <th class="p-4 font-semibold text-gray-800">Estimated Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="p-4 text-gray-700">Q1 Payout (Apr)</td>
+                                        <td class="p-4 text-gray-700">~50 VAs</td>
+                                        <td class="p-4 text-gray-700">$1,500</td>
+                                    </tr>
+                                    <tr class="border-b bg-gray-50">
+                                        <td class="p-4 text-gray-700">Q2 Payout (Jul)</td>
+                                        <td class="p-4 text-gray-700">~50 VAs</td>
+                                        <td class="p-4 text-gray-700">$1,500</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="p-4 text-gray-700">Q3 Payout (Oct)</td>
+                                        <td class="p-4 text-gray-700">~50 VAs</td>
+                                        <td class="p-4 text-gray-700">$1,500</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="p-4 text-gray-700">Q4 Payout (Jan 2027)</td>
+                                        <td class="p-4 text-gray-700">~50 VAs</td>
+                                        <td class="p-4 text-gray-700">$1,500</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="mt-4 text-sm text-gray-500">This forecast is based on the allocated budget of $6,000 for the year, ensuring the program is both rewarding and fiscally responsible.</p>
+                    `;
+                }
+                modal.classList.remove('hidden');
+            });
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target.id === 'incentiveModal') {
+                modal.classList.add('hidden');
+            }
+        });
+    });
+</script>
+</body>
+</html>
