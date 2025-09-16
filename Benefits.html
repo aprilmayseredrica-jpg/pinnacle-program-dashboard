@@ -251,6 +251,136 @@
         const lightBg = '#ddf2f0';
         const grayColor = '#a0aec0';
         
+        const feedbackComments = {
+            bondPolicy: {
+                1: [
+                    "Creates stress and is unfair.",
+                    "The bond is a big amount for a new VA. It puts stress on us, especially while we wait for the first payout."
+                ],
+                2: [
+                    "Doesn’t really help or matter to me."
+                ],
+                3: [
+                    "Neutral; doesn’t affect me either way.",
+                    "Noting as I don't really know the mechanics of the bond.",
+                    "No opinion."
+                ],
+                4: [
+                    "Reasonable, helps with commitment.",
+                    "I understand the purpose. It's a good way to ensure VAs are serious about their commitment to MMM and their clients.",
+                    "A reasonable policy that ensures VAs are committed."
+                ],
+                5: [
+                    "Strongly encourages me to stay and prevents resignation.",
+                    "It's fair and a good way to show commitment.",
+                    "I believe it creates a sense of accountability.",
+                    "It makes me feel invested in my role and committed to the company."
+                ]
+            },
+            anniversary: {
+                1: [
+                    "I do not appreciate it at all.",
+                    "The amount is a bit low for a year of hard work."
+                ],
+                2: [
+                    "I don’t really care about the amount.",
+                    "Don't care, it's not a lot of money."
+                ],
+                3: [
+                    "Neutral; doesn’t make a difference for me.",
+                    "It's just okay, doesn't really motivate me.",
+                    "I don't mind it, but I don't feel it's a huge bonus."
+                ],
+                4: [
+                    "I'm happy about it! It's a nice recognition.",
+                    "It is good that MMM has this incentive.",
+                    "Happy about it, it shows they appreciate us."
+                ],
+                5: [
+                    "I feel valued and motivated to build a long-term career.",
+                    "I am very grateful and feel valued.",
+                    "It's an amazing reward that makes me want to stay with the company for a long time.",
+                    "I feel so valued and motivated to build a long-term career with MMM. The bonus makes me feel like my loyalty is truly appreciated."
+                ]
+            },
+            christmas: {
+                1: [
+                    "Not excited at all, the amount is too small.",
+                    "I think the amount is not fair.",
+                    "It's an insult to all the hard work we put in.",
+                    "This feels very disappointing."
+                ],
+                2: [
+                    "I don’t really care, it won't make a big difference.",
+                    "It's just okay.",
+                    "Not a priority for me."
+                ],
+                3: [
+                    "Neutral about it.",
+                    "It's okay, but I wish it was higher.",
+                    "I'm glad we have it, but the amount could be better."
+                ],
+                4: [
+                    "I'm looking forward to it. It's a nice gesture.",
+                    "It's a great help since many of our clients don't provide a Christmas bonus.",
+                    "Happy to receive it, regardless of the amount.",
+                    "I appreciate it, especially as it's our first time to get it."
+                ],
+                5: [
+                    "Very excited; I feel valued and appreciated!",
+                    "This is a great initiative!",
+                    "I feel so blessed to be part of MMM.",
+                    "It really shows that the company cares for us."
+                ]
+            },
+            feedback: {
+                1: [
+                    "Not considered or implemented at all.",
+                    "I feel like my feedback goes into a black hole."
+                ],
+                2: [
+                    "Rarely acknowledged.",
+                    "Sometimes they listen, but nothing changes."
+                ],
+                3: [
+                    "Acknowledged but little change happens.",
+                    "I get a response, but it feels like they just agree and don't take action."
+                ],
+                4: [
+                    "Taken seriously sometimes.",
+                    "I feel my AM listens, but I'm not sure if it gets to the higher-ups."
+                ],
+                5: [
+                    "Always taken seriously and leads to improvement.",
+                    "This survey shows you take our feedback seriously and are committed to improving.",
+                    "I have seen direct changes based on my feedback."
+                ]
+            },
+            engagement: {
+                1: [
+                    "No impact; just a routine obligation.",
+                    "As a VA on a solo account, I don't feel any team connection. These activities are irrelevant to my daily work."
+                ],
+                2: [
+                    "It has a minimal impact on my morale.",
+                    "I feel like I have to attend, but I don't get much out of it."
+                ],
+                3: [
+                    "Neutral; doesn’t make a difference to me.",
+                    "It's nice to see, but doesn't feel like a part of my work life."
+                ],
+                4: [
+                    "Fun and somewhat motivating; helps me feel connected.",
+                    "I appreciate the effort, and it's nice to see my team."
+                ],
+                5: [
+                    "Very effective; I feel recognized, valued, and engaged.",
+                    "I feel recognized, valued, and engaged with the team.",
+                    "It makes me feel like part of a family, not just an employee."
+                ]
+            }
+        };
+
         const tooltipPlugin = {
             tooltip: {
                 backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -269,20 +399,23 @@
                         return `Rating: ${rating}`;
                     },
                     label: (tooltipItem) => {
-                        const verbatimData = tooltipItem.chart.data.verbatim;
-                        if (verbatimData && verbatimData[tooltipItem.dataIndex]) {
-                             return verbatimData[tooltipItem.dataIndex];
-                        }
-                        return `Count: ${tooltipItem.raw}`;
+                        return ''; 
+                    },
+                    beforeBody: (tooltipItems) => {
+                        const item = tooltipItems[0];
+                        const rating = item.chart.data.labels[item.dataIndex];
+                        const key = item.chart.options.datasetKey; 
+                        return feedbackComments[key][rating];
                     }
                 }
             }
         };
 
-        const chartOptions = (verbatimData = []) => ({
+        const chartOptions = (datasetKey) => ({
             maintainAspectRatio: false,
             responsive: true,
             indexAxis: 'y',
+            datasetKey: datasetKey,
             scales: {
                 x: {
                     beginAtZero: true,
@@ -363,16 +496,9 @@
                     data: [25, 40, 150, 280, 234],
                     backgroundColor: primaryColor,
                     borderRadius: 6,
-                }],
-                verbatim: [
-                    "Creates stress and is unfair. It's a big amount for a new VA.",
-                    "Doesn’t really help or matter to me.",
-                    "Neutral; doesn’t affect me either way.",
-                    "Reasonable, helps with commitment. I understand the purpose.",
-                    "Strongly encourages me to stay and prevents resignation."
-                ]
+                }]
             },
-            options: chartOptions()
+            options: chartOptions('bondPolicy')
         });
 
         new Chart(document.getElementById('anniversaryChart'), {
@@ -384,16 +510,9 @@
                     data: [15, 25, 110, 310, 269],
                     backgroundColor: secondaryColor,
                     borderRadius: 6,
-                }],
-                verbatim: [
-                    "I do not appreciate it at all.",
-                    "I don’t really care about the amount.",
-                    "Neutral; doesn’t make a difference for me.",
-                    "I'm happy about it! It's a nice recognition.",
-                    "I feel valued and motivated to build a long-term career."
-                ]
+                }]
             },
-            options: chartOptions()
+            options: chartOptions('anniversary')
         });
 
         new Chart(document.getElementById('christmasChart'), {
@@ -405,16 +524,9 @@
                     data: [80, 70, 180, 250, 149],
                     backgroundColor: tertiaryColor,
                     borderRadius: 6,
-                }],
-                verbatim: [
-                    "Not excited at all, the amount is too small.",
-                    "I don’t really care, it won't make a big difference.",
-                    "Neutral about it.",
-                    "I'm looking forward to it. It's a nice gesture.",
-                    "Very excited; I feel valued and appreciated!"
-                ]
+                }]
             },
-            options: chartOptions()
+            options: chartOptions('christmas')
         });
         
         new Chart(document.getElementById('feedbackChart'), {
@@ -426,16 +538,9 @@
                     data: [30, 60, 150, 280, 209],
                     backgroundColor: primaryColor,
                     borderRadius: 6,
-                }],
-                 verbatim: [
-                    "Not considered or implemented at all.",
-                    "Rarely acknowledged.",
-                    "Acknowledged but little change happens.",
-                    "Taken seriously sometimes.",
-                    "Always taken seriously and leads to improvement."
-                ]
+                }]
             },
-            options: chartOptions()
+            options: chartOptions('feedback')
         });
 
         new Chart(document.getElementById('engagementChart'), {
@@ -447,16 +552,9 @@
                     data: [100, 120, 200, 180, 129],
                     backgroundColor: secondaryColor,
                     borderRadius: 6,
-                }],
-                verbatim: [
-                    "No impact; just a routine obligation.",
-                    "It has a minimal impact on my morale.",
-                    "Neutral; doesn’t make a difference to me.",
-                    "Fun and somewhat motivating; helps me feel connected.",
-                    "Very effective; I feel recognized, valued, and engaged."
-                ]
+                }]
             },
-            options: chartOptions()
+            options: chartOptions('engagement')
         });
         
         const tabs = document.querySelectorAll('.tab-btn');
