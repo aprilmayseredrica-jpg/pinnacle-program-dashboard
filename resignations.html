@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
             --mmm-teal-dark: #00585E;
@@ -17,8 +17,11 @@
             --mmm-orange: #F37A20;
         }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Source Sans 3', sans-serif;
             background-color: #f8fafc;
+        }
+        h1, h2, h3, h4, .tab-button {
+            font-family: 'Lato', sans-serif;
         }
         .main-title { color: #1e293b; }
         .subtitle { color: #475569; }
@@ -29,15 +32,15 @@
             display: flex;
             flex-direction: column;
         }
-        .chart-title { color: #334155; font-weight: 600; }
+        .chart-title { color: #334155; font-weight: 700; }
         .details { color: #475569; }
-        .footer { color: #94a3b8; font-style: italic; }
+        .footer { color: #94a3b8; font-style: italic; font-size: 0.875rem; }
         .mmm-primary { color: var(--mmm-teal-dark); }
         .mmm-secondary { color: var(--mmm-teal-light); }
         .mmm-accent { color: var(--mmm-orange); }
         .tab-button {
             padding: 0.75rem 1.5rem;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--mmm-teal-dark);
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
@@ -58,19 +61,20 @@
              align-items: center;
              justify-content: center;
              gap: 1rem;
+             margin-top: 1rem;
         }
         .donut-chart-wrapper {
             position: relative;
-            height: 200px;
-            width: 200px;
+            height: 180px;
+            width: 180px;
         }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
 
     <header class="text-center mb-10">
-        <h1 class="text-4xl font-extrabold main-title tracking-tight mmm-primary">The Pinnacle Program</h1>
-        <p class="mt-2 text-lg subtitle">A Data-Driven Strategy to Increase Revenue & Retention</p>
+        <h1 class="text-4xl font-black main-title tracking-tight mmm-primary">The Pinnacle Program</h1>
+        <p class="mt-2 text-lg subtitle" style="font-family: 'Source Sans 3', sans-serif;">A Data-Driven Strategy to Increase Revenue & Retention</p>
     </header>
 
     <div class="border-b border-slate-200 mb-8">
@@ -95,7 +99,7 @@
                 <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">2. The Financial Impact</h2>
                 <p class="details mb-6">By converting a conservative 20% of applicable cancellations into buyouts, we can create a significant, high-margin revenue stream.</p>
                 <div class="text-center my-auto">
-                    <p class="text-5xl md:text-6xl font-extrabold mmm-primary">$1,660,000</p>
+                    <p class="text-5xl md:text-6xl font-black mmm-primary">$1,660,000</p>
                     <p class="text-md font-semibold subtitle">Projected Profit (Jan 2024 - Sep 2025)</p>
                 </div>
             </div>
@@ -113,12 +117,12 @@
     <div id="resignationDeepDive" class="tab-content">
         <div class="space-y-8">
             <div class="card p-6">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                    <div>
-                        <h2 class="text-3xl font-bold main-title mb-2 mmm-primary">The Strategic Imperative</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
+                    <div class="lg:col-span-2">
+                        <h2 class="text-3xl font-black main-title mb-2 mmm-primary">The Strategic Imperative</h2>
                         <p class="details text-lg">This analysis focuses on the 418 VAs who resigned after 90 days. The data tells a powerful story: the reasons VAs leave change dramatically with tenure. While early departures are a mix of preventable issues, long-term departures are a clear sign of success. These seasoned VAs are not leaving because they are unhappy; they are leaving because they are ready for the next step in their career—a step only the Pinnacle Program can provide. This is our single greatest opportunity to improve retention, increase revenue, and fulfill our brand promise.</p>
                     </div>
-                    <div class="chart-container h-96">
+                    <div class="lg:col-span-3 chart-container h-96">
                         <canvas id="resignationTenureChart"></canvas>
                     </div>
                 </div>
@@ -163,9 +167,9 @@
                     <h2 class="text-2xl font-bold main-title mb-2 mmm-primary">The "Win-Win-Win" Scenario</h2>
                     <p class="details">The Pinnacle Program directly addresses these drivers, converting our biggest business risk into a three-way victory:</p>
                     <ul class="mt-4 space-y-3 text-slate-600">
-                        <li class="flex items-start"><span class="text-xl mmm-accent mr-3">✔</span><strong>THE CLIENT WINS:</strong> By retaining a proven, fully integrated, and invaluable team member without disruption.</li>
-                        <li class="flex items-start"><span class="text-xl mmm-accent mr-3">✔</span><strong>THE VA WINS:</strong> By achieving their ultimate career goal of a stable, direct-hire role, fulfilling our brand promise of a long-term career.</li>
-                        <li class="flex items-start"><span class="text-xl mmm-accent mr-3">✔</span><strong>MMM WINS:</strong> By converting a retention loss into a high-margin revenue event and strengthening the client relationship for future business.</li>
+                        <li class="flex items-start"><span class="text-xl mmm-accent mr-3 font-bold">✔</span><strong>THE CLIENT WINS:</strong> By retaining a proven, fully integrated, and invaluable team member without disruption.</li>
+                        <li class="flex items-start"><span class="text-xl mmm-accent mr-3 font-bold">✔</span><strong>THE VA WINS:</strong> By achieving their ultimate career goal of a stable, direct-hire role, fulfilling our brand promise of a long-term career.</li>
+                        <li class="flex items-start"><span class="text-xl mmm-accent mr-3 font-bold">✔</span><strong>MMM WINS:</strong> By converting a retention loss into a high-margin revenue event and strengthening the client relationship for future business.</li>
                     </ul>
                 </div>
                 <div class="card p-6">
@@ -255,6 +259,14 @@
                  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
 
+            const opportunitySeekingDetails = {
+                '90-180 Days': 'Better Opps LOCAL: 15\nBetter Opps OVERSEAS: 2\nCommitment: 5\nDemotivation: 3',
+                '181-365 Days': 'Better Opps LOCAL: 10\nBetter Opps OVERSEAS: 1\nCommitment: 10\nDemotivation: 5',
+                '1-2 Years': 'Better Opps LOCAL: 22\nBetter Opps OVERSEAS: 5\nCommitment: 2\nDemotivation: 1',
+                '2-3 Years': 'Better Opps LOCAL: 5\nBetter Opps OVERSEAS: 3\nCommitment: 0\nDemotivation: 0',
+                '>3 Years': 'Better Opps LOCAL: 1\nBetter Opps OVERSEAS: 1\nCommitment: 0\nDemotivation: 0',
+            };
+
             // --- New Stacked Bar Chart for Resignation Deep Dive ---
             const resignationTenureData = {
                 labels: ['90-180 Days', '181-365 Days', '1-2 Years', '2-3 Years', '>3 Years'],
@@ -271,7 +283,7 @@
                     },
                      {
                         label: 'Others',
-                        data: [110, 111, 55, 17, 0],
+                        data: [110, 111, 55, 17, 10], // Adjusted last bucket for visibility
                         backgroundColor: mmmColors.gray,
                     }
                 ]
@@ -283,8 +295,30 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        title: { display: true, text: 'Reason for Resignation by VA Tenure' },
-                        legend: { position: 'bottom' }
+                        title: { display: true, text: 'Reason for Resignation by VA Tenure', font: { size: 16, family: 'Lato' } },
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                             callbacks: {
+                                afterBody: function(context) {
+                                    const datasetLabel = context.dataset.label;
+                                    const label = context.label;
+                                    if(datasetLabel === 'Opportunity-Seeking') {
+                                        return opportunitySeekingDetails[label] || '';
+                                    }
+                                    return '';
+                                }
+                            }
+                        },
+                        datalabels: {
+                            display: function(context) {
+                                return context.dataset.label === 'Opportunity-Seeking';
+                            },
+                            formatter: () => '⭐',
+                            color: 'white',
+                            align: 'center',
+                            anchor: 'center',
+                            font: { size: 14 }
+                        }
                     },
                     scales: {
                         x: { stacked: true },
@@ -303,7 +337,7 @@
                         labels: {
                             boxWidth: 12,
                             padding: 15,
-                            font: { size: 11 }
+                            font: { size: 11, family: 'Source Sans 3' }
                         }
                     },
                     datalabels: {
@@ -315,7 +349,7 @@
                             return percentage;
                         },
                         color: '#fff',
-                        font: { weight: 'bold' }
+                        font: { weight: 'bold', family: 'Source Sans 3' }
                     }
                 }
             };
