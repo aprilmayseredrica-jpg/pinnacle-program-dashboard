@@ -65,8 +65,8 @@
         }
         .donut-chart-wrapper {
             position: relative;
-            height: 180px;
-            width: 180px;
+            height: 220px;
+            width: 220px;
         }
     </style>
 </head>
@@ -260,11 +260,11 @@
             });
 
             const opportunitySeekingDetails = {
-                '90-180 Days': 'Better Opps LOCAL: 15\nBetter Opps OVERSEAS: 2\nCommitment: 5\nDemotivation: 3',
-                '181-365 Days': 'Better Opps LOCAL: 10\nBetter Opps OVERSEAS: 1\nCommitment: 10\nDemotivation: 5',
-                '1-2 Years': 'Better Opps LOCAL: 22\nBetter Opps OVERSEAS: 5\nCommitment: 2\nDemotivation: 1',
-                '2-3 Years': 'Better Opps LOCAL: 5\nBetter Opps OVERSEAS: 3\nCommitment: 0\nDemotivation: 0',
-                '>3 Years': 'Better Opps LOCAL: 1\nBetter Opps OVERSEAS: 1\nCommitment: 0\nDemotivation: 0',
+                '90-180 Days': '\nBreakdown:\n- Better Opps LOCAL: 15\n- Better Opps OVERSEAS: 2\n- Commitment Issues: 5\n- Demotivation of VA: 3',
+                '181-365 Days': '\nBreakdown:\n- Better Opps LOCAL: 10\n- Better Opps OVERSEAS: 1\n- Commitment Issues: 10\n- Demotivation of VA: 5',
+                '1-2 Years': '\nBreakdown:\n- Better Opps LOCAL: 22\n- Better Opps OVERSEAS: 5\n- Commitment Issues: 2\n- Demotivation of VA: 1',
+                '2-3 Years': '\nBreakdown:\n- Better Opps LOCAL: 5\n- Better Opps OVERSEAS: 3',
+                '>3 Years': '\nBreakdown:\n- Better Opps LOCAL: 1\n- Better Opps OVERSEAS: 1'
             };
 
             // --- New Stacked Bar Chart for Resignation Deep Dive ---
@@ -272,7 +272,7 @@
                 labels: ['90-180 Days', '181-365 Days', '1-2 Years', '2-3 Years', '>3 Years'],
                 datasets: [
                     {
-                        label: 'Opportunity-Seeking',
+                        label: '⭐ Opportunity-Seeking',
                         data: [25, 26, 30, 8, 2],
                         backgroundColor: mmmColors.secondary,
                     },
@@ -283,7 +283,7 @@
                     },
                      {
                         label: 'Others',
-                        data: [110, 111, 55, 17, 10], // Adjusted last bucket for visibility
+                        data: [110, 111, 55, 17, 10],
                         backgroundColor: mmmColors.gray,
                     }
                 ]
@@ -300,24 +300,15 @@
                         tooltip: {
                              callbacks: {
                                 afterBody: function(context) {
-                                    const datasetLabel = context.dataset.label;
-                                    const label = context.label;
-                                    if(datasetLabel === 'Opportunity-Seeking') {
+                                    const currentItem = context[0];
+                                    const datasetLabel = currentItem.dataset.label;
+                                    const label = currentItem.label;
+                                    if(datasetLabel.includes('Opportunity-Seeking')) {
                                         return opportunitySeekingDetails[label] || '';
                                     }
                                     return '';
                                 }
                             }
-                        },
-                        datalabels: {
-                            display: function(context) {
-                                return context.dataset.label === 'Opportunity-Seeking';
-                            },
-                            formatter: () => '⭐',
-                            color: 'white',
-                            align: 'center',
-                            anchor: 'center',
-                            font: { size: 14 }
                         }
                     },
                     scales: {
@@ -345,6 +336,7 @@
                             let sum = 0;
                             let dataArr = ctx.chart.data.datasets[0].data;
                             dataArr.map(data => { sum += data; });
+                            if (sum === 0) return '0%';
                             let percentage = (value*100 / sum).toFixed(0)+"%";
                             return percentage;
                         },
