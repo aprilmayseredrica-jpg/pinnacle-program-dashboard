@@ -79,7 +79,7 @@
         <nav class="flex justify-center -mb-px">
             <button class="tab-button active" onclick="changeTab(event, 'mainDashboard')">Executive Dashboard</button>
             <button class="tab-button" onclick="changeTab(event, 'resignationDeepDive')">Strategic Deep Dive</button>
-            <button class="tab-button" onclick="changeTab(event, 'qna')">Strategic Q&A</button>
+            <button class="tab-button" onclick="changeTab(event, 'qna')">Executive Summary & Q&A</button>
         </nav>
     </div>
 
@@ -161,17 +161,17 @@
                                 <tr class="bg-white">
                                     <td class="p-3 font-semibold border border-slate-200 align-top">Q1 (Jan-Mar)</td>
                                     <td class="p-3 border border-slate-200 align-top text-sm details">US clients finalize new annual budgets. Filipino VAs become active job-seekers after receiving their legally mandated "13th month pay" in December. This creates a perfect storm for strategic buyouts.</td>
-                                    <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Proactively engage clients with VAs tenured 10+ months in January.</td>
+                                    <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Launch Pinnacle Program awareness campaigns to clients with VAs tenured 10+ months.</td>
                                 </tr>
                                  <tr class="bg-white">
                                     <td class="p-3 font-semibold border border-slate-200 align-top">Q2 (Apr-Jun)</td>
                                     <td class="p-3 border border-slate-200 align-top text-sm details">Post-Q1 performance reviews in the US confirm the VA's value and ROI. This is a key trigger for clients to convert a successful placement into a permanent hire before mid-year budget adjustments.</td>
-                                     <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Schedule strategic reviews in May with clients who have expressed high satisfaction.</td>
+                                     <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Proactively schedule strategic reviews in May, presenting the Pinnacle Program as a solution for retaining top talent.</td>
                                 </tr>
                                  <tr class="bg-white">
                                     <td class="p-3 font-semibold border border-slate-200 align-top">Q3 (Jul-Sep)</td>
                                     <td class="p-3 border border-slate-200 align-top text-sm details">As US clients reassess mid-year budgets and plan for Q4, securing essential personnel becomes a top priority, creating another buyout window before the end-of-year rush.</td>
-                                    <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Initiate conversations in August with clients whose VAs have critical, project-based roles.</td>
+                                    <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Initiate conversations in August, positioning the Program as a way to secure critical VAs for EOY goals.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -235,28 +235,47 @@
 
     <!-- Q&A Tab -->
     <div id="qna" class="tab-content">
-        <div class="card p-6 max-w-4xl mx-auto">
-            <h2 class="text-2xl font-bold main-title mb-2 text-center mmm-primary">Strategic Q&A</h2>
-            <p class="details text-center mb-6">Have a question about the data or strategy? Ask VA-lueLens for an instant, data-backed answer.</p>
-            
-            <div id="chat-window" class="h-96 overflow-y-auto p-4 bg-slate-50 rounded-lg border border-slate-200 mb-4 space-y-4">
-                <!-- Chat messages will appear here -->
-                 <div class="flex">
-                    <div class="rounded-lg p-3 bg-teal-100 text-teal-900">
-                        <p class="font-bold">VA-lueLens</p>
-                        <p class="text-sm">Welcome! I have been primed with all the data from this proposal. Ask me anything, for example: "What is the biggest reason VAs leave after one year?"</p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div class="card p-6">
+                <h2 class="text-2xl font-bold main-title mb-2 mmm-primary">Executive Summary</h2>
+                <p class="details mb-4">This proposal outlines the data-driven case for the Pinnacle Program, a strategic initiative to formalize VA buyouts, creating a new revenue stream while increasing client and VA retention.</p>
+                 <div class="space-y-4">
+                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <h3 class="font-bold text-lg main-title">The Problem</h3>
+                        <p class="details text-sm mt-1">Our biggest source of controllable churn is **VA Resignation (418 of 1,011 cancellations)**, particularly among long-term VAs who are not leaving due to performance issues but are seeking direct-hire roles. This represents a significant and predictable revenue loss.</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <h3 class="font-bold text-lg main-title">The Solution</h3>
+                        <p class="details text-sm mt-1">The Pinnacle Program is a formal, tiered buyout policy that allows clients to legally and seamlessly hire their VAs. It's a "win-win-win" that retains the client relationship, fulfills the VA's career goals, and converts a business risk for MMM into a profitable outcome.</p>
+                    </div>
+                     <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <h3 class="font-bold text-lg main-title">The Opportunity</h3>
+                        <p class="details text-sm mt-1">We project **$1.66 million** in new revenue in the first 20 months. As a market-first offering, this program gives us a powerful competitive advantage over rivals like Hello Rache and MedVA, positioning us as the premier partner for serious, long-term growth.</p>
                     </div>
                 </div>
             </div>
+            <div class="card p-6">
+                <h2 class="text-2xl font-bold main-title mb-2 text-center mmm-primary">Strategic Q&A</h2>
+                <p class="details text-center mb-6">Have a question? Ask VA-lueLens for an instant, data-backed answer.</p>
+                
+                <div id="chat-window" class="h-80 overflow-y-auto p-4 bg-slate-50 rounded-lg border border-slate-200 mb-4 space-y-4">
+                     <div class="flex">
+                        <div class="rounded-lg p-3 bg-teal-100 text-teal-900">
+                            <p class="font-bold">VA-lueLens</p>
+                            <p class="text-sm">I'm ready to answer your questions based on the data in this proposal. For example: "Why do we project buyouts will peak in January?"</p>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="flex items-center">
-                <input type="text" id="chat-input" class="w-full p-3 border border-slate-300 rounded-l-lg focus:ring-2 focus:ring-teal-500 focus:outline-none" placeholder="Ask your question here...">
-                <button id="send-btn" class="p-3 bg-teal-600 text-white rounded-r-lg hover:bg-teal-700 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
-                </button>
-            </div>
-             <div id="loader" class="text-center mt-4 hidden">
-                <p class="text-slate-500">VA-lueLens is thinking...</p>
+                <div class="flex items-center">
+                    <input type="text" id="chat-input" class="w-full p-3 border border-slate-300 rounded-l-lg focus:ring-2 focus:ring-teal-500 focus:outline-none" placeholder="Ask your question here...">
+                    <button id="send-btn" class="p-3 bg-teal-600 text-white rounded-r-lg hover:bg-teal-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                    </button>
+                </div>
+                 <div id="loader" class="text-center mt-4 hidden">
+                    <p class="text-slate-500">VA-lueLens is thinking...</p>
+                </div>
             </div>
         </div>
     </div>
