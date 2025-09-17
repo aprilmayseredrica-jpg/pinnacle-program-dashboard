@@ -258,13 +258,29 @@
                  },
                  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
-
-            const opportunitySeekingDetails = {
-                '90-180 Days': '\nBreakdown:\n- Better Opps LOCAL: 15\n- Better Opps OVERSEAS: 2\n- Commitment Issues: 5\n- Demotivation of VA: 3',
-                '181-365 Days': '\nBreakdown:\n- Better Opps LOCAL: 10\n- Better Opps OVERSEAS: 1\n- Commitment Issues: 10\n- Demotivation of VA: 5',
-                '1-2 Years': '\nBreakdown:\n- Better Opps LOCAL: 22\n- Better Opps OVERSEAS: 5\n- Commitment Issues: 2\n- Demotivation of VA: 1',
-                '2-3 Years': '\nBreakdown:\n- Better Opps LOCAL: 5\n- Better Opps OVERSEAS: 3',
-                '>3 Years': '\nBreakdown:\n- Better Opps LOCAL: 1\n- Better Opps OVERSEAS: 1'
+            
+            const tenureDetails = {
+                '⭐ Opportunity-Seeking': {
+                    '90-180 Days': '\nBreakdown:\n- Better Opps LOCAL: 15\n- Better Opps OVERSEAS: 2\n- Commitment Issues: 5\n- Demotivation of VA: 3',
+                    '181-365 Days': '\nBreakdown:\n- Better Opps LOCAL: 10\n- Better Opps OVERSEAS: 1\n- Commitment Issues: 10\n- Demotivation of VA: 5',
+                    '1-2 Years': '\nBreakdown:\n- Better Opps LOCAL: 22\n- Better Opps OVERSEAS: 5\n- Commitment Issues: 2\n- Demotivation of VA: 1',
+                    '2-3 Years': '\nBreakdown:\n- Better Opps LOCAL: 5\n- Better Opps OVERSEAS: 3',
+                    '>3 Years': '\nBreakdown:\n- Better Opps LOCAL: 1\n- Better Opps OVERSEAS: 1'
+                },
+                'Performance-Related': {
+                    '90-180 Days': '\nBreakdown:\n- Quality: 5\n- Quantity: 2\n- Skills: 3',
+                    '181-365 Days': '\nBreakdown:\n- Quality: 4\n- Quantity: 2\n- Skills: 1',
+                    '1-2 Years': '\nBreakdown:\n- Quality: 1\n- Quantity: 1',
+                    '2-3 Years': '\nBreakdown:\n- None',
+                    '>3 Years': '\nBreakdown:\n- None'
+                },
+                'Others': {
+                    '90-180 Days': '\nBreakdown:\n- Health: 15\n- Personal/Family: 25\n- Not Specified: 70',
+                    '181-365 Days': '\nBreakdown:\n- Health: 20\n- Personal/Family: 31\n- Not Specified: 60',
+                    '1-2 Years': '\nBreakdown:\n- Health: 10\n- Personal/Family: 15\n- Not Specified: 30',
+                    '2-3 Years': '\nBreakdown:\n- Health: 5\n- Personal/Family: 5\n- Not Specified: 7',
+                    '>3 Years': '\nBreakdown:\n- Health: 2\n- Personal/Family: 3\n- Not Specified: 5'
+                }
             };
 
             // --- New Stacked Bar Chart for Resignation Deep Dive ---
@@ -303,10 +319,8 @@
                                     const currentItem = context[0];
                                     const datasetLabel = currentItem.dataset.label;
                                     const label = currentItem.label;
-                                    if(datasetLabel.includes('Opportunity-Seeking')) {
-                                        return opportunitySeekingDetails[label] || '';
-                                    }
-                                    return '';
+                                    const details = tenureDetails[datasetLabel];
+                                    return details ? details[label] : '';
                                 }
                             }
                         }
