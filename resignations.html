@@ -490,7 +490,7 @@
             const chatWindow = document.getElementById('chat-window');
             const loader = document.getElementById('loader');
 
-            const API_KEY = "PASTE_YOUR_GEMINI_API_KEY_HERE"; // Replace with your key
+            const API_KEY = "AIzaSyB3cbctAyDUexcLt71hg5JnxpYQ1yE1D9U"; // Replace with your key
             const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
 
             const systemPrompt = `You are VA-lueLens, an expert data analyst and CEO for My Mountain Mover (MMM), a virtual assistant agency. You are answering questions from your own CEO based on a strategic proposal you created called The Pinnacle Program. All your answers must be based *only* on the following data context. Be concise, professional, and confident.
@@ -512,7 +512,7 @@
                 const userQuery = chatInput.value.trim();
                 if (!userQuery) return;
                 
-                if (API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
+                if (API_KEY === "AIzaSyB3cbctAyDUexcLt71hg5JnxpYQ1yE1D9U") {
                     appendMessage("Please add your Gemini API Key to the HTML file to enable this feature.", "ai");
                     return;
                 }
