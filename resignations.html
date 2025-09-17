@@ -17,30 +17,18 @@
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* slate-50 */
+            background-color: #f8fafc;
         }
-        .main-title {
-            color: #1e293b; /* slate-800 */
-        }
-        .subtitle {
-            color: #475569; /* slate-600 */
-        }
+        .main-title { color: #1e293b; }
+        .subtitle { color: #475569; }
         .card {
             background-color: white;
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        .chart-title {
-            color: #334155; /* slate-700 */
-            font-weight: 600;
-        }
-        .details {
-             color: #475569; /* slate-600 */
-        }
-        .footer {
-            color: #94a3b8; /* slate-400 */
-            font-style: italic;
-        }
+        .chart-title { color: #334155; font-weight: 600; }
+        .details { color: #475569; }
+        .footer { color: #94a3b8; font-style: italic; }
         .mmm-primary { color: var(--mmm-teal-dark); }
         .mmm-secondary { color: var(--mmm-teal-light); }
         .mmm-accent { color: var(--mmm-orange); }
@@ -55,12 +43,8 @@
             color: var(--mmm-teal-dark);
             border-bottom-color: var(--mmm-orange);
         }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
@@ -70,35 +54,25 @@
         <p class="mt-2 text-lg subtitle">A Data-Driven Strategy to Increase Revenue & Retention</p>
     </header>
 
-    <!-- Tab Navigation -->
     <div class="border-b border-slate-200 mb-8">
         <nav class="flex justify-center -mb-px">
             <button class="tab-button active" onclick="changeTab(event, 'mainDashboard')">Executive Dashboard</button>
-            <button class="tab-button" onclick="changeTab(event, 'resignationDeepDive')">Strategic Deep Dive & Competitive Edge</button>
+            <button class="tab-button" onclick="changeTab(event, 'resignationDeepDive')">Strategic Deep Dive</button>
         </nav>
     </div>
 
     <!-- Main Dashboard Content -->
     <div id="mainDashboard" class="tab-content active">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Infographic 1: The Core Problem -->
             <div class="card p-6 col-span-1 lg:col-span-2">
-                <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">1. The Real Reason We Lose Placements</h2>
-                <p class="details mb-6">Nearly HALF of all cancellations are due to VA Resignations. These are our most experienced, client-integrated VAs, representing a significant loss of proven talent.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                    <div class="max-w-xs mx-auto">
-                        <h3 class="chart-title text-center mb-2">Breakdown of 853 Cancellations</h3>
-                        <canvas id="cancellationReasonsChart"></canvas>
-                    </div>
-                    <div>
-                        <h3 class="chart-title text-center mb-2">Avg. Tenure by Cancellation Reason (Days)</h3>
-                        <canvas id="tenureByReasonChart"></canvas>
-                    </div>
+                <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">1. The State of Play</h2>
+                <p class="details mb-6">Our data on 1,011 VAs with over 90 days of tenure reveals a clear narrative: VA Resignation is the single largest factor driving cancellations, representing our most significant challenge and our greatest opportunity.</p>
+                <div>
+                    <h3 class="chart-title text-center mb-4">Breakdown of 1,011 Cancellations (VAs with >90 Days Tenure)</h3>
+                    <canvas id="cancellationReasonsChart"></canvas>
                 </div>
-                <p class="footer text-center mt-6">Source: Full analysis of 853 internal cancellation records.</p>
+                <p class="footer text-center mt-6">Source: All-time cancellation data for VAs past the 90-day mark.</p>
             </div>
-
-            <!-- Infographic 2: Forecasting the Opportunity -->
             <div class="card p-6">
                 <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">2. Forecasting the Opportunity</h2>
                 <p class="details mb-6">Cancellations follow a predictable seasonal pattern, allowing us to anticipate when clients are making long-term decisions and proactively discuss The Pinnacle Program.</p>
@@ -106,30 +80,15 @@
                      <h3 class="chart-title text-center mb-2">Monthly Cancellation Trends (2022-2025)</h3>
                     <canvas id="monthlyTrendsChart"></canvas>
                 </div>
-                <p class="footer text-center mt-6">Source: Aggregated monthly cancellation data from 2022-2025.</p>
             </div>
-
-            <!-- Infographic 3: The Financial Impact -->
             <div class="card p-6 flex flex-col justify-center">
                 <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">3. The Financial Impact</h2>
-                <p class="details mb-6">By converting a conservative estimate of 20% of applicable cancellations into formal buyouts, we can create a significant, high-margin revenue stream.</p>
+                <p class="details mb-6">By converting a conservative 20% of applicable cancellations into buyouts, we can create a significant, high-margin revenue stream.</p>
                 <div class="text-center my-8">
                     <p class="text-6xl md:text-7xl font-extrabold mmm-primary">$1,660,000</p>
                     <p class="text-lg font-semibold subtitle">Projected Profit (Jan 2024 - Sep 2025)</p>
                 </div>
-                <div class="flex justify-around text-center">
-                    <div><p class="text-3xl font-bold main-title">415</p><p class="font-medium subtitle">Cancellations in Period</p></div>
-                    <div><p class="text-3xl font-bold main-title">83</p><p class="font-medium subtitle">Potential Buyouts (20%)</p></div>
-                    <div><p class="text-3xl font-bold main-title">$20k</p><p class="font-medium subtitle">Avg. Buyout Fee</p></div>
-                </div>
-                 <p class="footer text-center mt-6">Source: Based on analysis of 415 cancellations from Jan 2024 - Sep 2025.</p>
             </div>
-
-            <!-- Infographic 4: The Rollout Plan -->
-             <div class="card p-6 col-span-1 lg:col-span-2">
-                <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">4. Our Strategic 4-Phase Rollout Plan</h2>
-                <p class="details">A methodical, proactive launch over the next quarter will ensure a smooth transition for existing clients and establish the policy as a premium feature for new business.</p>
-             </div>
         </div>
     </div>
 
@@ -138,53 +97,33 @@
         <div class="space-y-8">
             <div class="card p-8">
                 <h2 class="text-3xl font-bold main-title mb-2 mmm-primary">The Strategic Imperative: A Deep Dive into VA Resignations</h2>
-                <p class="details text-lg max-w-4xl">Our analysis of all 327 VA resignations reveals a clear and powerful story. The reasons VAs leave change dramatically with tenure. While early departures are a mix of preventable issues, long-term departures are a sign of success. These seasoned VAs are not leaving because they are unhappy; they are leaving because they are ready for the next step in their career—a step only the Pinnacle Program can provide. This is our single greatest opportunity to improve retention, increase revenue, and fulfill our brand promise.</p>
+                <p class="details text-lg max-w-4xl">This analysis focuses on the 418 VAs who resigned after 90 days. The data tells a powerful story: the reasons VAs leave change dramatically with tenure. While early departures are a mix of preventable issues, long-term departures are a clear sign of success. These seasoned VAs are not leaving because they are unhappy; they are leaving because they are ready for the next step in their career—a step only the Pinnacle Program can provide. This is our single greatest opportunity to improve retention, increase revenue, and fulfill our brand promise.</p>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                 <div class="card p-6 text-center">
-                    <h3 class="text-xl font-bold main-title">Resignations Under 1 Year</h3>
-                    <p class="text-5xl font-bold mmm-secondary my-2">198 VAs</p>
-                    <p class="font-semibold subtitle">Average Tenure: 153 Days</p>
-                    <p class="details mt-2">Departures are often linked to specific, addressable issues like performance, attendance, or finding other local opportunities.</p>
-                </div>
-                <div class="card p-6 text-center">
-                     <h3 class="text-xl font-bold main-title">Resignations After 1 Year</h3>
-                    <p class="text-5xl font-bold mmm-primary my-2">129 VAs</p>
-                    <p class="font-semibold subtitle">Average Tenure: 695 Days</p>
-                    <p class="details mt-2">Departures are overwhelmingly for reasons that suggest a desire for a direct-hire role, with minimal performance-related issues.</p>
-                </div>
-            </div>
-            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
-                <div class="lg:col-span-3 card p-6">
-                    <h3 class="chart-title text-center mb-4">Breakdown of All-Time Resignation Issues (327 VAs)</h3>
-                    <canvas id="allTimeResignationsChart"></canvas>
-                </div>
-                <div class="lg:col-span-2 card p-6 bg-slate-50">
-                     <h3 class="text-xl font-bold main-title mb-4">Analysis of Key Drivers</h3>
-                    <ul class="space-y-4">
-                        <li>
-                            <p class="font-semibold mmm-primary">Not Specified / Others (218 VAs)</p>
-                            <p class="details text-sm">This is our largest category and our biggest opportunity. For long-term VAs, this often serves as a discreet reason for accepting a direct-hire offer from their client. The Pinnacle Program provides a formal, transparent alternative.</p>
-                        </li>
-                        <li>
-                            <p class="font-semibold mmm-secondary">Better Opportunities (53 VAs)</p>
-                            <p class="details text-sm">Our VAs are high-quality talent. This program makes the best opportunity—a direct role with their trusted client—a path that runs *through* MMM, not around us.</p>
-                        </li>
-                         <li>
-                            <p class="font-semibold mmm-accent">Personal/Health (35 VAs)</p>
-                            <p class="details text-sm">These are unavoidable life events. Our focus remains on the preventable departures.</p>
-                        </li>
-                        <li>
-                            <p class="font-semibold text-amber-500">Performance/Behavior (21 VAs)</p>
-                             <p class="details text-sm">This is the smallest category, proving that the vast majority of VAs who resign are valuable, proven assets worth retaining.</p>
-                        </li>
-                    </ul>
+
+            <div class="card p-6">
+                <h3 class="chart-title text-center mb-4">The Two Stories of VA Resignation: A Comparative Analysis</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <!-- Less than 1 year -->
+                    <div class="text-center p-4 rounded-lg bg-slate-50">
+                        <h3 class="text-xl font-bold main-title">Resignations Under 1 Year</h3>
+                        <p class="text-5xl font-bold mmm-secondary my-2">289 VAs</p>
+                        <canvas id="resignationsUnder365Chart"></canvas>
+                        <p class="details mt-4 text-left"><strong>The Narrative:</strong> Early-term resignations are a mix of preventable issues. A significant portion is linked to VAs seeking other opportunities, alongside tangible performance or commitment problems. This is where we can improve our screening and early support.</p>
+                    </div>
+                    <!-- 1 year or more -->
+                    <div class="text-center p-4 rounded-lg bg-slate-50">
+                         <h3 class="text-xl font-bold main-title">Resignations After 1 Year</h3>
+                        <p class="text-5xl font-bold mmm-primary my-2">129 VAs</p>
+                        <canvas id="resignationsOver365Chart"></canvas>
+                        <p class="details mt-4 text-left"><strong>The Narrative:</strong> The story flips completely for long-term VAs. Negative performance issues become statistically insignificant. The overwhelming drivers are "Better Opportunities" and uncategorized reasons, strongly indicating that these proven VAs are being pursued for direct-hire roles.</p>
+                    </div>
                 </div>
             </div>
+            
              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                  <div class="card p-6">
                     <h2 class="text-2xl font-bold main-title mb-2 mmm-primary">The "Win-Win-Win" Scenario</h2>
-                    <p class="details">The Pinnacle Program directly addresses these drivers, converting a business risk into a three-way victory:</p>
+                    <p class="details">The Pinnacle Program directly addresses these drivers, converting our biggest business risk into a three-way victory:</p>
                     <ul class="mt-4 space-y-3 text-slate-600">
                         <li class="flex items-start"><span class="text-xl mmm-accent mr-3">✔</span><strong>THE CLIENT WINS:</strong> By retaining a proven, fully integrated, and invaluable team member without disruption.</li>
                         <li class="flex items-start"><span class="text-xl mmm-accent mr-3">✔</span><strong>THE VA WINS:</strong> By achieving their ultimate career goal of a stable, direct-hire role, fulfilling our brand promise of a long-term career.</li>
@@ -208,7 +147,6 @@
                 tabs[i].classList.remove('active');
             }
             document.getElementById(tabID).classList.add('active');
-
             let tabButtons = document.getElementsByClassName('tab-button');
             for (let i = 0; i < tabButtons.length; i++) {
                 tabButtons[i].classList.remove('active');
@@ -222,44 +160,40 @@
                 secondary: '#00A99D', // MMM Teal Light
                 accent: '#F37A20',    // MMM Orange
                 gray: '#64748b',      // slate-500
-                extraColors: ['#f59e0b', '#84cc16', '#3b82f6', '#ec4899']
+                red: '#ef4444' // red-500 for negative
             };
 
             // Main Dashboard Charts
-            new Chart(document.getElementById('cancellationReasonsChart'), { type: 'doughnut', data: { labels: ['VA Resignations', 'Client Set-Up Issues', 'Financial Reasons'], datasets: [{ data: [418, 279, 156], backgroundColor: [mmmColors.primary, mmmColors.secondary, mmmColors.accent], borderColor: '#ffffff', borderWidth: 4 }] }, options: { responsive: true, plugins: { legend: { position: 'bottom' } } } });
-            new Chart(document.getElementById('tenureByReasonChart'), { type: 'bar', data: { labels: ['VA Resignations', 'Client Set-Up Issues', 'Financial Reasons'], datasets: [{ label: 'Avg. Tenure in Days', data: [452, 268, 304], backgroundColor: [mmmColors.primary, mmmColors.secondary, mmmColors.accent], borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } } });
-            new Chart(document.getElementById('monthlyTrendsChart'), { type: 'line', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [{ label: 'Avg. Monthly Cancellations', data: [45, 30, 32, 38, 48, 35, 33, 49, 40, 31, 28, 36], borderColor: mmmColors.primary, backgroundColor: 'rgba(0, 169, 157, 0.1)', fill: true, tension: 0.4 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
-
-            // Resignation Deep Dive Chart
-            new Chart(document.getElementById('allTimeResignationsChart'), {
+            new Chart(document.getElementById('cancellationReasonsChart'), {
                 type: 'bar',
                 data: {
-                    labels: ['Not Specified / Others', 'Better Opportunities', 'Personal/Health', 'Performance/Behavior'],
+                    labels: ['Resign', 'Client Set-Up', 'Financial Reason'],
                     datasets: [{
-                        label: 'Number of VAs',
-                        data: [218, 53, 35, 21],
-                        backgroundColor: [
-                            mmmColors.gray,
-                            mmmColors.secondary,
-                            mmmColors.accent,
-                            mmmColors.extraColors[0]
-                        ],
+                        label: 'Number of Cancellations',
+                        data: [418, 312, 281],
+                        backgroundColor: [mmmColors.primary, mmmColors.secondary, mmmColors.accent],
                         borderRadius: 4
                     }]
                 },
                 options: {
-                    responsive: true,
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: false }
-                    },
-                     scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
+                    indexAxis: 'y', responsive: true, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } }
                 }
             });
+            new Chart(document.getElementById('monthlyTrendsChart'), { type: 'line', data: { labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], datasets: [{ label: 'Avg. Monthly Cancellations', data: [45, 30, 32, 38, 48, 35, 33, 49, 40, 31, 28, 36], borderColor: mmmColors.primary, backgroundColor: 'rgba(0, 169, 157, 0.1)', fill: true, tension: 0.4 }] }, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+
+            // Resignation Deep Dive Charts
+            const resignationsUnder365Data = {
+                labels: ['Better Opps LOCAL', 'Better Opps OVERSEAS', 'Commitment', 'Demotivation of VA', 'Quality', 'Quantity of work', 'Others'],
+                datasets: [{ data: [25, 3, 15, 8, 12, 5, 221], backgroundColor: [mmmColors.secondary, mmmColors.secondary, mmmColors.secondary, mmmColors.secondary, mmmColors.red, mmmColors.red, mmmColors.gray], borderColor: '#ffffff', borderWidth: 2 }]
+            };
+             new Chart(document.getElementById('resignationsUnder365Chart'), { type: 'doughnut', data: resignationsUnder365Data, options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } } });
+
+            const resignationsOver365Data = {
+                labels: ['Better Opps LOCAL', 'Better Opps OVERSEAS', 'Commitment', 'Demotivation of VA', 'Quality', 'Quantity of work', 'Others'],
+                datasets: [{ data: [28, 10, 5, 2, 1, 1, 82], backgroundColor: [mmmColors.primary, mmmColors.primary, mmmColors.primary, mmmColors.primary, mmmColors.red, mmmColors.red, mmmColors.gray], borderColor: '#ffffff', borderWidth: 2 }]
+            };
+             new Chart(document.getElementById('resignationsOver365Chart'), { type: 'doughnut', data: resignationsOver365Data, options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } } });
+
         });
     </script>
 </body>
