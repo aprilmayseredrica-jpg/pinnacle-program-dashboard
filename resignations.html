@@ -306,7 +306,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-4">
                 <h3 id="modal-title" class="text-xl font-bold main-title">Breakdown</h3>
-                <button onclick="closeModal()" class="text-slate-500 hover:text-slate-800">&times;</button>
+                <button onclick="closeModal()" class="text-slate-500 hover:text-slate-800 text-3xl leading-none">&times;</button>
             </div>
             <div id="modal-body"></div>
         </div>
@@ -453,23 +453,23 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     onClick: (evt, elements, chart) => {
-                        const canvas = chart.canvas;
-                        const rect = canvas.getBoundingClientRect();
-                        const x = evt.x - rect.left;
-                        const y = evt.y - rect.top;
+                        if (elements.length > 0) {
+                            const canvas = chart.canvas;
+                            const rect = canvas.getBoundingClientRect();
+                            const x = evt.clientX - rect.left;
                         
-                        const xAxis = chart.scales.x;
-                        const labels = chart.data.labels;
+                            const xAxis = chart.scales.x;
+                            const labels = chart.data.labels;
 
-                        const labelWidth = xAxis.width / labels.length;
-                        const index = Math.floor(x / labelWidth);
-                        const category = labels[index];
+                            const index = xAxis.getValueForPixel(x);
+                            const category = labels[index];
 
-                        if (category) {
-                            const tableData = tenureDetails[category];
-                            if(tableData){
-                                const tableHTML = createTableHTML(tableData);
-                                showModal(`Breakdown for: ${category}`, tableHTML);
+                            if (category) {
+                                const tableData = tenureDetails[category];
+                                if(tableData){
+                                    const tableHTML = createTableHTML(tableData);
+                                    showModal(`Breakdown for: ${category}`, tableHTML);
+                                }
                             }
                         }
                     },
@@ -544,11 +544,6 @@
                 const userQuery = chatInput.value.trim();
                 if (!userQuery) return;
                 
-                if (API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
-                    appendMessage("Please add your Gemini API Key to the HTML file to enable this feature.", "ai");
-                    return;
-                }
-
                 appendMessage(userQuery, 'user');
                 chatInput.value = '';
                 loader.classList.remove('hidden');
@@ -566,6 +561,8 @@
                     });
 
                     if (!response.ok) {
+                        const errorBody = await response.json();
+                        console.error("API Error Response:", errorBody);
                         throw new Error(`API error: ${response.statusText}`);
                     }
 
