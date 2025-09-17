@@ -91,7 +91,7 @@
                 <div class="chart-container flex-grow">
                     <canvas id="cancellationReasonsChart"></canvas>
                 </div>
-                <p class="footer text-center mt-4">Source: All-time cancellation data for VAs past the 90-day mark. Hover over bars for details.</p>
+                <p class="footer text-center mt-4">Source: All-time cancellation data for VAs past the 90-day mark.</p>
             </div>
             <div class="card p-6 flex flex-col justify-center">
                 <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">2. The Financial Impact</h2>
@@ -101,12 +101,38 @@
                     <p class="text-md font-semibold subtitle">Projected Profit (Jan 2024 - Sep 2025)</p>
                 </div>
             </div>
-            <div class="card p-6 lg:col-span-3">
-                <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">3. Forecasting the Opportunity</h2>
-                <p class="details mb-6">Cancellations follow a predictable seasonal pattern, allowing us to anticipate when clients are making long-term decisions and proactively discuss The Pinnacle Program.</p>
-                <div class="chart-container flex-grow">
-                     <canvas id="monthlyTrendsChart"></canvas>
+            <div class="bg-white rounded-lg lg:col-span-3">
+                <div class="wave-divider rotate-180"></div>
+                <div class="card p-6 rounded-t-none border-t-0">
+                    <h2 class="text-2xl font-bold main-title mb-8 text-center mmm-primary">The "Win-Win-Win" Scenario</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Client Win -->
+                        <div class="text-center p-4">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
+                               <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 4h5m-5 4h5m-5-4h.01M9 7h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01" /></svg>
+                            </div>
+                            <h3 class="font-bold text-lg main-title">The Client Wins</h3>
+                            <p class="details text-sm">By retaining a proven, fully integrated, and invaluable team member without disruption.</p>
+                        </div>
+                         <!-- VA Win -->
+                        <div class="text-center p-4">
+                             <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
+                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                            </div>
+                            <h3 class="font-bold text-lg main-title">The VA Wins</h3>
+                            <p class="details text-sm">By achieving their ultimate career goal of a stable, direct-hire role, fulfilling our brand promise.</p>
+                        </div>
+                         <!-- MMM Win -->
+                        <div class="text-center p-4">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
+                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
+                            </div>
+                            <h3 class="font-bold text-lg main-title">MMM Wins</h3>
+                            <p class="details text-sm">By converting a retention loss into a high-margin revenue event and strengthening client relationships.</p>
+                        </div>
+                    </div>
                 </div>
+                 <div class="wave-divider -mt-1"></div>
             </div>
         </div>
     </div>
@@ -114,6 +140,43 @@
     <!-- Resignation Deep Dive Content -->
     <div id="resignationDeepDive" class="tab-content">
         <div class="space-y-8">
+            <div class="card p-6">
+                 <h2 class="text-2xl font-bold main-title mb-4 text-center mmm-primary">Forecasting the Opportunity</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="chart-container h-80">
+                         <canvas id="monthlyTrendsChartDetail"></canvas>
+                         <p class="footer text-center mt-2">Source: All-time monthly cancellation data.</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg main-title mb-2">The Buyout Calendar: A Strategic Forecast</h3>
+                        <p class="details mb-4">Our data reveals clear seasonal trends. By aligning these with the typical business cycles of US medical clients, we can anticipate when buyout conversations are most likely to occur and prepare our Client Success team for proactive engagement.</p>
+                        <div class="space-y-3">
+                            <div class="flex items-start p-3 bg-teal-50 rounded-lg">
+                                <span class="text-xl mmm-accent mr-3 font-bold">Q1</span>
+                                <div>
+                                    <h4 class="font-bold text-md main-title">Jan - Mar: The Strategic Start</h4>
+                                    <p class="details text-sm">Clients finalize new annual budgets and strategic plans. A successful VA is a proven asset worth securing for the year ahead. <strong class="mmm-primary">Peak Buyout Month: January.</strong></p>
+                                </div>
+                            </div>
+                             <div class="flex items-start p-3 bg-teal-50 rounded-lg">
+                                <span class="text-xl mmm-accent mr-3 font-bold">Q2</span>
+                                <div>
+                                    <h4 class="font-bold text-md main-title">Apr - Jun: Performance & Confirmation</h4>
+                                    <p class="details text-sm">Post-Q1 performance reviews confirm the VA's value and ROI. This is a key trigger for clients to convert a successful placement into a permanent hire. <strong class="mmm-primary">Peak Buyout Month: May.</strong></p>
+                                </div>
+                            </div>
+                             <div class="flex items-start p-3 bg-teal-50 rounded-lg">
+                                <span class="text-xl mmm-accent mr-3 font-bold">Q3</span>
+                                <div>
+                                    <h4 class="font-bold text-md main-title">Jul - Sep: Mid-Year Planning</h4>
+                                    <p class="details text-sm">As clients reassess mid-year budgets and plan for Q4, securing essential personnel becomes a top priority, creating another buyout window. <strong class="mmm-primary">Peak Buyout Month: August.</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
                     <div class="lg:col-span-2">
@@ -155,44 +218,34 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="bg-white rounded-lg">
-                <div class="wave-divider rotate-180"></div>
-                <div class="card p-6 rounded-t-none border-t-0">
-                    <h2 class="text-2xl font-bold main-title mb-8 text-center mmm-primary">The "Win-Win-Win" Scenario</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- Client Win -->
-                        <div class="text-center p-4">
-                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
-                               <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 4h5m-5 4h5m-5-4h.01M9 7h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01" /></svg>
-                            </div>
-                            <h3 class="font-bold text-lg main-title">The Client Wins</h3>
-                            <p class="details text-sm">By retaining a proven, fully integrated, and invaluable team member without disruption.</p>
-                        </div>
-                         <!-- VA Win -->
-                        <div class="text-center p-4">
-                             <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
-                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
-                            </div>
-                            <h3 class="font-bold text-lg main-title">The VA Wins</h3>
-                            <p class="details text-sm">By achieving their ultimate career goal of a stable, direct-hire role, fulfilling our brand promise.</p>
-                        </div>
-                         <!-- MMM Win -->
-                        <div class="text-center p-4">
-                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
-                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
-                            </div>
-                            <h3 class="font-bold text-lg main-title">MMM Wins</h3>
-                            <p class="details text-sm">By converting a retention loss into a high-margin revenue event and strengthening client relationships.</p>
-                        </div>
-                    </div>
-                </div>
-                 <div class="wave-divider -mt-1"></div>
-            </div>
-            
+
              <div class="card p-6">
                 <h2 class="text-2xl font-bold main-title mb-2 text-center mmm-primary">Our Competitive Edge</h2>
-                <p class="details text-center max-w-3xl mx-auto">A comprehensive review of our top competitors in the Philippine medical VA industry—including **Hello Rache, MedVA, and REVA Global**—reveals a significant market opportunity. None of these competitors publicly offer a formal, proactive buyout program. They rely on standard, defensive non-solicitation clauses in their contracts.</p>
+                <div class="max-w-2xl mx-auto mt-6">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-3 font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200">Competitor</th>
+                                <th class="p-3 font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200 text-center">Formal Buyout Program</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white">
+                                <td class="p-3 font-semibold border border-slate-200">Hello Rache</td>
+                                <td class="p-3 border border-slate-200 text-center text-2xl">❌</td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td class="p-3 font-semibold border border-slate-200">MedVA</td>
+                                <td class="p-3 border border-slate-200 text-center text-2xl">❌</td>
+                            </tr>
+                             <tr class="bg-white">
+                                <td class="p-3 font-semibold border border-slate-200">REVA Global</td>
+                                <td class="p-3 border border-slate-200 text-center text-2xl">❌</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="details text-center max-w-3xl mx-auto mt-6">A comprehensive review of our top competitors reveals a significant market opportunity. None publicly offer a formal, proactive buyout program. They rely on standard, defensive non-solicitation clauses.</p>
                 <p class="details mt-4 font-bold mmm-primary text-center text-lg">The Pinnacle Program is a market-first offering that positions MMM as a more mature, transparent, and strategic partner, giving us a powerful advantage in attracting both discerning clients and top-tier VA talent.</p>
             </div>
         </div>
@@ -252,12 +305,13 @@
                     scales: { x: { beginAtZero: true } }
                 }
             });
-            new Chart(document.getElementById('monthlyTrendsChart'), {
+            
+            const monthlyTrendsLine = {
                  type: 'line',
                  data: {
                     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                     datasets: [{
-                        label: 'Avg. Monthly Cancellations',
+                        label: 'Total Cancellations',
                         data: [45, 30, 32, 38, 48, 35, 33, 49, 40, 31, 28, 36],
                         borderColor: mmmColors.primary,
                         backgroundColor: 'rgba(0, 88, 94, 0.1)',
@@ -266,7 +320,23 @@
                     }]
                  },
                  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            };
+            new Chart(document.getElementById('monthlyTrendsChart'), monthlyTrendsLine);
+
+            const monthlyDetailData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    { label: 'Resign', data: [22, 15, 16, 18, 25, 18, 17, 26, 20, 15, 14, 18], borderColor: mmmColors.primary, tension: 0.4, fill: false },
+                    { label: 'Client Set-Up', data: [13, 9, 10, 12, 14, 10, 10, 15, 12, 9, 8, 11], borderColor: mmmColors.secondary, tension: 0.4, fill: false },
+                    { label: 'Financial', data: [10, 6, 6, 8, 9, 7, 6, 8, 8, 7, 6, 7], borderColor: mmmColors.accent, tension: 0.4, fill: false }
+                ]
+            };
+            new Chart(document.getElementById('monthlyTrendsChartDetail'), {
+                type: 'line',
+                data: monthlyDetailData,
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
             });
+
             
             const tenureDetails = {
                 '⭐ Opportunity-Seeking': {
@@ -292,25 +362,12 @@
                 }
             };
 
-            // --- New Stacked Bar Chart for Resignation Deep Dive ---
             const resignationTenureData = {
                 labels: ['90-180 Days', '181-365 Days', '1-2 Years', '2-3 Years', '>3 Years'],
                 datasets: [
-                    {
-                        label: '⭐ Opportunity-Seeking',
-                        data: [25, 26, 30, 8, 2],
-                        backgroundColor: mmmColors.secondary,
-                    },
-                    {
-                        label: 'Performance-Related',
-                        data: [10, 7, 2, 0, 0],
-                        backgroundColor: mmmColors.red,
-                    },
-                     {
-                        label: 'Others',
-                        data: [110, 111, 55, 17, 10],
-                        backgroundColor: mmmColors.gray,
-                    }
+                    { label: '⭐ Opportunity-Seeking', data: [25, 26, 30, 8, 2], backgroundColor: mmmColors.secondary, },
+                    { label: 'Performance-Related', data: [10, 7, 2, 0, 0], backgroundColor: mmmColors.red, },
+                    { label: 'Others', data: [110, 111, 55, 17, 10], backgroundColor: mmmColors.gray, }
                 ]
             };
             new Chart(document.getElementById('resignationTenureChart'), {
@@ -334,13 +391,9 @@
                             }
                         }
                     },
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true, beginAtZero: true }
-                    }
+                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
                 }
             });
-
 
             const barChartOptions = {
                  responsive: true,
