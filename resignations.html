@@ -66,6 +66,26 @@
             background-repeat: no-repeat;
             margin-top: -1px;
         }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            max-width: 500px;
+            width: 90%;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
@@ -88,7 +108,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="card p-6 lg:col-span-2">
                 <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">1. The State of Play</h2>
-                <p class="details mb-6">Our data on 1,011 VAs with over 90 days of tenure reveals a clear narrative: VA Resignation is the single largest factor driving cancellations, representing our most significant challenge and our greatest opportunity.</p>
+                <p class="details mb-6">Our data on 1,011 VAs with over 90 days of tenure reveals a clear narrative: <em>VA Resignation</em> is the single largest factor driving cancellations, representing our most significant challenge and our greatest opportunity.</p>
                 <div class="chart-container flex-grow">
                     <canvas id="cancellationReasonsChart"></canvas>
                 </div>
@@ -160,7 +180,7 @@
                             <tbody>
                                 <tr class="bg-white">
                                     <td class="p-3 font-semibold border border-slate-200 align-top">Q1 (Jan-Mar)</td>
-                                    <td class="p-3 border border-slate-200 align-top text-sm details">US clients finalize new annual budgets. Filipino VAs become active job-seekers after receiving their legally mandated "13th month pay" in December. This creates a perfect storm for strategic buyouts.</td>
+                                    <td class="p-3 border border-slate-200 align-top text-sm details">US clients finalize new annual budgets. Filipino VAs become active job-seekers after receiving their legally mandated "13th month pay" in December. This creates a <em>perfect storm</em> for strategic buyouts.</td>
                                     <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Launch Pinnacle Program awareness campaigns to clients with VAs tenured 10+ months.</td>
                                 </tr>
                                  <tr class="bg-white">
@@ -187,16 +207,17 @@
                         <div class="mt-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
                              <h4 class="font-bold main-title">The Narrative: Under 1 Year</h4>
                               <p class="text-md font-semibold subtitle mb-2">Avg. Tenure: 153 Days</p>
-                             <p class="details text-sm mt-1">Early resignations are a mix of preventable issues. While many VAs seek other opportunities, a notable portion leaves due to tangible performance problems. This is where we must improve our screening and early-support processes.</p>
+                             <p class="details text-sm mt-1">Early resignations are a mix of preventable issues. While many VAs seek other opportunities, a notable portion leaves due to tangible performance problems. This is where we must <em>improve our screening and early-support processes.</em></p>
                         </div>
                         <div class="mt-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
                             <h4 class="font-bold main-title">The Narrative: After 1 Year</h4>
                              <p class="text-md font-semibold subtitle mb-2">Avg. Tenure: 695 Days</p>
-                            <p class="details text-sm mt-1">The story flips completely for long-term VAs. Negative performance issues become statistically insignificant. The overwhelming driver is the search for "Better Opportunities," strongly indicating that these proven VAs are being pursued for direct-hire roles—the exact scenario the Pinnacle Program is designed for.</p>
+                            <p class="details text-sm mt-1">The story flips completely for long-term VAs. Negative performance issues become statistically insignificant. The overwhelming driver is the search for "Better Opportunities," strongly indicating that these proven VAs are being pursued for direct-hire roles—the <em>exact scenario the Pinnacle Program is designed for.</em></p>
                         </div>
                     </div>
                     <div class="lg:col-span-1 chart-container h-96">
                         <canvas id="comparativeResignationChart"></canvas>
+                         <p class="footer text-center mt-2">Click a category on the chart for a detailed breakdown.</p>
                     </div>
                 </div>
             </div>
@@ -242,15 +263,15 @@
                  <div class="space-y-4">
                     <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="font-bold text-lg main-title">The Problem</h3>
-                        <p class="details text-sm mt-1">Our biggest source of controllable churn is **VA Resignation (418 of 1,011 cancellations)**, particularly among long-term VAs who are not leaving due to performance issues but are seeking direct-hire roles. This represents a significant and predictable revenue loss.</p>
+                        <p class="details text-sm mt-1">Our biggest source of controllable churn is <strong>VA Resignation (418 of 1,011 cancellations)</strong>, particularly among long-term VAs who are not leaving due to performance issues but are seeking direct-hire roles. This represents a significant and predictable revenue loss.</p>
                     </div>
                     <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="font-bold text-lg main-title">The Solution</h3>
-                        <p class="details text-sm mt-1">The Pinnacle Program is a formal, tiered buyout policy that allows clients to legally and seamlessly hire their VAs. It's a "win-win-win" that retains the client relationship, fulfills the VA's career goals, and converts a business risk for MMM into a profitable outcome.</p>
+                        <p class="details text-sm mt-1">The Pinnacle Program is a formal, tiered buyout policy that allows clients to legally and seamlessly hire their VAs. It's a <strong>"win-win-win"</strong> that retains the client relationship, fulfills the VA's career goals, and converts a business risk for MMM into a profitable outcome.</p>
                     </div>
                      <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="font-bold text-lg main-title">The Opportunity</h3>
-                        <p class="details text-sm mt-1">We project **$1.66 million** in new revenue in the first 20 months. As a market-first offering, this program gives us a powerful competitive advantage over rivals like Hello Rache and MedVA, positioning us as the premier partner for serious, long-term growth.</p>
+                        <p class="details text-sm mt-1">We project <strong>$1.66 million</strong> in new revenue in the first 20 months. As a market-first offering, this program gives us a powerful competitive advantage over rivals like Hello Rache and MedVA, positioning us as the premier partner for serious, long-term growth.</p>
                     </div>
                 </div>
             </div>
@@ -279,6 +300,17 @@
             </div>
         </div>
     </div>
+    
+    <!-- Modal -->
+    <div id="details-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-xl font-bold main-title">Breakdown</h3>
+                <button onclick="closeModal()" class="text-slate-500 hover:text-slate-800">&times;</button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
 
 
     <script>
@@ -294,6 +326,28 @@
             }
             event.currentTarget.classList.add('active');
         }
+
+        const modal = document.getElementById('details-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+
+        function showModal(title, content) {
+            modalTitle.innerText = title;
+            modalBody.innerHTML = content;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        // Close modal if overlay is clicked
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
 
         document.addEventListener('DOMContentLoaded', () => {
             Chart.register(ChartDataLabels);
@@ -351,21 +405,32 @@
             
             const tenureDetails = {
                  '⭐ Opportunity-Seeking': {
-                    '< 1 Year': '\nBreakdown:\n- Better Opps LOCAL: 25\n- Better Opps OVERSEAS: 3\n- Commitment Issues: 15\n- Demotivation of VA: 8',
-                    '> 1 Year': '\nBreakdown:\n- Better Opps LOCAL: 28\n- Better Opps OVERSEAS: 10\n- Commitment Issues: 5\n- Demotivation of VA: 2'
+                    '< 1 Year': { 'Better Opps LOCAL': 25, 'Better Opps OVERSEAS': 3, 'Commitment Issues': 15, 'Demotivation of VA': 8 },
+                    '> 1 Year': { 'Better Opps LOCAL': 28, 'Better Opps OVERSEAS': 10, 'Commitment Issues': 5, 'Demotivation of VA': 2 }
                 },
                 'Performance-Related': {
-                    '< 1 Year': '\nBreakdown:\n- Quality: 12\n- Quantity: 5',
-                    '> 1 Year': '\nBreakdown:\n- Quality: 1\n- Quantity: 1'
+                    '< 1 Year': { 'Quality': 12, 'Quantity': 5 },
+                    '> 1 Year': { 'Quality': 1, 'Quantity': 1 }
                 },
                 'Others': {
-                     '< 1 Year': '\nBreakdown:\n- Not Specified: 221',
-                    '> 1 Year': '\nBreakdown:\n- Not Specified: 82'
+                     '< 1 Year': { 'Not Specified': 221 },
+                    '> 1 Year': { 'Not Specified': 82 }
                 }
             };
+            
+            function createTableHTML(data) {
+                let table = '<table class="w-full text-sm text-left"><thead><tr class="bg-slate-50"><th class="p-2">VA Issue</th><th class="p-2 text-center">< 1 Year</th><th class="p-2 text-center">> 1 Year</th></tr></thead><tbody>';
+                const allKeys = [...new Set([...Object.keys(data['< 1 Year']), ...Object.keys(data['> 1 Year'])])];
+                allKeys.forEach(key => {
+                    table += `<tr class="border-b"><td class="p-2 font-semibold">${key}</td><td class="p-2 text-center">${data['< 1 Year'][key] || 0}</td><td class="p-2 text-center">${data['> 1 Year'][key] || 0}</td></tr>`;
+                });
+                table += '</tbody></table>';
+                return table;
+            }
+
 
             // TWO STORIES COMPARATIVE BAR CHART
-            new Chart(document.getElementById('comparativeResignationChart'), {
+            const comparativeResignationChart = new Chart(document.getElementById('comparativeResignationChart'), {
                 type: 'bar',
                 data: {
                     labels: ['⭐ Opportunity-Seeking', 'Performance-Related', 'Others'],
@@ -387,6 +452,18 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    onClick: (evt, elements) => {
+                        if (elements.length > 0) {
+                            const chart = elements[0].chart;
+                            const index = elements[0].index;
+                            const category = chart.data.labels[index];
+                            const tableData = tenureDetails[category];
+                            if(tableData){
+                                const tableHTML = createTableHTML(tableData);
+                                showModal(`Breakdown for: ${category}`, tableHTML);
+                            }
+                        }
+                    },
                     plugins: {
                         legend: { position: 'bottom' },
                         tooltip: {
@@ -394,7 +471,11 @@
                                 afterBody: function(context) {
                                     const category = context.label;
                                     const tenure = context.dataset.label;
-                                    return tenureDetails[category] ? tenureDetails[category][tenure] : '';
+                                    const detailsObject = tenureDetails[category] ? tenureDetails[category][tenure] : null;
+                                    if (detailsObject) {
+                                        return Object.entries(detailsObject).map(([key, value]) => `\n- ${key}: ${value}`).join('');
+                                    }
+                                    return '';
                                 }
                             }
                         }
@@ -430,6 +511,11 @@
             const sendMessage = async () => {
                 const userQuery = chatInput.value.trim();
                 if (!userQuery) return;
+                
+                if (API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
+                    appendMessage("Please add your Gemini API Key to the HTML file to enable this feature.", "ai");
+                    return;
+                }
 
                 appendMessage(userQuery, 'user');
                 chatInput.value = '';
