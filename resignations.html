@@ -452,11 +452,20 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    onClick: (evt, elements) => {
-                        if (elements.length > 0) {
-                            const chart = elements[0].chart;
-                            const index = elements[0].index;
-                            const category = chart.data.labels[index];
+                    onClick: (evt, elements, chart) => {
+                        const canvas = chart.canvas;
+                        const rect = canvas.getBoundingClientRect();
+                        const x = evt.x - rect.left;
+                        const y = evt.y - rect.top;
+                        
+                        const xAxis = chart.scales.x;
+                        const labels = chart.data.labels;
+
+                        const labelWidth = xAxis.width / labels.length;
+                        const index = Math.floor(x / labelWidth);
+                        const category = labels[index];
+
+                        if (category) {
                             const tableData = tenureDetails[category];
                             if(tableData){
                                 const tableHTML = createTableHTML(tableData);
@@ -490,29 +499,52 @@
             const chatWindow = document.getElementById('chat-window');
             const loader = document.getElementById('loader');
 
-            const API_KEY = "AIzaSyB3cbctAyDUexcLt71hg5JnxpYQ1yE1D9U"; // Replace with your key
+            const API_KEY = "AIzaSyB3cbctAyDUexcLt71hg5JnxpYQ1yE1D9U";
             const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
 
-            const systemPrompt = `You are VA-lueLens, an expert data analyst and CEO for My Mountain Mover (MMM), a virtual assistant agency. You are answering questions from your own CEO based on a strategic proposal you created called The Pinnacle Program. All your answers must be based *only* on the following data context. Be concise, professional, and confident.
+            const systemPrompt = `You are VA-lueLens, an expert data analyst and CEO for My Mountain Mover (MMM), a virtual assistant agency specializing in the US medical field. You are answering questions from your own CEO based on a strategic proposal you created called The Pinnacle Program. All your answers must be based *only* on the provided data context. Be concise, professional, and confident.
 
-            DATA CONTEXT:
-            - Program Name: The Pinnacle Program, a formal buyout option for clients to hire their VAs directly.
-            - Total Cancellations Analyzed (>90 days tenure): 1,011.
-            - Breakdown of Cancellations: VA Resignation (418), Client Set-Up (312), Financial Reason (281).
-            - Total Resignations Analyzed: 418.
-            - Resignations < 1 Year: 289 VAs with an average tenure of 153 days. Reasons: 51 for opportunity-seeking, 17 for performance, 221 for other reasons.
-            - Resignations > 1 Year: 129 VAs with an average tenure of 695 days. Reasons: 45 for opportunity-seeking, only 2 for performance, 82 for other reasons.
-            - 'Opportunity-Seeking' includes: Better Opps (Local/Overseas), Commitment issues, Demotivation.
-            - Projected Financial Impact: $1.66 million in new revenue over 20 months.
-            - Market Position: Our top competitors (Hello Rache, MedVA, REVA Global) do not have a similar formal program.
-            - Peak Buyout Periods (based on US client cycles and PH VA market): Q1 (Jan), Q2 (May), Q3 (Aug).
-            - The program is a "Win-Win-Win": Client retains talent, VA achieves career goal, MMM converts loss to revenue.`;
+            ## Full Proposal & Data Context ##
+
+            **1. Program Overview:**
+            - **Name:** The Pinnacle Program.
+            - **Concept:** A formal, tiered buyout option for clients to legally and seamlessly hire their VAs directly. It replaces a punitive non-solicitation clause.
+            - **Goal:** Convert the business risk of clients "poaching" VAs into a high-margin revenue stream, strengthen client and VA retention, and create a unique competitive advantage.
+            - **Fee Structure:** Starts at $25,000 for VAs with 91-365 days of tenure, decreasing with longer tenures.
+
+            **2. Core Data Analysis (from 1,011 cancellations of VAs with >90 days tenure):**
+            - **Primary Reason for Cancellation:** VA Resignation is the #1 reason, accounting for 418 of 1,011 cancellations (41%). Other reasons are Client Set-Up (312) and Financial Reasons (281).
+            - **The "Two Stories" of Resignation (418 total resignations):**
+                - **Under 1 Year (289 VAs):** Average tenure is 153 days. 51 resigned for "Opportunity-Seeking" reasons, 17 for "Performance-Related" issues, and 221 for "Others" (mostly unspecified). *Insight: A mix of preventable performance issues and early-career job seeking.*
+                - **Over 1 Year (129 VAs):** Average tenure is 695 days. 45 resigned for "Opportunity-Seeking" reasons, only 2 for "Performance-Related" issues, and 82 for "Others." *Insight: Performance is not the issue. These are proven, successful VAs who are leaving for better opportunities, strongly implying direct-hire offers.*
+            - **Breakdown of "Opportunity-Seeking" (<1 Year vs. >1 Year):**
+                - Better Opps LOCAL: 25 vs. 28
+                - Better Opps OVERSEAS: 3 vs. 10
+                - Commitment Issues: 15 vs. 5
+                - Demotivation of VA: 8 vs. 2
+            - **Breakdown of "Performance-Related" (<1 Year vs. >1 Year):**
+                - Quality: 12 vs. 1
+                - Quantity: 5 vs. 1
+
+            **3. Financial & Market Opportunity:**
+            - **Projected Revenue:** $1.66 million in new, high-margin revenue is projected over the first 20 months, based on converting a conservative 20% of applicable resignations.
+            - **Competitive Edge:** Top competitors (Hello Rache, MedVA, REVA Global) DO NOT have a similar formal, proactive buyout program. This is a market-first offering for MMM.
+
+            **4. Strategic Forecasting (The Buyout Calendar):**
+            - **Q1 (Peak: Jan):** Triggered by US clients' new annual budgets and Filipino VAs receiving their "13th month pay" in December, making them active job seekers.
+            - **Q2 (Peak: May):** Triggered by post-Q1 performance reviews in the US confirming a VA's value.
+            - **Q3 (Peak: Aug):** Triggered by mid-year budget reassessments and planning for Q4 in the US.
+
+            **5. The Value Proposition (The "Win-Win-Win"):**
+            - **Client Wins:** Retains a proven, invaluable team member.
+            - **VA Wins:** Achieves their primary long-term career goal of a direct-hire role.
+            - **MMM Wins:** Converts a revenue loss into a profit center and strengthens the client relationship.`;
             
             const sendMessage = async () => {
                 const userQuery = chatInput.value.trim();
                 if (!userQuery) return;
                 
-                if (API_KEY === "AIzaSyB3cbctAyDUexcLt71hg5JnxpYQ1yE1D9U") {
+                if (API_KEY === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
                     appendMessage("Please add your Gemini API Key to the HTML file to enable this feature.", "ai");
                     return;
                 }
