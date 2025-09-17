@@ -112,9 +112,16 @@
     <!-- Resignation Deep Dive Content -->
     <div id="resignationDeepDive" class="tab-content">
         <div class="space-y-8">
-            <div class="card p-8">
-                <h2 class="text-3xl font-bold main-title mb-2 mmm-primary">The Strategic Imperative: A Deep Dive into VA Resignations</h2>
-                <p class="details text-lg max-w-4xl">This analysis focuses on the 418 VAs who resigned after 90 days. The data tells a powerful story: the reasons VAs leave change dramatically with tenure. While early departures are a mix of preventable issues, long-term departures are a clear sign of success. These seasoned VAs are not leaving because they are unhappy; they are leaving because they are ready for the next step in their career—a step only the Pinnacle Program can provide. This is our single greatest opportunity to improve retention, increase revenue, and fulfill our brand promise.</p>
+            <div class="card p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold main-title mb-2 mmm-primary">The Strategic Imperative</h2>
+                        <p class="details text-lg">This analysis focuses on the 418 VAs who resigned after 90 days. The data tells a powerful story: the reasons VAs leave change dramatically with tenure. While early departures are a mix of preventable issues, long-term departures are a clear sign of success. These seasoned VAs are not leaving because they are unhappy; they are leaving because they are ready for the next step in their career—a step only the Pinnacle Program can provide. This is our single greatest opportunity to improve retention, increase revenue, and fulfill our brand promise.</p>
+                    </div>
+                    <div class="chart-container h-96">
+                        <canvas id="resignationTenureChart"></canvas>
+                    </div>
+                </div>
             </div>
 
             <div class="card p-6">
@@ -247,6 +254,45 @@
                  },
                  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
+
+            // --- New Stacked Bar Chart for Resignation Deep Dive ---
+            const resignationTenureData = {
+                labels: ['90-180 Days', '181-365 Days', '1-2 Years', '2-3 Years', '>3 Years'],
+                datasets: [
+                    {
+                        label: 'Opportunity-Seeking',
+                        data: [25, 26, 30, 8, 2],
+                        backgroundColor: mmmColors.secondary,
+                    },
+                    {
+                        label: 'Performance-Related',
+                        data: [10, 7, 2, 0, 0],
+                        backgroundColor: mmmColors.red,
+                    },
+                     {
+                        label: 'Others',
+                        data: [110, 111, 55, 17, 0],
+                        backgroundColor: mmmColors.gray,
+                    }
+                ]
+            };
+            new Chart(document.getElementById('resignationTenureChart'), {
+                type: 'bar',
+                data: resignationTenureData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'Reason for Resignation by VA Tenure' },
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true }
+                    }
+                }
+            });
+
 
             const donutOptions = {
                 responsive: true,
