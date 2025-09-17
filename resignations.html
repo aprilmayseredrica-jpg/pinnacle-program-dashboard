@@ -15,10 +15,11 @@
             --mmm-teal-dark: #00585E;
             --mmm-teal-light: #00A99D;
             --mmm-orange: #F37A20;
+            --mmm-bg: #F7FDFD;
         }
         body {
             font-family: 'Source Sans 3', sans-serif;
-            background-color: #f8fafc;
+            background-color: var(--mmm-bg);
         }
         h1, h2, h3, h4, .tab-button {
             font-family: 'Lato', sans-serif;
@@ -28,12 +29,12 @@
         .card {
             background-color: white;
             border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.1);
             display: flex;
             flex-direction: column;
         }
         .chart-title { color: #334155; font-weight: 700; }
-        .details { color: #475569; }
+        .details { color: #475569; text-align: justify; }
         .footer { color: #94a3b8; font-style: italic; font-size: 0.875rem; }
         .mmm-primary { color: var(--mmm-teal-dark); }
         .mmm-secondary { color: var(--mmm-teal-light); }
@@ -56,24 +57,21 @@
             height: 250px;
             width: 100%;
         }
-        .donut-container {
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             gap: 1rem;
-             margin-top: 1rem;
-        }
-        .donut-chart-wrapper {
+        .wave-divider {
             position: relative;
-            height: 220px;
-            width: 220px;
+            width: 100%;
+            height: 80px;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3e%3cpath fill='%23ffffff' fill-opacity='1' d='M0,128L80,149.3C160,171,320,213,480,213.3C640,213,800,171,960,149.3C1120,128,1280,128,1360,128L1440,128L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z'%3e%3c/path%3e%3c/svg%3e");
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin-top: -1px;
         }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
 
     <header class="text-center mb-10">
-        <h1 class="text-4xl font-black main-title tracking-tight mmm-primary">The Pinnacle Program</h1>
+        <h1 class="text-4xl lg:text-5xl font-black main-title tracking-tight mmm-primary">The Pinnacle Program</h1>
         <p class="mt-2 text-lg subtitle" style="font-family: 'Source Sans 3', sans-serif;">A Data-Driven Strategy to Increase Revenue & Retention</p>
     </header>
 
@@ -129,55 +127,73 @@
             </div>
 
             <div class="card p-6">
-                <h3 class="chart-title text-center mb-4">The Two Stories of VA Resignation: A Comparative Analysis</h3>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <h3 class="chart-title text-center mb-4 text-2xl">The Two Stories of VA Resignation</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start mt-8">
                     <!-- Less than 1 year -->
-                    <div class="p-4 rounded-lg bg-slate-50">
+                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
                         <h3 class="text-xl font-bold main-title text-center">Resignations Under 1 Year</h3>
                         <div class="text-center">
                             <p class="text-4xl font-bold mmm-secondary my-2">289 VAs</p>
                             <p class="font-semibold subtitle mb-4">Average Tenure: 153 Days</p>
                         </div>
-                        <div class="donut-container">
-                            <div class="donut-chart-wrapper">
-                                <canvas id="resignationsUnder365Chart"></canvas>
-                            </div>
+                        <div class="chart-container h-72">
+                            <canvas id="barUnder365"></canvas>
                         </div>
                          <p class="details mt-4 text-sm"><strong>The Narrative:</strong> Early-term resignations are a mix of preventable issues. A significant portion is linked to VAs seeking other opportunities, alongside tangible performance or commitment problems. This is where we can improve our screening and early support.</p>
                     </div>
                     <!-- 1 year or more -->
-                    <div class="p-4 rounded-lg bg-slate-50">
+                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
                          <h3 class="text-xl font-bold main-title text-center">Resignations After 1 Year</h3>
                          <div class="text-center">
                             <p class="text-4xl font-bold mmm-primary my-2">129 VAs</p>
                             <p class="font-semibold subtitle mb-4">Average Tenure: 695 Days</p>
                         </div>
-                        <div class="donut-container">
-                            <div class="donut-chart-wrapper">
-                                <canvas id="resignationsOver365Chart"></canvas>
-                            </div>
-                         </div>
+                        <div class="chart-container h-72">
+                            <canvas id="barOver365"></canvas>
+                        </div>
                         <p class="details mt-4 text-sm"><strong>The Narrative:</strong> The story flips completely for long-term VAs. Negative performance issues become statistically insignificant. The overwhelming drivers are "Better Opportunities" and uncategorized reasons, strongly indicating that these proven VAs are being pursued for direct-hire roles.</p>
                     </div>
                 </div>
             </div>
             
-             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                 <div class="card p-6">
-                    <h2 class="text-2xl font-bold main-title mb-2 mmm-primary">The "Win-Win-Win" Scenario</h2>
-                    <p class="details">The Pinnacle Program directly addresses these drivers, converting our biggest business risk into a three-way victory:</p>
-                    <ul class="mt-4 space-y-3 text-slate-600">
-                        <li class="flex items-start"><span class="text-xl mmm-accent mr-3 font-bold">✔</span><strong>THE CLIENT WINS:</strong> By retaining a proven, fully integrated, and invaluable team member without disruption.</li>
-                        <li class="flex items-start"><span class="text-xl mmm-accent mr-3 font-bold">✔</span><strong>THE VA WINS:</strong> By achieving their ultimate career goal of a stable, direct-hire role, fulfilling our brand promise of a long-term career.</li>
-                        <li class="flex items-start"><span class="text-xl mmm-accent mr-3 font-bold">✔</span><strong>MMM WINS:</strong> By converting a retention loss into a high-margin revenue event and strengthening the client relationship for future business.</li>
-                    </ul>
+            <div class="bg-white rounded-lg">
+                <div class="wave-divider rotate-180"></div>
+                <div class="card p-6 rounded-t-none border-t-0">
+                    <h2 class="text-2xl font-bold main-title mb-8 text-center mmm-primary">The "Win-Win-Win" Scenario</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Client Win -->
+                        <div class="text-center p-4">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
+                               <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 4h5m-5 4h5m-5-4h.01M9 7h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01" /></svg>
+                            </div>
+                            <h3 class="font-bold text-lg main-title">The Client Wins</h3>
+                            <p class="details text-sm">By retaining a proven, fully integrated, and invaluable team member without disruption.</p>
+                        </div>
+                         <!-- VA Win -->
+                        <div class="text-center p-4">
+                             <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
+                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                            </div>
+                            <h3 class="font-bold text-lg main-title">The VA Wins</h3>
+                            <p class="details text-sm">By achieving their ultimate career goal of a stable, direct-hire role, fulfilling our brand promise.</p>
+                        </div>
+                         <!-- MMM Win -->
+                        <div class="text-center p-4">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
+                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
+                            </div>
+                            <h3 class="font-bold text-lg main-title">MMM Wins</h3>
+                            <p class="details text-sm">By converting a retention loss into a high-margin revenue event and strengthening client relationships.</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card p-6">
-                    <h2 class="text-2xl font-bold main-title mb-2 mmm-primary">Our Competitive Edge</h2>
-                    <p class="details">A comprehensive review of our top competitors in the Philippine medical VA industry—including **Hello Rache, MedVA, and REVA Global**—reveals a significant market opportunity.</p>
-                     <p class="details mt-4">None of these competitors publicly offer a formal, proactive buyout program. They rely on standard, defensive non-solicitation clauses in their contracts.</p>
-                    <p class="details mt-4 font-bold mmm-primary">The Pinnacle Program is a market-first offering that positions MMM as a more mature, transparent, and strategic partner, giving us a powerful advantage in attracting both discerning clients and top-tier VA talent.</p>
-                </div>
+                 <div class="wave-divider -mt-1"></div>
+            </div>
+            
+             <div class="card p-6">
+                <h2 class="text-2xl font-bold main-title mb-2 text-center mmm-primary">Our Competitive Edge</h2>
+                <p class="details text-center max-w-3xl mx-auto">A comprehensive review of our top competitors in the Philippine medical VA industry—including **Hello Rache, MedVA, and REVA Global**—reveals a significant market opportunity. None of these competitors publicly offer a formal, proactive buyout program. They rely on standard, defensive non-solicitation clauses in their contracts.</p>
+                <p class="details mt-4 font-bold mmm-primary text-center text-lg">The Pinnacle Program is a market-first offering that positions MMM as a more mature, transparent, and strategic partner, giving us a powerful advantage in attracting both discerning clients and top-tier VA talent.</p>
             </div>
         </div>
     </div>
@@ -231,14 +247,7 @@
                     indexAxis: 'y', 
                     plugins: { 
                         legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                afterBody: function(context) {
-                                    const category = context[0].label;
-                                    return cancellationBreakdown[category] || '';
-                                }
-                            }
-                        }
+                        tooltip: { callbacks: { afterBody: (c) => cancellationBreakdown[c[0].label] || '' } }
                     }, 
                     scales: { x: { beginAtZero: true } }
                 }
@@ -333,45 +342,31 @@
             });
 
 
-            const donutOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            boxWidth: 12,
-                            padding: 15,
-                            font: { size: 11, family: 'Source Sans 3' }
-                        }
-                    },
-                    datalabels: {
-                        formatter: (value, ctx) => {
-                            let sum = 0;
-                            let dataArr = ctx.chart.data.datasets[0].data;
-                            dataArr.map(data => { sum += data; });
-                            if (sum === 0) return '0%';
-                            let percentage = (value*100 / sum).toFixed(0)+"%";
-                            return percentage;
-                        },
-                        color: '#fff',
-                        font: { weight: 'bold', family: 'Source Sans 3' }
-                    }
-                }
+            const barChartOptions = {
+                 responsive: true,
+                 maintainAspectRatio: false,
+                 indexAxis: 'y',
+                 plugins: { legend: { display: false }, datalabels: { display: false } },
+                 scales: { x: { beginAtZero: true } }
             };
-            
-            // Resignation Deep Dive Charts
-            const resignationsUnder365Data = {
-                labels: ['Opportunity-Seeking', 'Performance-Related', 'Others'],
-                datasets: [{ data: [51, 17, 221], backgroundColor: [mmmColors.secondary, mmmColors.red, mmmColors.gray], borderColor: '#ffffff', borderWidth: 2 }]
-            };
-             new Chart(document.getElementById('resignationsUnder365Chart'), { type: 'doughnut', data: resignationsUnder365Data, options: donutOptions });
 
-            const resignationsOver365Data = {
-                labels: ['Opportunity-Seeking', 'Performance-Related', 'Others'],
-                datasets: [{ data: [45, 2, 82], backgroundColor: [mmmColors.primary, mmmColors.red, mmmColors.gray], borderColor: '#ffffff', borderWidth: 2 }]
-            };
-             new Chart(document.getElementById('resignationsOver365Chart'), { type: 'doughnut', data: resignationsOver365Data, options: donutOptions });
+            new Chart(document.getElementById('barUnder365'), {
+                type: 'bar', 
+                data: {
+                    labels: ['Opportunity-Seeking', 'Performance-Related', 'Others'],
+                    datasets: [{ data: [51, 17, 221], backgroundColor: [mmmColors.secondary, mmmColors.red, mmmColors.gray], borderRadius: 4 }]
+                },
+                options: barChartOptions
+            });
+
+            new Chart(document.getElementById('barOver365'), {
+                type: 'bar',
+                data: {
+                    labels: ['Opportunity-Seeking', 'Performance-Related', 'Others'],
+                    datasets: [{ data: [45, 2, 82], backgroundColor: [mmmColors.primary, mmmColors.red, mmmColors.gray], borderRadius: 4 }]
+                },
+                options: barChartOptions
+            });
 
         });
     </script>
