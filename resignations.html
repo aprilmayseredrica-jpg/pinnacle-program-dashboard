@@ -141,11 +141,11 @@
     <div id="resignationDeepDive" class="tab-content">
         <div class="space-y-8">
             <div class="card p-6">
-                 <h2 class="text-2xl font-bold main-title mb-4 text-center mmm-primary">Forecasting the Opportunity</h2>
+                <h2 class="text-2xl font-bold main-title mb-4 text-center mmm-primary">Forecasting the Opportunity</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                     <div class="chart-container h-80">
-                         <canvas id="monthlyTrendsChartDetail"></canvas>
-                         <p class="footer text-center mt-2">Source: All-time monthly cancellation data.</p>
+                        <canvas id="monthlyTrendsChartDetail"></canvas>
+                        <p class="footer text-center mt-2">Source: All-time monthly cancellation data.</p>
                     </div>
                     <div>
                         <h3 class="font-bold text-lg main-title mb-2">The Buyout Calendar: A Strategic Forecast</h3>
@@ -158,14 +158,14 @@
                                     <p class="details text-sm">US clients finalize new annual budgets, while top Filipino VAs become active job-seekers after receiving their legally mandated "13th month pay" in December. This creates a perfect storm for strategic buyouts. <strong class="mmm-primary">Peak Buyout Month: January.</strong></p>
                                 </div>
                             </div>
-                             <div class="flex items-start p-3 bg-teal-50 rounded-lg">
+                            <div class="flex items-start p-3 bg-teal-50 rounded-lg">
                                 <span class="text-xl mmm-accent mr-3 font-bold">Q2</span>
                                 <div>
                                     <h4 class="font-bold text-md main-title">Apr - Jun: Performance & Confirmation</h4>
                                     <p class="details text-sm">Post-Q1 performance reviews in the US confirm the VA's value and ROI. This is a key trigger for clients to convert a successful placement into a permanent hire before mid-year budget adjustments. <strong class="mmm-primary">Peak Buyout Month: May.</strong></p>
                                 </div>
                             </div>
-                             <div class="flex items-start p-3 bg-teal-50 rounded-lg">
+                            <div class="flex items-start p-3 bg-teal-50 rounded-lg">
                                 <span class="text-xl mmm-accent mr-3 font-bold">Q3</span>
                                 <div>
                                     <h4 class="font-bold text-md main-title">Jul - Sep: Mid-Year Planning</h4>
@@ -179,12 +179,12 @@
 
             <div class="card p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-                     <div class="lg:col-span-1">
+                    <div class="lg:col-span-1">
                         <h2 class="text-3xl font-black main-title mb-2 mmm-primary">The Two Stories of VA Resignation</h2>
                         <p class="details text-lg">This analysis of 418 resignations reveals a critical insight: the reasons VAs leave change dramatically with tenure. The chart opposite visualizes this shift, making the case for a targeted retention strategy.</p>
                         <div class="mt-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
-                             <h4 class="font-bold main-title">The Narrative: Under 1 Year</h4>
-                             <p class="details text-sm mt-1">Early resignations are a mix of preventable issues. While many VAs seek other opportunities, a notable portion leaves due to tangible performance problems. This is where we must improve our screening and early-support processes.</p>
+                            <h4 class="font-bold main-title">The Narrative: Under 1 Year</h4>
+                            <p class="details text-sm mt-1">Early resignations are a mix of preventable issues. While many VAs seek other opportunities, a notable portion leaves due to tangible performance problems. This is where we must improve our screening and early-support processes.</p>
                         </div>
                         <div class="mt-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
                             <h4 class="font-bold main-title">The Narrative: After 1 Year</h4>
@@ -197,7 +197,7 @@
                 </div>
             </div>
 
-             <div class="card p-6">
+            <div class="card p-6">
                 <h2 class="text-2xl font-bold main-title mb-2 text-center mmm-primary">Our Competitive Edge</h2>
                 <div class="max-w-2xl mx-auto mt-6">
                     <table class="w-full text-left border-collapse">
@@ -216,7 +216,7 @@
                                 <td class="p-3 font-semibold border border-slate-200">MedVA</td>
                                 <td class="p-3 border border-slate-200 text-center text-2xl">❌</td>
                             </tr>
-                             <tr class="bg-white">
+                            <tr class="bg-white">
                                 <td class="p-3 font-semibold border border-slate-200">REVA Global</td>
                                 <td class="p-3 border border-slate-200 text-center text-2xl">❌</td>
                             </tr>
@@ -284,133 +284,72 @@
                 }
             });
             
-            const monthlyTrendsLine = {
-                 type: 'line',
-                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                    datasets: [{
-                        label: 'Total Cancellations',
-                        data: [45, 30, 32, 38, 48, 35, 33, 49, 40, 31, 28, 36],
-                        borderColor: mmmColors.primary,
-                        backgroundColor: 'rgba(0, 88, 94, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                 },
-                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
-            };
-            new Chart(document.getElementById('monthlyTrendsChart'), monthlyTrendsLine);
-
-            const monthlyDetailData = {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [
-                    { label: 'Resign', data: [22, 15, 16, 18, 25, 18, 17, 26, 20, 15, 14, 18], borderColor: mmmColors.primary, tension: 0.4, fill: false },
-                    { label: 'Client Set-Up', data: [13, 9, 10, 12, 14, 10, 10, 15, 12, 9, 8, 11], borderColor: mmmColors.secondary, tension: 0.4, fill: false },
-                    { label: 'Financial', data: [10, 6, 6, 8, 9, 7, 6, 8, 8, 7, 6, 7], borderColor: mmmColors.accent, tension: 0.4, fill: false }
-                ]
-            };
             new Chart(document.getElementById('monthlyTrendsChartDetail'), {
                 type: 'line',
-                data: monthlyDetailData,
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        { label: 'Resign', data: [22, 15, 16, 18, 25, 18, 17, 26, 20, 15, 14, 18], borderColor: mmmColors.primary, tension: 0.4, fill: false },
+                        { label: 'Client Set-Up', data: [13, 9, 10, 12, 14, 10, 10, 15, 12, 9, 8, 11], borderColor: mmmColors.secondary, tension: 0.4, fill: false },
+                        { label: 'Financial', data: [10, 6, 6, 8, 9, 7, 6, 8, 8, 7, 6, 7], borderColor: mmmColors.accent, tension: 0.4, fill: false }
+                    ]
+                },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
             });
-
             
             const tenureDetails = {
-                '⭐ Opportunity-Seeking': {
-                    '90-180 Days': '\nBreakdown:\n- Better Opps LOCAL: 15\n- Better Opps OVERSEAS: 2\n- Commitment Issues: 5\n- Demotivation of VA: 3',
-                    '181-365 Days': '\nBreakdown:\n- Better Opps LOCAL: 10\n- Better Opps OVERSEAS: 1\n- Commitment Issues: 10\n- Demotivation of VA: 5',
-                    '1-2 Years': '\nBreakdown:\n- Better Opps LOCAL: 22\n- Better Opps OVERSEAS: 5\n- Commitment Issues: 2\n- Demotivation of VA: 1',
-                    '2-3 Years': '\nBreakdown:\n- Better Opps LOCAL: 5\n- Better Opps OVERSEAS: 3',
-                    '>3 Years': '\nBreakdown:\n- Better Opps LOCAL: 1\n- Better Opps OVERSEAS: 1'
+                 '⭐ Opportunity-Seeking': {
+                    '< 1 Year': '\nBreakdown:\n- Better Opps LOCAL: 25\n- Better Opps OVERSEAS: 3\n- Commitment Issues: 15\n- Demotivation of VA: 8',
+                    '> 1 Year': '\nBreakdown:\n- Better Opps LOCAL: 28\n- Better Opps OVERSEAS: 10\n- Commitment Issues: 5\n- Demotivation of VA: 2'
                 },
                 'Performance-Related': {
-                    '90-180 Days': '\nBreakdown:\n- Quality: 5\n- Quantity: 2\n- Skills: 3',
-                    '181-365 Days': '\nBreakdown:\n- Quality: 4\n- Quantity: 2\n- Skills: 1',
-                    '1-2 Years': '\nBreakdown:\n- Quality: 1\n- Quantity: 1',
-                    '2-3 Years': '\nBreakdown:\n- None',
-                    '>3 Years': '\nBreakdown:\n- None'
+                    '< 1 Year': '\nBreakdown:\n- Quality: 12\n- Quantity: 5',
+                    '> 1 Year': '\nBreakdown:\n- Quality: 1\n- Quantity: 1'
                 },
                 'Others': {
-                    '90-180 Days': '\nBreakdown:\n- Health: 15\n- Personal/Family: 25\n- Not Specified: 70',
-                    '181-365 Days': '\nBreakdown:\n- Health: 20\n- Personal/Family: 31\n- Not Specified: 60',
-                    '1-2 Years': '\nBreakdown:\n- Health: 10\n- Personal/Family: 15\n- Not Specified: 30',
-                    '2-3 Years': '\nBreakdown:\n- Health: 5\n- Personal/Family: 5\n- Not Specified: 7',
-                    '>3 Years': '\nBreakdown:\n- Health: 2\n- Personal/Family: 3\n- Not Specified: 5'
+                     '< 1 Year': '\nBreakdown:\n- Not Specified: 221',
+                    '> 1 Year': '\nBreakdown:\n- Not Specified: 82'
                 }
             };
 
-            // DEEP DIVE TENURE STACKED BAR CHART
-            const resignationTenureData = {
-                labels: ['90-180 Days', '181-365 Days', '1-2 Years', '2-3 Years', '>3 Years'],
-                datasets: [
-                    { label: '⭐ Opportunity-Seeking', data: [25, 26, 30, 8, 2], backgroundColor: mmmColors.secondary, },
-                    { label: 'Performance-Related', data: [10, 7, 2, 0, 0], backgroundColor: mmmColors.red, },
-                    { label: 'Others', data: [110, 111, 55, 17, 10], backgroundColor: mmmColors.gray, }
-                ]
-            };
-            new Chart(document.getElementById('resignationTenureChart'), {
+            // TWO STORIES COMPARATIVE BAR CHART
+            new Chart(document.getElementById('comparativeResignationChart'), {
                 type: 'bar',
-                data: resignationTenureData,
+                data: {
+                    labels: ['⭐ Opportunity-Seeking', 'Performance-Related', 'Others'],
+                    datasets: [
+                        {
+                            label: '< 1 Year',
+                            data: [51, 17, 221],
+                            backgroundColor: mmmColors.secondary,
+                            borderRadius: 4
+                        },
+                        {
+                            label: '> 1 Year',
+                            data: [45, 2, 82],
+                            backgroundColor: mmmColors.primary,
+                            borderRadius: 4
+                        }
+                    ]
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        title: { display: true, text: 'Reason for Resignation by VA Tenure', font: { size: 16, family: 'Lato' } },
                         legend: { position: 'bottom' },
                         tooltip: {
-                             callbacks: {
+                            callbacks: {
                                 afterBody: function(context) {
-                                    const currentItem = context[0];
-                                    const datasetLabel = currentItem.dataset.label;
-                                    const label = currentItem.label;
-                                    const details = tenureDetails[datasetLabel];
-                                    return details ? details[label] : '';
+                                    const category = context.label;
+                                    const tenure = context.dataset.label;
+                                    return tenureDetails[category] ? tenureDetails[category][tenure] : '';
                                 }
                             }
                         }
                     },
-                    scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }
+                    scales: { y: { beginAtZero: true } }
                 }
             });
-
-            // TWO STORIES COMPARATIVE BAR CHART
-            const comparativeData = {
-                labels: ['Opportunity-Seeking', 'Performance-Related', 'Others'],
-                datasets: [
-                    {
-                        label: '< 1 Year',
-                        data: [51, 17, 221],
-                        backgroundColor: mmmColors.secondary,
-                        borderRadius: 4
-                    },
-                    {
-                        label: '> 1 Year',
-                        data: [45, 2, 82],
-                        backgroundColor: mmmColors.primary,
-                        borderRadius: 4
-                    }
-                ]
-            };
-            
-             new Chart(document.getElementById('barUnder365'), {
-                type: 'bar', 
-                data: {
-                    labels: ['Opportunity-Seeking', 'Performance-Related', 'Others'],
-                    datasets: [{ label: '< 1 Year', data: [51, 17, 221], backgroundColor: [mmmColors.secondary, mmmColors.red, mmmColors.gray], borderRadius: 4 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { x: { beginAtZero: true } } }
-            });
-
-            new Chart(document.getElementById('barOver365'), {
-                type: 'bar',
-                data: {
-                    labels: ['Opportunity-Seeking', 'Performance-Related', 'Others'],
-                    datasets: [{ label: '> 1 Year', data: [45, 2, 82], backgroundColor: [mmmColors.primary, mmmColors.red, mmmColors.gray], borderRadius: 4 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false }, datalabels: { display: false } }, scales: { x: { beginAtZero: true } } }
-            });
-
         });
     </script>
 </body>
