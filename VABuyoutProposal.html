@@ -57,15 +57,6 @@
             height: 250px;
             width: 100%;
         }
-        .wave-divider {
-            position: relative;
-            width: 100%;
-            height: 80px;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3e%3cpath fill='%23ffffff' fill-opacity='1' d='M0,128L80,149.3C160,171,320,213,480,213.3C640,213,800,171,960,149.3C1120,128,1280,128,1360,128L1440,128L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z'%3e%3c/path%3e%3c/svg%3e");
-            background-size: cover;
-            background-repeat: no-repeat;
-            margin-top: -1px;
-        }
         /* Modal Styles */
         .modal-overlay {
             position: fixed;
@@ -105,63 +96,97 @@
 
     <!-- Main Dashboard Content -->
     <div id="mainDashboard" class="tab-content active">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="card p-6 lg:col-span-2">
-                <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">1. The State of Play</h2>
-                <p class="details mb-6">Our data on 1,011 VAs with over 90 days of tenure reveals a clear narrative: <em>VA Resignation</em> is the single largest factor driving cancellations, representing our most significant challenge and our greatest opportunity.</p>
-                <div class="chart-container flex-grow">
-                    <canvas id="cancellationReasonsChart"></canvas>
+        <div class="space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                <div class="card p-6 lg:col-span-3">
+                    <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">The State of Play</h2>
+                    <p class="details mb-6">Our data on 1,011 VAs with over 90 days of tenure reveals a clear narrative: <em>VA Resignation</em> is the single largest factor driving cancellations, representing our most significant challenge and our greatest opportunity.</p>
+                    <div class="chart-container flex-grow h-64">
+                        <canvas id="cancellationReasonsChart"></canvas>
+                    </div>
+                    <p class="footer text-center mt-4">Source: All-time cancellation data for VAs past the 90-day mark.</p>
                 </div>
-                <p class="footer text-center mt-4">Source: All-time cancellation data for VAs past the 90-day mark.</p>
-            </div>
-            <div class="card p-6 flex flex-col justify-center">
-                <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">2. The Financial Impact</h2>
-                <p class="details mb-6">By converting a conservative 20% of applicable cancellations into buyouts, we can create a significant, high-margin revenue stream.</p>
-                <div class="text-center my-auto">
-                    <p class="text-5xl md:text-6xl font-black mmm-primary">$1,660,000</p>
-                    <p class="text-md font-semibold subtitle">Projected Profit (Jan 2024 - Sep 2025)</p>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg lg:col-span-3">
-                <div class="wave-divider rotate-180"></div>
-                <div class="card p-6 rounded-t-none border-t-0">
-                    <h2 class="text-2xl font-bold main-title mb-8 text-center mmm-primary">The "Win-Win-Win" Scenario</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <!-- Client Win -->
-                        <div class="text-center p-4">
-                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
-                               <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 4h5m-5 4h5m-5-4h.01M9 7h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01" /></svg>
-                            </div>
-                            <h3 class="font-bold text-lg main-title">The Client Wins</h3>
-                            <p class="details text-sm">By retaining a proven, fully integrated, and invaluable team member without disruption.</p>
+                <div class="card p-6 lg:col-span-2">
+                    <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">The Pinnacle Program Fee</h2>
+                     <p class="details mb-6">The fee is based on the VA's tenure, not the client's, rewarding the specific partnership duration.</p>
+                    <div class="space-y-4">
+                         <div class="card p-4 border-l-4 border-teal-600 bg-slate-50">
+                            <p class="text-sm font-semibold text-gray-500">Tenure: 91 Days - 1 Year</p>
+                            <p class="text-2xl font-bold main-title">$25,000</p>
                         </div>
-                         <!-- VA Win -->
-                        <div class="text-center p-4">
-                             <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
-                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
-                            </div>
-                            <h3 class="font-bold text-lg main-title">The VA Wins</h3>
-                            <p class="details text-sm">By achieving their ultimate career goal of a stable, direct-hire role, fulfilling our brand promise.</p>
+                        <div class="card p-4 border-l-4 border-teal-500 bg-slate-50">
+                            <p class="text-sm font-semibold text-gray-500">Tenure: 1 - 2 Years</p>
+                            <p class="text-2xl font-bold main-title">$20,000</p>
                         </div>
-                         <!-- MMM Win -->
-                        <div class="text-center p-4">
-                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
-                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
-                            </div>
-                            <h3 class="font-bold text-lg main-title">MMM Wins</h3>
-                            <p class="details text-sm">By converting a retention loss into a high-margin revenue event and strengthening client relationships.</p>
+                        <div class="card p-4 border-l-4 border-teal-400 bg-slate-50">
+                            <p class="text-sm font-semibold text-gray-500">Tenure: 2 - 3 Years</p>
+                            <p class="text-2xl font-bold main-title">$15,000</p>
+                        </div>
+                        <div class="card p-4 border-l-4 border-amber-500 bg-slate-50">
+                            <p class="text-sm font-semibold text-gray-500">Tenure: 3+ Years</p>
+                            <p class="text-2xl font-bold main-title">$10,000</p>
                         </div>
                     </div>
                 </div>
-                 <div class="wave-divider -mt-1"></div>
             </div>
-             <div class="card p-6 lg:col-span-3">
-                 <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">4. Our Strategic 4-Phase Rollout Plan</h2>
+             <div class="card p-6">
+                <h2 class="text-2xl font-bold main-title mb-4 text-center mmm-primary">The Financial Justification</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+                    <div class="lg:col-span-1">
+                         <div class="text-center">
+                            <h3 class="chart-title mb-2">The Pareto Principle in Action</h3>
+                            <p class="details mb-4 text-center">A small group of successful, long-term VAs represents the vast majority of our controllable churn risk.</p>
+                            <div class="chart-container h-48">
+                                <canvas id="paretoChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1 text-center border-x-2 border-slate-100 px-8">
+                         <h3 class="chart-title mb-2">Projected Financial Impact</h3>
+                         <p class="text-5xl md:text-6xl font-black mmm-primary my-4">$1.66M</p>
+                         <p class="font-semibold subtitle">Projected Profit (Jan 2024 - Sep 2025)</p>
+                         <p class="details text-sm mt-2">Based on converting a conservative 20% of applicable VA resignations into Pinnacle Program partnerships.</p>
+                    </div>
+                     <div class="lg:col-span-1">
+                        <h3 class="chart-title mb-4 text-center">The "Win-Win-Win" Scenario</h3>
+                        <ul class="space-y-4">
+                             <li class="flex items-center">
+                                <div class="flex-shrink-0 h-12 w-12 rounded-full bg-teal-50 flex items-center justify-center">
+                                    <svg class="h-6 w-6 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 4h5m-5 4h5m-5-4h.01M9 7h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01" /></svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-bold main-title">The Client Wins</h4>
+                                    <p class="details text-sm">Retains a proven, invaluable team member.</p>
+                                </div>
+                            </li>
+                             <li class="flex items-center">
+                                <div class="flex-shrink-0 h-12 w-12 rounded-full bg-teal-50 flex items-center justify-center">
+                                     <svg class="h-6 w-6 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-bold main-title">The VA Wins</h4>
+                                     <p class="details text-sm">Achieves their ultimate career goal.</p>
+                                </div>
+                            </li>
+                             <li class="flex items-center">
+                                <div class="flex-shrink-0 h-12 w-12 rounded-full bg-teal-50 flex items-center justify-center">
+                                    <svg class="h-6 w-6 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
+                                </div>
+                                <div class="ml-4">
+                                    <h4 class="font-bold main-title">MMM Wins</h4>
+                                    <p class="details text-sm">Converts a loss into a profit center.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+             <div class="card p-6">
+                 <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">Our Strategic 4-Phase Rollout Plan</h2>
                  <p class="details mb-8">A methodical, proactive launch over the next quarter will ensure a smooth transition for existing clients and establish the policy as a premium feature for new business.</p>
                  <div class="relative">
                      <!-- Timeline Line -->
                      <div class="absolute left-1/2 -ml-0.5 w-1 h-full bg-slate-200 hidden md:block"></div>
-                    
                      <div class="space-y-12 md:space-y-8">
                          <!-- Phase 1 -->
                          <div class="md:grid md:grid-cols-2 md:gap-x-8 items-center">
@@ -466,6 +491,25 @@
                         tooltip: { callbacks: { afterBody: (c) => cancellationBreakdown[c[0].label] || '' } }
                     }, 
                     scales: { x: { beginAtZero: true } }
+                }
+            });
+
+             new Chart(document.getElementById('paretoChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['VA Resignations', 'Other Reasons'],
+                    datasets: [{
+                        label: 'Cancellations',
+                        data: [418, 593],
+                         backgroundColor: [mmmColors.primary, mmmColors.gray],
+                         borderRadius: 4
+                    }]
+                },
+                options: {
+                     responsive: true,
+                    maintainAspectRatio: false,
+                     plugins: { legend: { display: false } },
+                     scales: { y: { beginAtZero: true } }
                 }
             });
             
