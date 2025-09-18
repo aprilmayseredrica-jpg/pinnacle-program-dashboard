@@ -134,10 +134,10 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
                     <div class="lg:col-span-1">
                          <div class="text-center">
-                            <h3 class="chart-title mb-2">The Pareto Principle in Action</h3>
-                            <p class="details mb-4 text-center">A small group of successful, long-term VAs represents the vast majority of our controllable churn risk.</p>
+                            <h3 class="chart-title mb-2">Pinnacle Program Fee vs. MMM's Cumulative Profit</h3>
+                            <p class="details mb-4 text-center">This chart demonstrates that the buyout fee is always fair and profitable, securing our future revenue upfront.</p>
                             <div class="chart-container h-48">
-                                <canvas id="paretoChart"></canvas>
+                                <canvas id="roiChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -494,22 +494,63 @@
                 }
             });
 
-             new Chart(document.getElementById('paretoChart'), {
+             new Chart(document.getElementById('roiChart'), {
                 type: 'bar',
                 data: {
-                    labels: ['VA Resignations', 'Other Reasons'],
-                    datasets: [{
-                        label: 'Cancellations',
-                        data: [418, 593],
-                         backgroundColor: [mmmColors.primary, mmmColors.gray],
-                         borderRadius: 4
-                    }]
+                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
+                    datasets: [
+                        {
+                            type: 'line',
+                            label: 'Pinnacle Program Fee',
+                            data: [25000, 20000, 15000, 10000, 10000],
+                            borderColor: mmmColors.accent,
+                            backgroundColor: 'rgba(243, 122, 32, 0.2)',
+                            borderWidth: 3,
+                            pointBackgroundColor: mmmColors.accent,
+                            pointRadius: 5,
+                            stepped: 'before',
+                            yAxisID: 'y'
+                        },
+                        {
+                            type: 'bar',
+                            label: "MMM's Cumulative Profit",
+                            data: [10236, 20779, 31638, 42823, 54344],
+                            backgroundColor: mmmColors.primary,
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        }
+                    ]
                 },
                 options: {
-                     responsive: true,
+                    responsive: true,
                     maintainAspectRatio: false,
-                     plugins: { legend: { display: false } },
-                     scales: { y: { beginAtZero: true } }
+                    plugins: {
+                        legend: { position: 'top' },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + (value / 1000) + 'k';
+                                }
+                            }
+                        }
+                    }
                 }
             });
             
