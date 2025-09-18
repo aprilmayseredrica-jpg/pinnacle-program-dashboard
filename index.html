@@ -3,170 +3,635 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Pinnacle Program | Financials & ROI</title>
+    <title>MMM | The Pinnacle Program Strategy Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700;900&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --mmm-teal-dark: #00585E;
+            --mmm-teal-light: #00A99D;
+            --mmm-orange: #F37A20;
+            --mmm-bg: #F7FDFD;
+        }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc; /* slate-50 */
+            font-family: 'Source Sans 3', sans-serif;
+            background-color: var(--mmm-bg);
         }
-        .main-title {
-            color: #1e2jlab-293b; /* slate-800 */
+        h1, h2, h3, h4, .tab-button {
+            font-family: 'Lato', sans-serif;
         }
-        .subtitle {
-            color: #475569; /* slate-600 */
-        }
+        .main-title { color: #1e293b; }
+        .subtitle { color: #475569; }
         .card {
             background-color: white;
             border-radius: 0.75rem;
-            box-shadow: 0 4px_6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.07), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            display: flex;
+            flex-direction: column;
         }
-        .chart-title {
-            color: #334155; /* slate-700 */
-            font-weight: 600;
+        .chart-title { color: #334155; font-weight: 700; }
+        .details { color: #475569; text-align: justify; }
+        .footer { color: #94a3b8; font-style: italic; font-size: 0.875rem; }
+        .mmm-primary { color: var(--mmm-teal-dark); }
+        .mmm-secondary { color: var(--mmm-teal-light); }
+        .mmm-accent { color: var(--mmm-orange); }
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            color: var(--mmm-teal-dark);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
         }
-        /* MMM Color Palette */
-        .mmm-primary { color: #0f766e; } /* teal-700 */
-        .mmm-secondary { color: #0d9488; } /* teal-600 */
-        .mmm-accent { color: #f59e0b; } /* amber-500 */
-        .mmm-gray { color: #64748b; } /* slate-500 */
-        .mmm-primary-bg { background-color: #0f766e; }
-        .mmm-accent-bg { background-color: #f59e0b; }
-
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #0d9488;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            margin: 1rem auto;
+        .tab-button.active {
+            color: var(--mmm-teal-dark);
+            border-bottom-color: var(--mmm-orange);
         }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+        }
+        .wave-divider {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3e%3cpath fill='%23ffffff' fill-opacity='1' d='M0,128L80,149.3C160,171,320,213,480,213.3C640,213,800,171,960,149.3C1120,128,1280,128,1360,128L1440,128L1440,320L1360,320C1280,320,1120,320,960,320C800,320,640,320,480,320C320,320,160,320,80,320L0,320Z'%3e%3c/path%3e%3c/svg%3e");
+            background-size: cover;
+            background-repeat: no-repeat;
+            margin-top: -1px;
+        }
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            max-width: 500px;
+            width: 90%;
         }
     </style>
 </head>
 <body class="p-4 sm:p-6 lg:p-8">
 
-    <div class="max-w-6xl mx-auto">
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold main-title tracking-tight">The Pinnacle Program</h1>
-            <p class="mt-2 text-lg subtitle">How It Works & Why It's Profitable</p>
-        </header>
+    <header class="text-center mb-10">
+        <h1 class="text-4xl lg:text-5xl font-black main-title tracking-tight mmm-primary">The Pinnacle Program</h1>
+        <p class="mt-2 text-lg subtitle" style="font-family: 'Source Sans 3', sans-serif;">A Data-Driven Strategy to Increase Revenue & Retention</p>
+    </header>
 
-        <!-- Section 1: The Fee Structure -->
-        <div class="mb-12">
-            <h2 class="text-2xl font-bold text-center main-title mb-6">The Pinnacle Program Fee Schedule</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-                <!-- Tier 1 -->
-                <div class="card p-6 border-t-4 border-teal-600">
-                    <p class="text-sm font-semibold text-gray-500">Tenure: 91 Days - 1 Year</p>
-                    <p class="text-4xl font-bold main-title my-2">$25,000</p>
-                    <p class="text-gray-600">Secures our initial investment and the full non-solicitation value.</p>
+    <div class="border-b border-slate-200 mb-8">
+        <nav class="flex justify-center -mb-px">
+            <button class="tab-button active" onclick="changeTab(event, 'mainDashboard')">Executive Dashboard</button>
+            <button class="tab-button" onclick="changeTab(event, 'resignationDeepDive')">Strategic Deep Dive</button>
+            <button class="tab-button" onclick="changeTab(event, 'qna')">Executive Summary & Q&A</button>
+        </nav>
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div id="mainDashboard" class="tab-content active">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="card p-6 lg:col-span-2">
+                <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">1. The State of Play</h2>
+                <p class="details mb-6">Our data on 1,011 VAs with over 90 days of tenure reveals a clear narrative: <em>VA Resignation</em> is the single largest factor driving cancellations, representing our most significant challenge and our greatest opportunity.</p>
+                <div class="chart-container flex-grow">
+                    <canvas id="cancellationReasonsChart"></canvas>
                 </div>
-                <!-- Tier 2 -->
-                <div class="card p-6 border-t-4 border-teal-500">
-                    <p class="text-sm font-semibold text-gray-500">Tenure: 1 - 2 Years</p>
-                    <p class="text-4xl font-bold main-title my-2">$20,000</p>
-                    <p class="text-gray-600">Rewards the first year of successful partnership.</p>
-                </div>
-                <!-- Tier 3 -->
-                <div class="card p-6 border-t-4 border-teal-400">
-                    <p class="text-sm font-semibold text-gray-500">Tenure: 2 - 3 Years</p>
-                    <p class="text-4xl font-bold main-title my-2">$15,000</p>
-                    <p class="text-gray-600">Recognizes a significant, multi-year client relationship.</p>
-                </div>
-                <!-- Tier 4 -->
-                <div class="card p-6 border-t-4 border-amber-500">
-                    <p class="text-sm font-semibold text-gray-500">Tenure: 3+ Years</p>
-                    <p class="text-4xl font-bold main-title my-2">$10,000</p>
-                    <p class="text-gray-600">Our premium rate for the most dedicated, long-term partners.</p>
+                <p class="footer text-center mt-4">Source: All-time cancellation data for VAs past the 90-day mark.</p>
+            </div>
+            <div class="card p-6 flex flex-col justify-center">
+                <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">2. The Financial Impact</h2>
+                <p class="details mb-6">By converting a conservative 20% of applicable cancellations into buyouts, we can create a significant, high-margin revenue stream.</p>
+                <div class="text-center my-auto">
+                    <p class="text-5xl md:text-6xl font-black mmm-primary">$1,660,000</p>
+                    <p class="text-md font-semibold subtitle">Projected Profit (Jan 2024 - Sep 2025)</p>
                 </div>
             </div>
-        </div>
-
-        <!-- Section 2: Financial Justification -->
-        <div>
-            <h2 class="text-2xl font-bold text-center main-title mb-12">Financial Justification & Interactive Tools</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 card p-6">
-                    <h3 class="chart-title mb-4">Pinnacle Program Fee vs. MMM's Cumulative Profit</h3>
-                    <canvas id="roiChart"></canvas>
-                </div>
-                <div class="card p-8 flex flex-col justify-center text-center bg-teal-50">
-                     <h3 class="text-xl font-bold main-title mb-4">Projected Revenue</h3>
-                     <p class="text-6xl font-extrabold mmm-primary">$1.66M</p>
-                     <p class="mt-2 text-md font-semibold subtitle">In the first 20 Months</p>
-                     <p class="text-sm text-gray-600 mt-4">Based on a conservative estimate of converting 20% of applicable VA resignations into Pinnacle Program partnerships.</p>
-                </div>
-
-                <!-- Gemini API Features -->
-                <div class="lg:col-span-3 card p-6 mt-8">
-                    <h3 class="text-xl font-bold main-title mb-4">Client Conversation Toolkit (AI-Powered)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <!-- Buyout Readiness Analysis -->
-                        <div>
-                            <label for="tenureInput" class="block text-sm font-medium text-gray-700">Enter VA Tenure (days)</label>
-                            <div class="mt-1 flex rounded-md shadow-sm">
-                                <input type="number" id="tenureInput" class="block w-full rounded-l-md border-gray-300 focus:border-teal-500 focus:ring-teal-500 sm:text-sm" placeholder="e.g., 400">
-                                <button id="analyzeBtn" class="relative -ml-px inline-flex items-center space-x-2 rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">Analyze</button>
+            <div class="bg-white rounded-lg lg:col-span-3">
+                <div class="wave-divider rotate-180"></div>
+                <div class="card p-6 rounded-t-none border-t-0">
+                    <h2 class="text-2xl font-bold main-title mb-8 text-center mmm-primary">The "Win-Win-Win" Scenario</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Client Win -->
+                        <div class="text-center p-4">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
+                               <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 4h5m-5 4h5m-5-4h.01M9 7h.01M13 7h.01M13 11h.01M13 15h.01M17 7h.01M17 11h.01M17 15h.01" /></svg>
                             </div>
-                            <div class="mt-4 p-4 bg-gray-50 rounded-lg">
-                                <h4 class="font-semibold text-gray-800">Buyout Readiness Score</h4>
-                                <div id="readinessLoader" class="loader hidden"></div>
-                                <p id="readinessScoreEl" class="text-3xl font-bold mmm-secondary mt-1">-- / 100</p>
-                                <p id="readinessJustificationEl" class="text-sm text-gray-600 mt-1">Enter a tenure to see the analysis.</p>
-                            </div>
+                            <h3 class="font-bold text-lg main-title">The Client Wins</h3>
+                            <p class="details text-sm">By retaining a proven, fully integrated, and invaluable team member without disruption.</p>
                         </div>
-                        <!-- Talking Points Generator -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Generate Conversation Starters</label>
-                            <button id="talkingPointsBtn" class="mt-1 w-full rounded-md border border-transparent bg-teal-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-teal-700">Generate Talking Points</button>
-                            <div class="mt-4 p-4 bg-gray-50 rounded-lg h-48 overflow-y-auto">
-                                <h4 class="font-semibold text-gray-800">Key Talking Points</h4>
-                                <div id="talkingPointsLoader" class="loader hidden"></div>
-                                <div id="talkingPointsResult" class="text-sm text-gray-600 mt-2 space-y-2">Click the button to generate talking points based on the VA's tenure.</div>
+                         <!-- VA Win -->
+                        <div class="text-center p-4">
+                             <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
+                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
                             </div>
+                            <h3 class="font-bold text-lg main-title">The VA Wins</h3>
+                            <p class="details text-sm">By achieving their ultimate career goal of a stable, direct-hire role, fulfilling our brand promise.</p>
+                        </div>
+                         <!-- MMM Win -->
+                        <div class="text-center p-4">
+                            <div class="flex items-center justify-center h-20 w-20 rounded-full bg-teal-50 mx-auto mb-4">
+                                <svg class="h-10 w-10 mmm-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>
+                            </div>
+                            <h3 class="font-bold text-lg main-title">MMM Wins</h3>
+                            <p class="details text-sm">By converting a retention loss into a high-margin revenue event and strengthening client relationships.</p>
                         </div>
                     </div>
                 </div>
-
+                 <div class="wave-divider -mt-1"></div>
+            </div>
+             <div class="card p-6 lg:col-span-3">
+                 <h2 class="text-2xl font-bold main-title mb-1 mmm-primary">4. Our Strategic 4-Phase Rollout Plan</h2>
+                 <p class="details mb-8">A methodical, proactive launch over the next quarter will ensure a smooth transition for existing clients and establish the policy as a premium feature for new business.</p>
+                 <div class="relative">
+                     <!-- Timeline Line -->
+                     <div class="absolute left-1/2 -ml-0.5 w-1 h-full bg-slate-200 hidden md:block"></div>
+                    
+                     <div class="space-y-12 md:space-y-8">
+                         <!-- Phase 1 -->
+                         <div class="md:grid md:grid-cols-2 md:gap-x-8 items-center">
+                             <div class="md:text-right md:pr-8">
+                                 <p class="font-bold text-lg mmm-primary">Phase 1: Internal Prep</p>
+                                 <p class="font-semibold subtitle">Next 30 Days</p>
+                             </div>
+                             <div class="relative">
+                                 <div class="absolute w-6 h-6 rounded-full bg-white border-4 border-teal-500 left-1/2 -ml-3 -top-3 md:top-auto md:-left-3 md:top-1/2 md:-mt-3 hidden md:block"></div>
+                                 <div class="bg-slate-100 p-4 rounded-lg mt-4 md:mt-0 md:ml-8">
+                                     <ul class="list-disc list-inside details text-sm">
+                                         <li>Finalize Legal Agreements</li>
+                                         <li>Train Sales & Client Success Teams</li>
+                                         <li>Update CRM & Internal Systems</li>
+                                     </ul>
+                                 </div>
+                             </div>
+                         </div>
+                          <!-- Phase 2 -->
+                         <div class="md:grid md:grid-cols-2 md:gap-x-8 items-center">
+                             <div class="md:col-start-2 md:text-left md:pl-8">
+                                  <p class="font-bold text-lg mmm-secondary">Phase 2: New Clients & VAs</p>
+                                 <p class="font-semibold subtitle">Starting Oct 2025</p>
+                             </div>
+                             <div class="relative md:col-start-1 md:row-start-1">
+                                  <div class="absolute w-6 h-6 rounded-full bg-white border-4 border-teal-500 left-1/2 -ml-3 -top-3 md:top-auto md:-right-3 md:left-auto md:top-1/2 md:-mt-3 hidden md:block"></div>
+                                 <div class="bg-slate-100 p-4 rounded-lg mt-4 md:mt-0 md:mr-8">
+                                     <ul class="list-disc list-inside details text-sm">
+                                         <li>Implement New Agreements</li>
+                                         <li>Integrate into Sales Process</li>
+                                         <li>Onboard VAs with New ICA</li>
+                                     </ul>
+                                 </div>
+                             </div>
+                         </div>
+                           <!-- Phase 3 -->
+                         <div class="md:grid md:grid-cols-2 md:gap-x-8 items-center">
+                              <div class="md:text-right md:pr-8">
+                                 <p class="font-bold text-lg mmm-primary">Phase 3: Existing Clients</p>
+                                 <p class="font-semibold subtitle">Oct - Dec 2025</p>
+                             </div>
+                             <div class="relative">
+                                 <div class="absolute w-6 h-6 rounded-full bg-white border-4 border-teal-500 left-1/2 -ml-3 -top-3 md:top-auto md:-left-3 md:top-1/2 md:-mt-3 hidden md:block"></div>
+                                 <div class="bg-slate-100 p-4 rounded-lg mt-4 md:mt-0 md:ml-8">
+                                     <ul class="list-disc list-inside details text-sm">
+                                          <li>Segment Clients by VA Tenure</li>
+                                          <li>Conduct Proactive 10-Month Reviews</li>
+                                          <li>Use Personalized Communication</li>
+                                     </ul>
+                                 </div>
+                             </div>
+                         </div>
+                           <!-- Phase 4 -->
+                          <div class="md:grid md:grid-cols-2 md:gap-x-8 items-center">
+                             <div class="md:col-start-2 md:text-left md:pl-8">
+                                 <p class="font-bold text-lg mmm-secondary">Phase 4: Ongoing Management</p>
+                                 <p class="font-semibold subtitle">Starting Jan 2026</p>
+                             </div>
+                             <div class="relative md:col-start-1 md:row-start-1">
+                                  <div class="absolute w-6 h-6 rounded-full bg-white border-4 border-teal-500 left-1/2 -ml-3 -top-3 md:top-auto md:-right-3 md:left-auto md:top-1/2 md:-mt-3 hidden md:block"></div>
+                                 <div class="bg-slate-100 p-4 rounded-lg mt-4 md:mt-0 md:mr-8">
+                                     <ul class="list-disc list-inside details text-sm">
+                                         <li>Track KPIs Quarterly (Revenue, Retention)</li>
+                                         <li>Gather Client & VA Feedback</li>
+                                         <li>Conduct Annual Review of Fee Structure</li>
+                                     </ul>
+                                 </div>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Resignation Deep Dive Content -->
+    <div id="resignationDeepDive" class="tab-content">
+        <div class="space-y-8">
+            <div class="card p-6">
+                 <h2 class="text-2xl font-bold main-title mb-4 text-center mmm-primary">Forecasting the Opportunity</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="chart-container h-80">
+                         <canvas id="monthlyTrendsChartDetail"></canvas>
+                         <p class="footer text-center mt-2">Source: All-time monthly cancellation data.</p>
+                    </div>
+                    <div>
+                         <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr>
+                                    <th class="p-3 font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200">Period</th>
+                                    <th class="p-3 font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200">Insights & Justification</th>
+                                    <th class="p-3 font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200">MMM Recommendation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="bg-white">
+                                    <td class="p-3 font-semibold border border-slate-200 align-top">Q1 (Jan-Mar)</td>
+                                    <td class="p-3 border border-slate-200 align-top text-sm details">US clients finalize new annual budgets. Filipino VAs become active job-seekers after receiving their legally mandated "13th month pay" in December. This creates a <em>perfect storm</em> for strategic buyouts.</td>
+                                    <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Launch Pinnacle Program awareness campaigns to clients with VAs tenured 10+ months.</td>
+                                </tr>
+                                 <tr class="bg-white">
+                                    <td class="p-3 font-semibold border border-slate-200 align-top">Q2 (Apr-Jun)</td>
+                                    <td class="p-3 border border-slate-200 align-top text-sm details">Post-Q1 performance reviews in the US confirm the VA's value and ROI. This is a key trigger for clients to convert a successful placement into a permanent hire before mid-year budget adjustments.</td>
+                                     <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Proactively schedule strategic reviews in May, presenting the Pinnacle Program as a solution for retaining top talent.</td>
+                                </tr>
+                                 <tr class="bg-white">
+                                    <td class="p-3 font-semibold border border-slate-200 align-top">Q3 (Jul-Sep)</td>
+                                    <td class="p-3 border border-slate-200 align-top text-sm details">As US clients reassess mid-year budgets and plan for Q4, securing essential personnel becomes a top priority, creating another buyout window before the end-of-year rush.</td>
+                                    <td class="p-3 border border-slate-200 align-top text-sm details font-semibold mmm-primary">Initiate conversations in August, positioning the Program as a way to secure critical VAs for EOY goals.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                     <div class="lg:col-span-1">
+                        <h2 class="text-3xl font-black main-title mb-2 mmm-primary">The Two Stories of VA Resignation</h2>
+                        <p class="details text-lg">This analysis of 418 resignations reveals a critical insight: the reasons VAs leave change dramatically with tenure. The chart opposite visualizes this shift, making the case for a targeted retention strategy.</p>
+                        <div class="mt-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
+                             <h4 class="font-bold main-title">The Narrative: Under 1 Year</h4>
+                              <p class="text-md font-semibold subtitle mb-2">Avg. Tenure: 153 Days</p>
+                             <p class="details text-sm mt-1">Early resignations are a mix of preventable issues. While many VAs seek other opportunities, a notable portion leaves due to tangible performance problems. This is where we must <em>improve our screening and early-support processes.</em></p>
+                        </div>
+                        <div class="mt-4 p-4 rounded-lg bg-slate-50 border border-slate-200">
+                            <h4 class="font-bold main-title">The Narrative: After 1 Year</h4>
+                             <p class="text-md font-semibold subtitle mb-2">Avg. Tenure: 695 Days</p>
+                            <p class="details text-sm mt-1">The story flips completely for long-term VAs. Negative performance issues become statistically insignificant. The overwhelming driver is the search for "Better Opportunities," strongly indicating that these proven VAs are being pursued for direct-hire roles—the <em>exact scenario the Pinnacle Program is designed for.</em></p>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1 chart-container h-96">
+                        <canvas id="comparativeResignationChart"></canvas>
+                         <p class="footer text-center mt-2">Click a category on the chart for a detailed breakdown.</p>
+                    </div>
+                </div>
+            </div>
+
+             <div class="card p-6">
+                <h2 class="text-2xl font-bold main-title mb-2 text-center mmm-primary">Our Competitive Edge</h2>
+                <div class="max-w-2xl mx-auto mt-6">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-3 font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200">Competitor</th>
+                                <th class="p-3 font-bold uppercase bg-teal-50 text-teal-800 border border-teal-200 text-center">Formal Buyout Program</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="bg-white">
+                                <td class="p-3 font-semibold border border-slate-200">Hello Rache</td>
+                                <td class="p-3 border border-slate-200 text-center text-2xl">❌</td>
+                            </tr>
+                            <tr class="bg-white">
+                                <td class="p-3 font-semibold border border-slate-200">MedVA</td>
+                                <td class="p-3 border border-slate-200 text-center text-2xl">❌</td>
+                            </tr>
+                             <tr class="bg-white">
+                                <td class="p-3 font-semibold border border-slate-200">REVA Global</td>
+                                <td class="p-3 border border-slate-200 text-center text-2xl">❌</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="details text-center max-w-3xl mx-auto mt-6">A comprehensive review of our top competitors reveals a significant market opportunity. None publicly offer a formal, proactive buyout program. They rely on standard, defensive non-solicitation clauses.</p>
+                <p class="details mt-4 font-bold mmm-primary text-center text-lg">The Pinnacle Program is a market-first offering that positions MMM as a more mature, transparent, and strategic partner, giving us a powerful advantage in attracting both discerning clients and top-tier VA talent.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Q&A Tab -->
+    <div id="qna" class="tab-content">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <div class="card p-6">
+                <h2 class="text-2xl font-bold main-title mb-2 mmm-primary">Executive Summary</h2>
+                <p class="details mb-4">This proposal outlines the data-driven case for the Pinnacle Program, a strategic initiative to formalize VA buyouts, creating a new revenue stream while increasing client and VA retention.</p>
+                 <div class="space-y-4">
+                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <h3 class="font-bold text-lg main-title">The Problem</h3>
+                        <p class="details text-sm mt-1">Our biggest source of controllable churn is <strong>VA Resignation (418 of 1,011 cancellations)</strong>, particularly among long-term VAs who are not leaving due to performance issues but are seeking direct-hire roles. This represents a significant and predictable revenue loss.</p>
+                    </div>
+                    <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <h3 class="font-bold text-lg main-title">The Solution</h3>
+                        <p class="details text-sm mt-1">The Pinnacle Program is a formal, tiered buyout policy that allows clients to legally and seamlessly hire their VAs. It's a <strong>"win-win-win"</strong> that retains the client relationship, fulfills the VA's career goals, and converts a business risk for MMM into a profitable outcome.</p>
+                    </div>
+                     <div class="p-4 rounded-lg bg-slate-50 border border-slate-200">
+                        <h3 class="font-bold text-lg main-title">The Opportunity</h3>
+                        <p class="details text-sm mt-1">We project <strong>$1.66 million</strong> in new revenue in the first 20 months. As a market-first offering, this program gives us a powerful competitive advantage over rivals like Hello Rache and MedVA, positioning us as the premier partner for serious, long-term growth.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card p-6">
+                <h2 class="text-2xl font-bold main-title mb-2 text-center mmm-primary">Strategic Q&A</h2>
+                <p class="details text-center mb-6">Have a question? Ask VA-lueLens for an instant, data-backed answer.</p>
+                
+                <div id="chat-window" class="h-80 overflow-y-auto p-4 bg-slate-50 rounded-lg border border-slate-200 mb-4 space-y-4">
+                     <div class="flex">
+                        <div class="rounded-lg p-3 bg-teal-100 text-teal-900">
+                            <p class="font-bold">VA-lueLens</p>
+                            <p class="text-sm">I'm ready to answer your questions based on the data in this proposal. For example: "Why do we project buyouts will peak in January?"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center">
+                    <input type="text" id="chat-input" class="w-full p-3 border border-slate-300 rounded-l-lg focus:ring-2 focus:ring-teal-500 focus:outline-none" placeholder="Ask your question here...">
+                    <button id="send-btn" class="p-3 bg-teal-600 text-white rounded-r-lg hover:bg-teal-700 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+                    </button>
+                </div>
+                 <div id="loader" class="text-center mt-4 hidden">
+                    <p class="text-slate-500">VA-lueLens is thinking...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal -->
+    <div id="details-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modal-title" class="text-xl font-bold main-title">Breakdown</h3>
+                <button onclick="closeModal()" class="text-slate-500 hover:text-slate-800 text-3xl leading-none">&times;</button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-            const tenureInput = document.getElementById('tenureInput');
-            const analyzeBtn = document.getElementById('analyzeBtn');
-            const readinessLoader = document.getElementById('readinessLoader');
-            const readinessScoreEl = document.getElementById('readinessScoreEl');
-            const readinessJustificationEl = document.getElementById('readinessJustificationEl');
-            
-            const talkingPointsBtn = document.getElementById('talkingPointsBtn');
-            const talkingPointsResult = document.getElementById('talkingPointsResult');
-            const talkingPointsLoader = document.getElementById('talkingPointsLoader');
+        function changeTab(event, tabID) {
+            let tabs = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            document.getElementById(tabID).classList.add('active');
+            let tabButtons = document.getElementsByClassName('tab-button');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            event.currentTarget.classList.add('active');
+        }
 
-            const API_KEY = "AIzaSyB3cbctAyDUexcLt71hg5JnxpYQ1yE1D9U"; 
+        const modal = document.getElementById('details-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+
+        function showModal(title, content) {
+            modalTitle.innerText = title;
+            modalBody.innerHTML = content;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            modal.classList.add('hidden');
+        }
+
+        // Close modal if overlay is clicked
+        modal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            Chart.register(ChartDataLabels);
+
+            const mmmColors = {
+                primary: '#00585E',   // MMM Teal Dark
+                secondary: '#00A99D', // MMM Teal Light
+                accent: '#F37A20',    // MMM Orange
+                gray: '#94a3b8',      // slate-400
+                red: '#ef4444' // red-500 for negative
+            };
+
+            const cancellationBreakdown = {
+                'Resign': 'Better Opps: 66\nCommitment: 20\nDemotivation: 10\nPerformance: 19\nOthers: 303',
+                'Client Set-Up': 'No specific VA issues provided.',
+                'Financial Reason': 'No specific VA issues provided.'
+            };
+
+            // Main Dashboard Charts
+            new Chart(document.getElementById('cancellationReasonsChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Resign', 'Client Set-Up', 'Financial Reason'],
+                    datasets: [{
+                        label: 'Number of Cancellations',
+                        data: [418, 312, 281],
+                        backgroundColor: [mmmColors.primary, mmmColors.secondary, mmmColors.accent],
+                        borderRadius: 4
+                    }]
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y', 
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { callbacks: { afterBody: (c) => cancellationBreakdown[c[0].label] || '' } }
+                    }, 
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+            
+            new Chart(document.getElementById('monthlyTrendsChartDetail'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        { label: 'Resign', data: [22, 15, 16, 18, 25, 18, 17, 26, 20, 15, 14, 18], borderColor: mmmColors.primary, tension: 0.4, fill: false },
+                        { label: 'Client Set-Up', data: [13, 9, 10, 12, 14, 10, 10, 15, 12, 9, 8, 11], borderColor: mmmColors.secondary, tension: 0.4, fill: false },
+                        { label: 'Financial', data: [10, 6, 6, 8, 9, 7, 6, 8, 8, 7, 6, 7], borderColor: mmmColors.accent, tension: 0.4, fill: false }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true } } }
+            });
+            
+            const tenureDetails = {
+                 '⭐ Opportunity-Seeking': {
+                    '< 1 Year': { 'Better Opps LOCAL': 25, 'Better Opps OVERSEAS': 3, 'Commitment Issues': 15, 'Demotivation of VA': 8 },
+                    '> 1 Year': { 'Better Opps LOCAL': 28, 'Better Opps OVERSEAS': 10, 'Commitment Issues': 5, 'Demotivation of VA': 2 }
+                },
+                'Performance-Related': {
+                    '< 1 Year': { 'Quality': 12, 'Quantity': 5 },
+                    '> 1 Year': { 'Quality': 1, 'Quantity': 1 }
+                },
+                'Others': {
+                     '< 1 Year': { 'Not Specified': 221 },
+                    '> 1 Year': { 'Not Specified': 82 }
+                }
+            };
+            
+            function createTableHTML(data) {
+                let table = '<table class="w-full text-sm text-left"><thead><tr class="bg-slate-50"><th class="p-2">VA Issue</th><th class="p-2 text-center">< 1 Year</th><th class="p-2 text-center">> 1 Year</th></tr></thead><tbody>';
+                const allKeys = [...new Set([...Object.keys(data['< 1 Year']), ...Object.keys(data['> 1 Year'])])];
+                allKeys.forEach(key => {
+                    table += `<tr class="border-b"><td class="p-2 font-semibold">${key}</td><td class="p-2 text-center">${data['< 1 Year'][key] || 0}</td><td class="p-2 text-center">${data['> 1 Year'][key] || 0}</td></tr>`;
+                });
+                table += '</tbody></table>';
+                return table;
+            }
+
+
+            // TWO STORIES COMPARATIVE BAR CHART
+            const comparativeResignationChart = new Chart(document.getElementById('comparativeResignationChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['⭐ Opportunity-Seeking', 'Performance-Related', 'Others'],
+                    datasets: [
+                        {
+                            label: '< 1 Year',
+                            data: [51, 17, 221],
+                            backgroundColor: mmmColors.secondary,
+                            borderRadius: 4
+                        },
+                        {
+                            label: '> 1 Year',
+                            data: [45, 2, 82],
+                            backgroundColor: mmmColors.primary,
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (evt, elements, chart) => {
+                        if (elements.length > 0) {
+                            const canvas = chart.canvas;
+                            const rect = canvas.getBoundingClientRect();
+                            const x = evt.clientX - rect.left;
+                        
+                            const xAxis = chart.scales.x;
+                            const labels = chart.data.labels;
+
+                            const index = xAxis.getValueForPixel(x);
+                            const category = labels[index];
+
+                            if (category) {
+                                const tableData = tenureDetails[category];
+                                if(tableData){
+                                    const tableHTML = createTableHTML(tableData);
+                                    showModal(`Breakdown for: ${category}`, tableHTML);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        tooltip: {
+                            callbacks: {
+                                afterBody: function(context) {
+                                    const category = context.label;
+                                    const tenure = context.dataset.label;
+                                    const detailsObject = tenureDetails[category] ? tenureDetails[category][tenure] : null;
+                                    if (detailsObject) {
+                                        return Object.entries(detailsObject).map(([key, value]) => `\n- ${key}: ${value}`).join('');
+                                    }
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // --- Gemini API Chatbot Logic ---
+            const chatInput = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            const chatWindow = document.getElementById('chat-window');
+            const loader = document.getElementById('loader');
+
+            const API_KEY = "AIzaSyB3cbctAyDUexcLt71hg5JnxpYQ1yE1D9U";
             const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-            
-            let currentTenure = 0;
 
-            async function callGeminiAPI(prompt, systemInstruction) {
+            const systemPrompt = `You are VA-lueLens, an expert data analyst and CEO for My Mountain Mover (MMM), a virtual assistant agency specializing in the US medical field. You are answering questions from your own CEO based on a strategic proposal you created called The Pinnacle Program. All your answers must be based *only* on the provided data context. Be concise, professional, and confident.
+
+            ## Full Proposal & Data Context ##
+
+            **1. Program Overview:**
+            - **Name:** The Pinnacle Program.
+            - **Concept:** A formal, tiered buyout option for clients to legally and seamlessly hire their VAs directly. It replaces a punitive non-solicitation clause.
+            - **Goal:** Convert the business risk of clients "poaching" VAs into a high-margin revenue stream, strengthen client and VA retention, and create a unique competitive advantage.
+            - **Fee Structure:** Starts at $25,000 for VAs with 91-365 days of tenure, decreasing with longer tenures.
+
+            **2. Core Data Analysis (from 1,011 cancellations of VAs with >90 days tenure):**
+            - **Primary Reason for Cancellation:** VA Resignation is the #1 reason, accounting for 418 of 1,011 cancellations (41%). Other reasons are Client Set-Up (312) and Financial Reasons (281).
+            - **The "Two Stories" of Resignation (418 total resignations):**
+                - **Under 1 Year (289 VAs):** Average tenure is 153 days. 51 resigned for "Opportunity-Seeking" reasons, 17 for "Performance-Related" issues, and 221 for "Others" (mostly unspecified). *Insight: A mix of preventable performance issues and early-career job seeking.*
+                - **Over 1 Year (129 VAs):** Average tenure is 695 days. 45 resigned for "Opportunity-Seeking" reasons, only 2 for "Performance-Related" issues, and 82 for "Others." *Insight: Performance is not the issue. These are proven, successful VAs who are leaving for better opportunities, strongly implying direct-hire offers.*
+            - **Breakdown of "Opportunity-Seeking" (<1 Year vs. >1 Year):**
+                - Better Opps LOCAL: 25 vs. 28
+                - Better Opps OVERSEAS: 3 vs. 10
+                - Commitment Issues: 15 vs. 5
+                - Demotivation of VA: 8 vs. 2
+            - **Breakdown of "Performance-Related" (<1 Year vs. >1 Year):**
+                - Quality: 12 vs. 1
+                - Quantity: 5 vs. 1
+
+            **3. Financial & Market Opportunity:**
+            - **Projected Revenue:** $1.66 million in new, high-margin revenue is projected over the first 20 months, based on converting a conservative 20% of applicable resignations.
+            - **Competitive Edge:** Top competitors (Hello Rache, MedVA, REVA Global) DO NOT have a similar formal, proactive buyout program. This is a market-first offering for MMM.
+
+            **4. Strategic Forecasting (The Buyout Calendar):**
+            - **Q1 (Peak: Jan):** Triggered by US clients' new annual budgets and Filipino VAs receiving their "13th month pay" in December, making them active job seekers.
+            - **Q2 (Peak: May):** Triggered by post-Q1 performance reviews in the US confirming a VA's value.
+            - **Q3 (Peak: Aug):** Triggered by mid-year budget reassessments and planning for Q4 in the US.
+
+            **5. The Value Proposition (The "Win-Win-Win"):**
+            - **Client Wins:** Retains a proven, invaluable team member.
+            - **VA Wins:** Achieves their primary long-term career goal of a direct-hire role.
+            - **MMM Wins:** Converts a revenue loss into a profit center and strengthens the client relationship.`;
+            
+            const sendMessage = async () => {
+                const userQuery = chatInput.value.trim();
+                if (!userQuery) return;
+                
+                appendMessage(userQuery, 'user');
+                chatInput.value = '';
+                loader.classList.remove('hidden');
+
                 try {
                     const payload = {
-                        contents: [{ parts: [{ text: prompt }] }],
+                        contents: [{ parts: [{ text: userQuery }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
                     };
-                    if (systemInstruction) {
-                        payload.systemInstruction = { parts: [{ text: systemInstruction }] };
-                    }
 
                     const response = await fetch(API_URL, {
                         method: 'POST',
@@ -175,143 +640,47 @@
                     });
 
                     if (!response.ok) {
-                        console.error("API Error Response:", await response.text());
-                        return "Error: Could not get a response from the API.";
+                        const errorBody = await response.json();
+                        console.error("API Error Response:", errorBody);
+                        throw new Error(`API error: ${response.statusText}`);
                     }
 
                     const result = await response.json();
-                    if (result.candidates && result.candidates[0].content && result.candidates[0].content.parts[0].text) {
-                        return result.candidates[0].content.parts[0].text;
-                    } else {
-                        console.error("Unexpected API response structure:", result);
-                        return "Error: Unexpected response format from API.";
-                    }
+                    const aiResponse = result.candidates[0].content.parts[0].text;
+                    appendMessage(aiResponse, 'ai');
+
                 } catch (error) {
-                    console.error('Error calling Gemini API:', error);
-                    return "Error: An exception occurred while calling the API.";
+                    console.error("Error calling Gemini API:", error);
+                    appendMessage("I'm sorry, I encountered an error trying to process that. Please check the console for details.", 'ai');
+                } finally {
+                     loader.classList.add('hidden');
                 }
-            }
+            };
 
-            async function analyzeReadiness() {
-                const tenure = parseInt(tenureInput.value);
-                if (isNaN(tenure) || tenure <= 0) {
-                    readinessScoreEl.textContent = "-- / 100";
-                    readinessJustificationEl.textContent = "Please enter a valid number of days.";
-                    return;
-                }
+            const appendMessage = (text, sender) => {
+                const messageDiv = document.createElement('div');
+                const bubble = document.createElement('div');
+                bubble.classList.add('rounded-lg', 'p-3');
                 
-                currentTenure = tenure;
-                readinessLoader.classList.remove('hidden');
-                readinessScoreEl.textContent = "...";
-                readinessJustificationEl.textContent = "Analyzing...";
-
-                const prompt = `A virtual assistant (VA) has a tenure of ${tenure} days with a client. Based on this tenure, calculate a "Buyout Readiness Score" out of 100. The score should reflect the client's likely attachment and the strategic value of initiating a buyout conversation. A low tenure (<90 days) should have a very low score. A tenure around 1 year (365 days) should be high (around 80-90). Tenure beyond 2 years should be very high (95+). Provide a single integer score followed by a colon, then a brief one-sentence justification. Example: 85:The VA is highly integrated into the client's operations, making this an ideal time for a buyout discussion.`;
-                const systemInstruction = "You are a business analyst for an outsourcing company. Provide a concise, data-driven readiness score and justification.";
-                
-                const response = await callGeminiAPI(prompt, systemInstruction);
-
-                readinessLoader.classList.add('hidden');
-                if (response.includes(':')) {
-                    const [score, justification] = response.split(':', 2);
-                    const numericScore = parseInt(score.trim());
-                    if (!isNaN(numericScore)) {
-                        readinessScoreEl.textContent = `${numericScore} / 100`;
-                        readinessJustificationEl.textContent = justification.trim();
-                    } else {
-                        readinessScoreEl.textContent = "Error";
-                        readinessJustificationEl.textContent = "Could not parse score.";
-                    }
+                if (sender === 'user') {
+                    messageDiv.classList.add('flex', 'justify-end');
+                    bubble.classList.add('bg-blue-100', 'text-blue-900');
+                    bubble.innerHTML = `<p class="text-sm">${text}</p>`;
                 } else {
-                    readinessScoreEl.textContent = "Error";
-                    readinessJustificationEl.textContent = "Could not generate justification.";
+                    messageDiv.classList.add('flex');
+                    bubble.classList.add('bg-teal-100', 'text-teal-900');
+                    bubble.innerHTML = `<p class="font-bold">VA-lueLens</p><p class="text-sm">${text.replace(/\n/g, '<br>')}</p>`;
                 }
-            }
-
-            async function generateTalkingPoints() {
-                if (currentTenure <= 0) {
-                    talkingPointsResult.innerHTML = '<p>Please analyze a tenure first to generate relevant talking points.</p>';
-                    return;
-                }
-
-                talkingPointsLoader.classList.remove('hidden');
-                talkingPointsResult.innerHTML = '';
-
-                const prompt = `A client's virtual assistant has been with them for ${currentTenure} days. Generate 3-4 concise, strategic talking points for a Client Success Manager to use when introducing the "Pinnacle Program" (a VA buyout option). The tone should be positive, proactive, and focused on partnership. Frame it as a testament to the VA's success. Use markdown for bullet points.`;
-                const systemInstruction = "You are a communications expert crafting talking points for a Client Success Manager at a premium outsourcing firm called My Mountain Mover. Be professional, client-centric, and strategic.";
-
-                const response = await callGeminiAPI(prompt, systemInstruction);
                 
-                talkingPointsLoader.classList.add('hidden');
-                // Simple markdown to HTML conversion for bullets
-                let htmlResponse = response.replace(/\* (.*?)\n/g, '<li class="mb-1"><strong>-</strong> $1</li>');
-                htmlResponse = `<ul>${htmlResponse}</ul>`;
-                talkingPointsResult.innerHTML = htmlResponse.replace(/<\/strong> (.*?)(<\/li>|<ul>)/g, '</strong> <span class="text-gray-700">$1</span>$2');
+                messageDiv.appendChild(bubble);
+                chatWindow.appendChild(messageDiv);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            };
 
-            }
-
-            analyzeBtn.addEventListener('click', analyzeReadiness);
-            talkingPointsBtn.addEventListener('click', generateTalkingPoints);
-
-            // Chart.js implementation
-            const roiCtx = document.getElementById('roiChart').getContext('2d');
-            new Chart(roiCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'],
-                    datasets: [
-                        {
-                            type: 'line',
-                            label: 'Pinnacle Program Fee',
-                            data: [25000, 20000, 15000, 10000, 10000],
-                            borderColor: '#f59e0b', // amber-500
-                            backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                            borderWidth: 3,
-                            pointBackgroundColor: '#f59e0b',
-                            pointRadius: 5,
-                            stepped: 'before',
-                            order: 1
-                        },
-                        {
-                            type: 'bar',
-                            label: "MMM's Cumulative Profit",
-                            data: [10236, 20779, 31638, 42823, 54344],
-                            backgroundColor: '#0d9488', // teal-600
-                            borderRadius: 4,
-                            order: 2
-                        },
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value, index, values) {
-                                    return '$' + (value / 1000) + 'k';
-                                }
-                            }
-                        }
-                    }
+            sendBtn.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
                 }
             });
         });
