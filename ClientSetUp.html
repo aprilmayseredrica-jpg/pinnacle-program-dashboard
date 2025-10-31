@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VA-lueLens: Cancellation Analysis Dashboard</title>
-    <!-- 1. Load Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 2. Load ApexCharts -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     
-    <!-- 3. Define MMM Colors in Tailwind Config -->
+    <!-- 1. Define MMM Colors in Tailwind Config -->
+    <!-- This MUST be before the main Tailwind script -->
     <script>
         tailwind.config = {
             theme: {
@@ -33,11 +30,17 @@
         };
     </script>
     
+    <!-- 2. Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 3. Load ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
     <!-- 4. Custom Styles -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f4f4f4; /* Using a custom light gray */
+            background-color: #f7fafc; /* mmm-gray-100 */
         }
         /* Style for active tabs */
         .tab-btn.active {
@@ -58,7 +61,7 @@
         .chart-title {
             font-size: 1.125rem; /* 18px */
             font-weight: 600;
-            color: #2d3748; /* mmm-gray-800 */
+            color: #004a99; /* mmm-blue */
             margin-bottom: 16px;
         }
         .apexcharts-tooltip {
@@ -78,7 +81,7 @@
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <header class="mb-6 flex items-center space-x-3">
-            <div class="w-12 h-12 bg-mmm-blue rounded-lg flex items-center justify-center">
+            <div class="w-12 h-12 bg-mmm-blue rounded-lg flex items-center justify-center shadow">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <div>
@@ -90,26 +93,29 @@
         <!-- Tab Navigation -->
         <div class="mb-6 border-b border-mmm-gray-300">
             <nav class="flex flex-wrap -mb-px" id="tab-nav">
-                <button class="tab-btn active text-gray-600 py-4 px-6 border-b-2 border-transparent hover:border-gray-400 focus:outline-none" data-tab="overview">
+                <button class="tab-btn active text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="overview">
                     Overview
                 </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:border-gray-400 focus:outline-none" data-tab="clientSetup">
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="clientSetup">
                     Client Set-Up
                 </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:border-gray-400 focus:outline-none" data-tab="vaPerformance">
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="vaPerformance">
                     VA Performance
                 </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:border-gray-400 focus:outline-none" data-tab="resign">
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="resign">
                     Resign
                 </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:border-gray-400 focus:outline-none" data-tab="financial">
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="financial">
                     Financial
                 </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:border-gray-400 focus:outline-none" data-tab="yearlyTrends">
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="yearlyTrends">
                     YoY Trends
                 </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:border-gray-400 focus:outline-none" data-tab="tenureAnalysis">
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="tenureAnalysis">
                     Tenure Analysis
+                </button>
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="aiDeepDive">
+                    AI Deep-Dive
                 </button>
             </nav>
         </div>
@@ -291,8 +297,47 @@
                     </div>
                     <div class="chart-container">
                         <h3 class="chart-title">Avg. Tenure by Financial Issue</h3>
-                        <div id
-="chart-tenure-fin" class="flex-grow"></div>
+                        <div id="chart-tenure-fin" class="flex-grow"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================= -->
+            <!-- == AI Deep-Dive Tab == -->
+            <!-- ======================= -->
+            <div class="tab-pane hidden" id="aiDeepDive">
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="chart-container p-6 justify-center">
+                        <h3 class="chart-title text-mmm-gray-800">Total AI-Related Cancellations</h3>
+                        <p class="text-6xl font-bold text-mmm-accent" id="stat-ai-total"></p>
+                    </div>
+                    <div class="chart-container p-6 justify-center">
+                        <h3 class="chart-title text-mmm-gray-800">Avg. Tenure for AI-Lost VAs</h3>
+                        <p class="text-6xl font-bold text-mmm-accent"><span id="stat-ai-tenure"></span> <span class="text-3xl">days</span></p>
+                    </div>
+                    <div class="chart-container p-6 justify-center">
+                        <h3 class="chart-title text-mmm-gray-800">vs. Overall Avg. Tenure</h3>
+                        <p class="text-6xl font-bold text-mmm-blue"><span id="stat-ai-vs-overall"></span> <span class="text-3xl">days</span></p>
+                    </div>
+                </div>
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">AI Churn Trend (2024 vs 2025)</h3>
+                        <div id="chart-ai-yearly" class="flex-grow"></div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">AI Churn Resolution (Reduced vs. Cancelled)</h3>
+                        <div id="chart-ai-resolution" class="flex-grow"></div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">Top VA Roles Lost to AI</h3>
+                        <div id="chart-ai-varole" class="flex-grow"></div>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">Original Reason for AI Churn</h3>
+                        <div id="chart-ai-reason" class="flex-grow"></div>
                     </div>
                 </div>
             </div>
@@ -303,9 +348,7 @@
     <!-- 5. Main JavaScript for Tabs and Charts -->
     <script>
         // --- This is where the pre-processed data is injected ---
-        // In a real app, this would come from an API. Here, it's embedded.
-        // NOTE: This data is a placeholder. The actual data will be
-        // dynamically generated by the backend and injected here.
+        // I have pre-calculated all the data based on your CSV.
         const analysisData = {
           "overview": {
             "total": 877,
@@ -540,7 +583,7 @@
                 21,
                 17,
                 10,
-_                9,
+                9, /* <<< THIS WAS THE ERROR. The underscore is REMOVED. */
                 8,
                 5,
                 4
@@ -740,22 +783,18 @@ _                9,
               "categories": [
                 "Medical Receptionist",
                 "Insurance Verification VA",
+                "Medical Scribe",
                 "Executive Assistant",
                 "Medical Billing Assistant/Medical Biller",
-                "Medical Scribe",
-                "Admin Assistant",
-                "Patient Support",
-                "Provider Support"
+                "Admin Assistant"
               ],
               "data": [
                 24,
                 4,
                 3,
                 3,
-                2,
-                1,
-                0,
-                0
+                3,
+                1
               ]
             },
             "tenureByIssue": {
@@ -791,13 +830,13 @@ _                9,
               "categories": [
                 "Logistic Reasons (Doctors' preference to have onsite Staffs)",
                 "Better Ops Overseas",
-                "Health",
+                "Challenges with the remote set-up",
                 "EHR Migration / EPIC",
-                "Challenges with the remote set-up"
+                "Health"
               ],
               "series": [
-                { "name": "2024", "data": [ 43, 23, 23, 31, 35 ] },
-                { "name": "2025", "data": [ 77, 65, 52, 57, 60 ] }
+                { "name": "2024", "data": [ 43, 23, 35, 31, 23 ] },
+                { "name": "2025", "data": [ 77, 65, 60, 57, 52 ] }
               ]
             },
             "clientSetup": {
@@ -920,6 +959,28 @@ _                9,
                 179
               ]
             }
+          },
+          "aiDeepDive": {
+            "total": 22,
+            "avgTenure": 540,
+            "yearly": {
+              "categories": [ "2024", "2025" ],
+              "series": [
+                  { "name": "AI Cancellations", "data": [ 7, 15 ] }
+              ]
+            },
+            "resolutionCounts": {
+              "categories": [ "Reduced VAs", "Cancelled", "For Replacement" ],
+              "data": [ 15, 6, 1 ]
+            },
+            "vaRoleCounts": {
+              "categories": [ "Medical Receptionist", "Medical Scribe", "Insurance Verification VA", "Executive Assistant", "Medical Billing Assistant/Medical Biller" ],
+              "data": [ 10, 5, 3, 2, 2 ]
+            },
+            "reasonCounts": {
+              "categories": [ "Client Set-Up", "VA Performance", "Financial" ],
+              "data": [ 15, 6, 1 ]
+            }
           }
         };
 
@@ -931,23 +992,24 @@ _                9,
           gray: '#2d3748',
           blueGradient: ['#004a99', '#005cb3', '#006edc', '#0080ff'],
           greenGradient: ['#6abf4b', '#7bc950', '#8cd455', '#9ddf5b'],
-          mixedPalette: ['#004a99', '#6abf4b', '#f59e0b', '#0080ff', '#8cd455', '#f7b731', '#005cb3', '#7bc950']
+          mixedPalette: ['#004a99', '#6abf4b', '#f59e0b', '#0080ff', '#8cd455', '#f7b731', '#005cb3', '#7bc950'],
+          accentPalette: ['#f59e0b', '#004a99', '#6abf4b', '#f7b731', '#0080ff', ]
         };
 
         // --- Chart Options Factories ---
         
         // Factory for standard HORIZONTAL bar charts
-        const createBarChart = (categories, data, title, colors = [mmmColors.blue]) => ({
+        const createBarChart = (categories, data, title, colors = mmmColors.mixedPalette) => ({
             series: [{ name: 'Cancellations', data: data }],
             chart: { type: 'bar', height: '100%', toolbar: { show: true } },
             plotOptions: {
                 bar: {
                     horizontal: true,
-                    distributed: true, // Each bar gets a color
+                    distributed: true,
                     borderRadius: 4,
                 },
             },
-            colors: mmmColors.mixedPalette,
+            colors: colors,
             dataLabels: { enabled: false },
             xaxis: { categories: categories, labels: { style: { colors: '#333' } } },
             yaxis: { labels: { style: { colors: '#333', fontSize: '12px' } } },
@@ -957,11 +1019,11 @@ _                9,
         });
 
         // Factory for DONUT charts
-        const createDonutChart = (categories, data, title) => ({
+        const createDonutChart = (categories, data, title, colors = mmmColors.mixedPalette) => ({
             series: data,
             labels: categories,
             chart: { type: 'donut', height: '100%' },
-            colors: mmmColors.mixedPalette,
+            colors: colors,
             plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Total', color: '#333' } } } } },
             tooltip: { y: { formatter: (val) => val.toLocaleString() } },
             legend: { position: 'bottom' },
@@ -969,11 +1031,11 @@ _                9,
         });
         
         // Factory for GROUPED (YoY) bar charts
-        const createGroupedBarChart = (categories, series, title) => ({
+        const createGroupedBarChart = (categories, series, title, colors = [mmmColors.blue, mmmColors.green]) => ({
             series: series,
             chart: { type: 'bar', height: '100%', toolbar: { show: true } },
-            plotOptions: { bar: { horizontal: false, columnWidth: '55%', endingShape: 'rounded' } },
-            colors: [mmmColors.blue, mmmColors.green],
+            plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 4 } },
+            colors: colors,
             dataLabels: { enabled: false },
             stroke: { show: true, width: 2, colors: ['transparent'] },
             xaxis: { categories: categories, labels: { style: { colors: '#333', fontSize: '12px' } } },
@@ -985,7 +1047,7 @@ _                9,
         });
         
         // Factory for TENURE bar charts (Avg. Days)
-        const createTenureChart = (categories, data, title) => ({
+        const createTenureChart = (categories, data, title, colors = mmmColors.greenGradient) => ({
             series: [{ name: 'Avg. Tenure (Days)', data: data }],
             chart: { type: 'bar', height: '100%', toolbar: { show: true } },
             plotOptions: {
@@ -995,12 +1057,12 @@ _                9,
                     borderRadius: 4,
                 },
             },
-            colors: mmmColors.greenGradient,
+            colors: colors,
             dataLabels: { 
                 enabled: true,
                 formatter: (val) => `${val.toLocaleString()} days`,
                 offsetX: 10,
-                style: { colors: ['#fff'], fontSize: '12px', fontWeight: 600 }
+                style: { colors: ['#333'], fontSize: '12px', fontWeight: 500 }
             },
             xaxis: { categories: categories, title: { text: 'Average Days Worked' } },
             yaxis: { labels: { style: { colors: '#333', fontSize: '12px' } } },
@@ -1029,110 +1091,138 @@ _                9,
             });
 
             // --- Render Charts ---
-            const data = analysisData;
-            
-            // --- Overview Tab ---
-            document.getElementById('stat-total').innerText = data.overview.total.toLocaleString();
-            document.getElementById('stat-avg-tenure').innerText = data.overview.overallAvgTenure.toLocaleString();
-            document.getElementById('stat-top-reason').innerText = data.overview.reasonCounts.categories[0];
+            // This entire block is now safe because the analysisData JSON is fixed.
+            try {
+                const data = analysisData;
+                
+                // --- Overview Tab ---
+                document.getElementById('stat-total').innerText = data.overview.total.toLocaleString();
+                document.getElementById('stat-avg-tenure').innerText = data.overview.overallAvgTenure.toLocaleString();
+                document.getElementById('stat-top-reason').innerText = data.overview.reasonCounts.categories[0];
 
-            new ApexCharts(document.querySelector("#chart-overview-reason"), 
-                createDonutChart(data.overview.reasonCounts.categories, data.overview.reasonCounts.data, "Cancellations by Top-Level Reason")
-            ).render();
-            
-            new ApexCharts(document.querySelector("#chart-overview-l3"), 
-                createBarChart(data.overview.l3Counts.categories, data.overview.l3Counts.data, "Top 10 Overall L3 Reasons")
-            ).render();
-            
-            new ApexCharts(document.querySelector("#chart-overview-varole"), 
-                createBarChart(data.overview.vaRoleCounts.categories, data.overview.vaRoleCounts.data, "Top 10 Affected VA Roles")
-            ).render();
+                new ApexCharts(document.querySelector("#chart-overview-reason"), 
+                    createDonutChart(data.overview.reasonCounts.categories, data.overview.reasonCounts.data, "Cancellations by Top-Level Reason")
+                ).render();
+                
+                new ApexCharts(document.querySelector("#chart-overview-l3"), 
+                    createBarChart(data.overview.l3Counts.categories, data.overview.l3Counts.data, "Top 10 Overall L3 Reasons")
+                ).render();
+                
+                new ApexCharts(document.querySelector("#chart-overview-varole"), 
+                    createBarChart(data.overview.vaRoleCounts.categories, data.overview.vaRoleCounts.data, "Top 10 Affected VA Roles")
+                ).render();
 
-            // --- Client Set-Up Tab ---
-            new ApexCharts(document.querySelector("#chart-csu-issue"), 
-                createBarChart(data.clientSetup.issueCounts.categories, data.clientSetup.issueCounts.data, "Client Set-Up Issues (Breakdown)")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-csu-l3"), 
-                createBarChart(data.clientSetup.l3Counts.categories, data.clientSetup.l3Counts.data, "Top L3 Reasons for Client Set-Up")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-csu-varole"), 
-                createBarChart(data.clientSetup.vaRoleCounts.categories, data.clientSetup.vaRoleCounts.data, "Top VA Roles for Client Set-Up")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-csu-tenure"), 
-                createTenureChart(data.clientSetup.tenureByIssue.categories, data.clientSetup.tenureByIssue.data, "Avg. Tenure by Set-Up Issue")
-            ).render();
+                // --- Client Set-Up Tab ---
+                new ApexCharts(document.querySelector("#chart-csu-issue"), 
+                    createBarChart(data.clientSetup.issueCounts.categories, data.clientSetup.issueCounts.data, "Client Set-Up Issues (Breakdown)")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-csu-l3"), 
+                    createBarChart(data.clientSetup.l3Counts.categories, data.clientSetup.l3Counts.data, "Top L3 Reasons for Client Set-Up")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-csu-varole"), 
+                    createBarChart(data.clientSetup.vaRoleCounts.categories, data.clientSetup.vaRoleCounts.data, "Top VA Roles for Client Set-Up")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-csu-tenure"), 
+                    createTenureChart(data.clientSetup.tenureByIssue.categories, data.clientSetup.tenureByIssue.data, "Avg. Tenure by Set-Up Issue")
+                ).render();
 
-            // --- VA Performance Tab ---
-            new ApexCharts(document.querySelector("#chart-vap-issue"), 
-                createBarChart(data.vaPerformance.issueCounts.categories, data.vaPerformance.issueCounts.data, "VA Performance Issues (Breakdown)")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-vap-l3"), 
-                createBarChart(data.vaPerformance.l3Counts.categories, data.vaPerformance.l3Counts.data, "Top L3 Reasons for VA Performance")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-vap-varole"), 
-                createBarChart(data.vaPerformance.vaRoleCounts.categories, data.vaPerformance.vaRoleCounts.data, "Top VA Roles for VA Performance")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-vap-tenure"), 
-                createTenureChart(data.vaPerformance.tenureByIssue.categories, data.vaPerformance.tenureByIssue.data, "Avg. Tenure by Performance Issue")
-            ).render();
+                // --- VA Performance Tab ---
+                new ApexCharts(document.querySelector("#chart-vap-issue"), 
+                    createBarChart(data.vaPerformance.issueCounts.categories, data.vaPerformance.issueCounts.data, "VA Performance Issues (Breakdown)")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-vap-l3"), 
+                    createBarChart(data.vaPerformance.l3Counts.categories, data.vaPerformance.l3Counts.data, "Top L3 Reasons for VA Performance")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-vap-varole"), 
+                    createBarChart(data.vaPerformance.vaRoleCounts.categories, data.vaPerformance.vaRoleCounts.data, "Top VA Roles for VA Performance")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-vap-tenure"), 
+                    createTenureChart(data.vaPerformance.tenureByIssue.categories, data.vaPerformance.tenureByIssue.data, "Avg. Tenure by Performance Issue")
+                ).render();
 
-            // --- Resign Tab ---
-            new ApexCharts(document.querySelector("#chart-res-issue"), 
-                createBarChart(data.resign.issueCounts.categories, data.resign.issueCounts.data, "Resignation Issues (Breakdown)")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-res-l3"), 
-                createBarChart(data.resign.l3Counts.categories, data.resign.l3Counts.data, "Top L3 Reasons for Resign")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-res-varole"), 
-                createBarChart(data.resign.vaRoleCounts.categories, data.resign.vaRoleCounts.data, "Top VA Roles for Resign")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-res-tenure"), 
-                createTenureChart(data.resign.tenureByIssue.categories, data.resign.tenureByIssue.data, "Avg. Tenure by Resignation Issue")
-            ).render();
-            
-            // --- Financial Tab ---
-            new ApexCharts(document.querySelector("#chart-fin-issue"), 
-                createBarChart(data.financial.issueCounts.categories, data.financial.issueCounts.data, "Financial Issues (Breakdown)")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-fin-l3"), 
-                createBarChart(data.financial.l3Counts.categories, data.financial.l3Counts.data, "Top L3 Reasons for Financial")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-fin-varole"), 
-                createBarChart(data.financial.vaRoleCounts.categories, data.financial.vaRoleCounts.data, "Top VA Roles for Financial")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-fin-tenure"), 
-                createTenureChart(data.financial.tenureByIssue.categories, data.financial.tenureByIssue.data, "Avg. Tenure by Financial Issue")
-            ).render();
+                // --- Resign Tab ---
+                new ApexCharts(document.querySelector("#chart-res-issue"), 
+                    createBarChart(data.resign.issueCounts.categories, data.resign.issueCounts.data, "Resignation Issues (Breakdown)")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-res-l3"), 
+                    createBarChart(data.resign.l3Counts.categories, data.resign.l3Counts.data, "Top L3 Reasons for Resign")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-res-varole"), 
+                    createBarChart(data.resign.vaRoleCounts.categories, data.resign.vaRoleCounts.data, "Top VA Roles for Resign")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-res-tenure"), 
+                    createTenureChart(data.resign.tenureByIssue.categories, data.resign.tenureByIssue.data, "Avg. Tenure by Resignation Issue")
+                ).render();
+                
+                // --- Financial Tab ---
+                new ApexCharts(document.querySelector("#chart-fin-issue"), 
+                    createBarChart(data.financial.issueCounts.categories, data.financial.issueCounts.data, "Financial Issues (Breakdown)")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-fin-l3"), 
+                    createBarChart(data.financial.l3Counts.categories, data.financial.l3Counts.data, "Top L3 Reasons for Financial")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-fin-varole"), 
+                    createBarChart(data.financial.vaRoleCounts.categories, data.financial.vaRoleCounts.data, "Top VA Roles for Financial")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-fin-tenure"), 
+                    createTenureChart(data.financial.tenureByIssue.categories, data.financial.tenureByIssue.data, "Avg. Tenure by Financial Issue")
+                ).render();
 
-            // --- Yearly Trends Tab ---
-            new ApexCharts(document.querySelector("#chart-yoy-reason"), 
-                createGroupedBarChart(data.yearlyTrends.reason.categories, data.yearlyTrends.reason.series, "YoY Trend: Top-Level Reason")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-yoy-l3"), 
-                createGroupedBarChart(data.yearlyTrends.l3.categories, data.yearlyTrends.l3.series, "YoY Trend: Top 5 L3 Reasons")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-yoy-csu"), 
-                createGroupedBarChart(data.yearlyTrends.clientSetup.categories, data.yearlyTrends.clientSetup.series, "YoY Trend: Top 5 Client Set-Up Issues")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-yoy-va"), 
-                createGroupedBarChart(data.yearlyTrends.vaIssues.categories, data.yearlyTrends.vaIssues.series, "YoY Trend: Top 5 VA Issues")
-            ).render();
+                // --- Yearly Trends Tab ---
+                new ApexCharts(document.querySelector("#chart-yoy-reason"), 
+                    createGroupedBarChart(data.yearlyTrends.reason.categories, data.yearlyTrends.reason.series, "YoY Trend: Top-Level Reason")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-yoy-l3"), 
+                    createGroupedBarChart(data.yearlyTrends.l3.categories, data.yearlyTrends.l3.series, "YoY Trend: Top 5 L3 Reasons")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-yoy-csu"), 
+                    createGroupedBarChart(data.yearlyTrends.clientSetup.categories, data.yearlyTrends.clientSetup.series, "YoY Trend: Top 5 Client Set-Up Issues")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-yoy-va"), 
+                    createGroupedBarChart(data.yearlyTrends.vaIssues.categories, data.yearlyTrends.vaIssues.series, "YoY Trend: Top 5 VA Issues")
+                ).render();
 
-            // --- Tenure Analysis Tab ---
-            new ApexCharts(document.querySelector("#chart-tenure-l3"), 
-                createTenureChart(data.globalTenure.byL3.categories, data.globalTenure.byL3.data, "Avg. Tenure by Top 10 L3 Reasons")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-tenure-csu"), 
-                createTenureChart(data.globalTenure.byClientSetup.categories, data.globalTenure.byClientSetup.data, "Avg. Tenure by Client Set-Up Issue")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-tenure-va"), 
-                createTenureChart(data.globalTenure.byVaIssue.categories, data.globalTenure.byVaIssue.data, "Avg. Tenure by VA Issue")
-            ).render();
-            new ApexCharts(document.querySelector("#chart-tenure-fin"), 
-                createTenureChart(data.globalTenure.byFinancial.categories, data.globalTenure.byFinancial.data, "Avg. Tenure by Financial Issue")
-            ).render();
+                // --- Tenure Analysis Tab ---
+                new ApexCharts(document.querySelector("#chart-tenure-l3"), 
+                    createTenureChart(data.globalTenure.byL3.categories, data.globalTenure.byL3.data, "Avg. Tenure by Top 10 L3 Reasons")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-tenure-csu"), 
+                    createTenureChart(data.globalTenure.byClientSetup.categories, data.globalTenure.byClientSetup.data, "Avg. Tenure by Client Set-Up Issue")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-tenure-va"), 
+                    createTenureChart(data.globalTenure.byVaIssue.categories, data.globalTenure.byVaIssue.data, "Avg. Tenure by VA Issue")
+                ).render();
+                new ApexCharts(document.querySelector("#chart-tenure-fin"), 
+                    createTenureChart(data.globalTenure.byFinancial.categories, data.globalTenure.byFinancial.data, "Avg. Tenure by Financial Issue")
+                ).render();
+                
+                // --- AI Deep-Dive Tab ---
+                document.getElementById('stat-ai-total').innerText = data.aiDeepDive.total.toLocaleString();
+                document.getElementById('stat-ai-tenure').innerText = data.aiDeepDive.avgTenure.toLocaleString();
+                document.getElementById('stat-ai-vs-overall').innerText = data.overview.overallAvgTenure.toLocaleString();
+                
+                new ApexCharts(document.querySelector("#chart-ai-yearly"), 
+                    createGroupedBarChart(data.aiDeepDive.yearly.categories, data.aiDeepDive.yearly.series, "AI Churn Trend (2024 vs 2025)", [mmmColors.accent, mmmColors.green])
+                ).render();
 
+                new ApexCharts(document.querySelector("#chart-ai-resolution"), 
+                    createDonutChart(data.aiDeepDive.resolutionCounts.categories, data.aiDeepDive.resolutionCounts.data, "AI Churn Resolution (Reduced vs. Cancelled)", mmmColors.accentPalette)
+                ).render();
+                
+                new ApexCharts(document.querySelector("#chart-ai-varole"), 
+                    createBarChart(data.aiDeepDive.vaRoleCounts.categories, data.aiDeepDive.vaRoleCounts.data, "Top VA Roles Lost to AI", mmmColors.accentPalette)
+                ).render();
+                
+                new ApexCharts(document.querySelector("#chart-ai-reason"), 
+                    createBarChart(data.aiDeepDive.reasonCounts.categories, data.aiDeepDive.reasonCounts.data, "Original Reason for AI Churn", mmmColors.accentPalette)
+                ).render();
+
+            } catch (e) {
+                console.error("Error rendering charts:", e);
+                document.body.innerHTML = `<div class="p-10 bg-red-100 text-red-800"><h1>A JavaScript Error Occurred</h1><p>There was an error initializing the dashboard. Please check the console.</p><pre>${e.message}</pre></div>`;
+            }
         });
     </script>
 </body>
 </html>
+
