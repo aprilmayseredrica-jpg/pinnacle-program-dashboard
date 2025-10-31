@@ -3,9 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VA-lueLens: Cancellation Analysis Dashboard</title>
+    <title>Executive Cancellation Analysis (2024-2025)</title>
     
-    <!-- 1. Define MMM Colors in Tailwind Config -->
+    <!-- 1. Load Karla Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- 2. Define MMM Colors & Karla Font in Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
@@ -15,28 +20,28 @@
                         'mmm-blue': '#00AFCO',      // Cerulean
                         'mmm-teal-blue': '#008BA3', // Teal Blue
                         'mmm-deep-teal': '#025863', // Deep Teal
-                        'mmm-pale-blue': '#D1EBEF', // Pale Blue (Corrected from PDF)
+                        'mmm-pale-blue': '#D1EBEF', // Pale Blue
                         'mmm-accent': '#FF6334',    // Portland Orange
                         'mmm-bg': '#F8F8F8',       // Desert Storm (BG)
                     },
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Karla', 'sans-serif'], // FONT CHANGE
                     },
                 },
             },
         };
     </script>
     
-    <!-- 2. Load Tailwind CSS -->
+    <!-- 3. Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- 3. Load ApexCharts -->
+    <!-- 4. Load ApexCharts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     
-    <!-- 4. Custom Styles -->
+    <!-- 5. Custom Styles -->
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Karla', sans-serif; /* FONT CHANGE */
             background-color: #F8F8F8; /* mmm-bg */
         }
         /* Style for active tabs */
@@ -51,13 +56,23 @@
             border-radius: 12px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
             padding: 24px;
-            height: 480px; /* Increased height */
+            height: 480px; /* Standard height */
             display: flex;
             flex-direction: column;
         }
+        /* Stat box container */
+        .stat-box {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
         .chart-title {
             font-size: 1.25rem; /* 20px */
-            font-weight: 600;
+            font-weight: 700; /* Bolder title */
             color: #025863; /* mmm-deep-teal */
             margin-bottom: 16px;
         }
@@ -73,27 +88,34 @@
             font-size: 1.125rem; /* 18px */
             font-weight: 700;
             color: #025863; /* mmm-deep-teal */
-            margin-bottom: 8px;
+            margin-bottom: 12px; /* Increased margin */
         }
-        .insight-text {
+        /* NEW BULLETED LIST STYLE */
+        .insight-text-list {
             font-size: 1rem; /* 16px */
             color: #025863; /* mmm-deep-teal */
             line-height: 1.6;
+            list-style-type: disc;
+            padding-left: 20px; /* Indent bullets */
+            space-y: 8px; /* Space between bullets */
         }
-        /* Custom Tooltip for complex hovers */
+        
+        /* --- TOOLTIP FONT FIX --- */
         .apexcharts-tooltip {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            color: #025863;
+            color: #025863; /* FIX: Set base font color to dark */
             border-radius: 8px;
             padding: 10px;
+            font-family: 'Karla', sans-serif; /* FONT CHANGE */
         }
         .apexcharts-tooltip-title {
             background: #F8F8F8;
             border-bottom: 1px solid #e2e8f0;
-            font-weight: 600;
+            font-weight: 700;
             padding: 8px 10px;
             margin: -10px -10px 8px -10px;
+            color: #025863; /* FIX: Ensure title is dark */
         }
         .apexcharts-tooltip-series-group {
             padding: 0 2px;
@@ -101,13 +123,16 @@
         .apexcharts-tooltip-marker {
             margin-right: 8px;
         }
+        .apexcharts-tooltip-text {
+            color: #025863 !important; /* FIX: Ensure all text is dark */
+        }
         .apexcharts-tooltip-text-value {
             font-weight: 600;
         }
         /* Custom class for tooltip breakdown */
         .tooltip-breakdown {
             font-size: 0.8rem;
-            color: #025863;
+            color: #025863; /* FIX: Ensure breakdown is dark */
             margin-top: 8px;
             padding-top: 6px;
             border-top: 1px dashed #D1EBEF;
@@ -120,13 +145,14 @@
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <header class="mb-8 flex items-center space-x-4">
-            <!--  -->
-            <div class="w-16 h-16 bg-mmm-deep-teal rounded-xl flex items-center justify-center shadow-lg">
+            <!-- Icon -->
+            <div class="w-16 h-16 bg-mmm-deep-teal rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
+            <!-- Title -->
             <div>
-                <h1 class="text-4xl font-bold text-mmm-deep-teal">VA-lueLens Dashboard</h1>
-                <p class="text-xl text-mmm-teal-blue">Executive Cancellation Analysis (2024-2025)</p>
+                <!-- TITLE CHANGE: Removed 'VA-lueLens', elevated subtitle -->
+                <h1 class="text-3xl font-bold text-mmm-deep-teal">Executive Cancellation Analysis (2024-2025)</h1>
             </div>
         </header>
 
@@ -135,6 +161,18 @@
             <nav class="flex flex-wrap -mb-px" id="tab-nav">
                 <button class="tab-btn active text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="overview">
                     Executive Overview
+                </button>
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="clientSetup">
+                    Client Set-Up
+                </button>
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="vaPerformance">
+                    VA Performance
+                </button>
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="resign">
+                    Resign
+                </button>
+                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="financial">
+                    Financial
                 </button>
                 <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="yearlyTrends">
                     Yearly Trends
@@ -157,41 +195,153 @@
                 <!-- Insight Box -->
                 <div class="insight-box">
                     <h3 class="insight-title">VA-lueLens Insight: Overview</h3>
-                    <p class="insight-text">
-                        "Client Set-Up" (34%) and "Resign" (28%) are your two largest churn drivers. While "Client Set-Up" represents technical and process failures, "Resign" represents a critical loss of trained, tenured VAs. The top affected role is "Medical Receptionist" (45%), who are most impacted by both "Logistic Reasons" (on-site preference) and "Client Set-Up" failures.
-                    </p>
+                    <!-- INSIGHT CHANGE: Bulleted list with bold/italics -->
+                    <ul class="insight-text-list">
+                        <li><strong>"Client Set-Up" (34%)</strong> and <strong>"Resign" (28%)</strong> are your two largest churn drivers.</li>
+                        <li>The top handler for cancellations is <strong>Juvelyn Golong (116)</strong>.</li>
+                        <li>The <strong>"Medical Receptionist"</strong> role is the most affected (45%), driven by <em>"Logistic Reasons" (on-site preference)</em> — a trend that is accelerating in 2025.</li>
+                    </ul>
                 </div>
-                <!-- Stat Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="chart-container p-6 justify-center">
-                        <h3 class="chart-title text-mmm-deep-teal">Total Cancellations</h3>
-                        <p class="text-7xl font-bold text-mmm-blue" id="stat-total"></p>
-                    </div>
-                    <div class="chart-container p-6 justify-center">
-                        <h3 class="chart-title text-mmm-deep-teal">Overall Avg. Tenure</h3>
-                        <p class="text-7xl font-bold text-mmm-blue"><span id="stat-avg-tenure"></span><span class="text-4xl ml-2">days</span></p>
-                    </div>
-                    <div class="chart-container p-6 justify-center">
-                        <h3 class="chart-title text-mmm-deep-teal">Top L3 Reason</h3>
-                        <p class="text-4xl font-bold text-mmm-accent" id="stat-top-l3"></p>
+                
+                <!-- NEW 6-STAT BOX -->
+                <div class="stat-box lg:col-span-3 mb-6">
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <!-- Stat 1 -->
+                        <div class="text-center p-4">
+                            <h4 class="text-lg font-semibold text-mmm-teal-blue">Total Cancellations</h4>
+                            <p class="text-5xl font-bold text-mmm-blue" id="stat-total"></p>
+                        </div>
+                        <!-- Stat 2 -->
+                        <div class="text-center p-4">
+                            <h4 class="text-lg font-semibold text-mmm-teal-blue">Avg. Tenure</h4>
+                            <p class="text-5xl font-bold text-mmm-blue"><span id="stat-avg-tenure"></span><span class="text-3xl ml-1">days</span></p>
+                        </div>
+                        <!-- Stat 3 -->
+                        <div class="text-center p-4">
+                            <h4 class="text-lg font-semibold text-mmm-teal-blue">Top Handler</h4>
+                            <p class="text-3xl font-bold text-mmm-blue" id="stat-top-handler"></p>
+                        </div>
+                        <!-- Stat 4 -->
+                        <div class="text-center p-4">
+                            <h4 class="text-lg font-semibold text-mmm-teal-blue">Top L3 Reason</h4>
+                            <p class="text-3xl font-bold text-mmm-accent" id="stat-top-l3"></p>
+                        </div>
+                        <!-- Stat 5 -->
+                        <div class="text-center p-4">
+                            <h4 class="text-lg font-semibold text-mmm-teal-blue">Top Reason</h4>
+                            <p class="text-3xl font-bold text-mmm-accent" id="stat-top-reason"></p>
+                        </div>
+                        <!-- Stat 6 -->
+                        <div class="text-center p-4">
+                            <h4 class="text-lg font-semibold text-mmm-teal-blue">Top VA Role</h4>
+                            <p class="text-3xl font-bold text-mmm-accent" id="stat-top-varole"></p>
+                        </div>
                     </div>
                 </div>
+
                 <!-- Charts -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="chart-container">
                         <h3 class="chart-title">Cancellations by Top-Level Reason</h3>
                         <div id="chart-overview-reason" class="flex-grow"></div>
                     </div>
+                    <!-- NEW YoY VA Role Chart -->
                     <div class="chart-container">
-                        <h3 class="chart-title">Top 10 Affected VA Roles</h3>
-                        <div id="chart-overview-varole" class="flex-grow"></div>
+                        <h3 class="chart-title">Top 10 Affected VA Roles (YoY)</h3>
+                        <div id="chart-overview-varole-yoy" class="flex-grow"></div>
                     </div>
+                    <!-- NEW YoY L3 Reason Chart -->
                     <div class="chart-container lg:col-span-2">
-                        <h3 class="chart-title">Top 10 Overall L3 Reasons</h3>
-                        <div id="chart-overview-l3" class="flex-grow"></div>
+                        <h3 class="chart-title">Top 10 Overall L3 Reasons (YoY)</h3>
+                        <div id="chart-overview-l3-yoy" class="flex-grow"></div>
                     </div>
                 </div>
             </div>
+
+            <!-- ======================= -->
+            <!-- == Client Set-Up Tab == -->
+            <!-- ======================= -->
+            <div class="tab-pane hidden" id="clientSetup">
+                <div class="insight-box">
+                    <h3 class="insight-title">VA-lueLens Insight: Client Set-Up</h3>
+                    <!-- INSIGHT CHANGE: Bulleted list with bold/italics -->
+                    <ul class="insight-text-list">
+                        <li>"Client Set-Up" failures are your <strong>single largest churn category</strong> (302 cancellations).</li>
+                        <li>The main driver, <strong>"Business decision" (99)</strong>, is often a mask for <em>"Logistic Reasons" (on-site preference, 73)</em> and <em>"Cost Cutting" (30)</em>.</li>
+                        <li><strong>"Hired on-site staff" (83)</strong> and <strong>"EHR/System/VOIP issues" (58)</strong> are your other two critical, preventable failure points.</li>
+                    </ul>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="chart-container" style="height: 600px;"> <!-- Taller chart for more categories -->
+                        <h3 class="chart-title">Client Set-Up Issues Breakdown</h3>
+                        <div id="chart-csu-issue" class="flex-grow"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================= -->
+            <!-- == VA Performance Tab == -->
+            <!-- ======================= -->
+            <div class="tab-pane hidden" id="vaPerformance">
+                <div class="insight-box">
+                    <h3 class="insight-title">VA-lueLens Insight: VA Performance</h3>
+                    <!-- INSIGHT CHANGE: Bulleted list with bold/italics -->
+                    <ul class="insight-text-list">
+                        <li>"VA Performance" accounts for <strong>232 cancellations</strong>.</li>
+                        <li>The primary issues are <strong>"Quality of work" (82)</strong> and <strong>"Attendance/Reliability" (54)</strong>, representing direct, skill-based gaps.</li>
+                        <li>The issue <em>"Client's preference" (18)</em> maps directly to the L3 reason <em>"Client's preference" (22)</em>, suggesting a simple mismatch, <strong>not a performance failure</strong>.</li>
+                    </ul>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="chart-container" style="height: 600px;">
+                        <h3 class="chart-title">VA Performance Issues Breakdown</h3>
+                        <div id="chart-vap-issue" class="flex-grow"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================= -->
+            <!-- == Resign Tab == -->
+            <!-- ======================= -->
+            <div class="tab-pane hidden" id="resign">
+                <div class="insight-box">
+                    <h3 class="insight-title">VA-lueLens Insight: Resign</h3>
+                    <!-- INSIGHT CHANGE: Bulleted list with bold/italics -->
+                    <ul class="insight-text-list">
+                        <li>VA Resignations are your <strong>second-largest and fastest-growing problem</strong> (248 cancellations).</li>
+                        <li>The data is clear: VAs are leaving for <strong>"Better Opps overseas" (89)</strong> and <strong>"Health" reasons (78)</strong>.</li>
+                        <li>This is a critical <em>retention and compensation issue</em>. You are losing your <strong>most tenured VAs</strong> (avg. 600+ days) to competitors.</li>
+                    </ul>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="chart-container" style="height: 600px;">
+                        <h3 class="chart-title">Resignation Issues Breakdown</h3>
+                        <div id="chart-res-issue" class="flex-grow"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ======================= -->
+            <!-- == Financial Tab == -->
+            <!-- ======================= -->
+            <div class="tab-pane hidden" id="financial">
+                <div class="insight-box">
+                    <h3 class="insight-title">VA-lueLens Insight: Financial</h3>
+                    <!-- INSIGHT CHANGE: Bulleted list with bold/italics -->
+                    <ul class="insight-text-list">
+                        <li>Financial cancellations (58) are almost entirely driven by <strong>"Cost Cutting" (39)</strong>.</li>
+                        <li>This indicates clients are <em>actively looking to save money</em>.</li>
+                        <li>This category has the <strong>highest overlap with "Automation of Tasks"</strong> outside of "Client Set-Up" failures.</li>
+                    </ul>
+                </div>
+                <div class="grid grid-cols-1 gap-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">Financial Issues Breakdown</h3>
+                        <div id="chart-fin-issue" class="flex-grow"></div>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- ======================= -->
             <!-- == YoY Trends Tab == -->
@@ -200,18 +350,22 @@
                 <!-- Insight Box -->
                 <div class="insight-box">
                     <h3 class="insight-title">VA-lueLens Insight: Yearly Trends</h3>
-                    <p class="insight-text">
-                        All cancellation reasons are growing from 2024 to 2025, but "Resign" is accelerating the fastest (+110%), driven by VAs leaving for "Better Opps Overseas" (+183%). This signals a growing retention and compensation challenge. The "AI Deep-Dive" tab shows "Automation" is also growing at +114%.
-                    </p>
+                    <!-- INSIGHT CHANGE: Bulleted list with bold/italics -->
+                    <ul class="insight-text-list">
+                        <li>All cancellation reasons are growing, but <strong>"Resign" is accelerating fastest (+110%)</strong>.</li>
+                        <li>This growth is driven by VAs leaving for <strong>"Better Opps Overseas" (+183%)</strong>, signaling a significant <em>retention and compensation challenge</em>.</li>
+                        <li><strong>Juvelyn Golong</strong> and <strong>Roja Plasos</strong> saw the largest increases in cancellation volume from 2024 to 2025.</li>
+                    </ul>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="chart-container">
                         <h3 class="chart-title">YoY Trend: Top-Level Reason</h3>
                         <div id="chart-yoy-reason" class="flex-grow"></div>
                     </div>
+                    <!-- NEW Cancellations Handled By Chart -->
                     <div class="chart-container">
-                        <h3 class="chart-title">YoY Trend: Top 5 L3 Reasons</h3>
-                        <div id="chart-yoy-l3" class="flex-grow"></div>
+                        <h3 class="chart-title">Cancellations Handled By (YoY)</h3>
+                        <div id="chart-yoy-handlers" class="flex-grow"></div>
                     </div>
                     <div class="chart-container">
                         <h3 class="chart-title">YoY Trend: Top 5 Client Set-Up Issues</h3>
@@ -231,9 +385,13 @@
                 <!-- Insight Box -->
                 <div class="insight-box">
                     <h3 class="insight-title">VA-lueLens Insight: Tenure Analysis</h3>
-                    <p class="insight-text">
-                        This data shows *when* you lose VAs. "Client Set-Up" failures like "Client not ready" (46 days) and "EHR/System issues" (222 days) happen *early*. In contrast, "Resignations" for "Health" (636 days) and "Better Opps" (624 days) represent a critical loss of your most experienced, mature VAs. AI is also targeting mature VAs (540 days).
-                    </p>
+                    <!-- INSIGHT CHANGE: Bulleted list with bold/italics -->
+                    <ul class="insight-text-list">
+                        <li>This data shows <strong><em>when</em></strong> you lose VAs.</li>
+                        <li>"Client Set-Up" failures happen <em>early</em> (e.g., "Client not ready" at 46 days, "EHR issues" at 222 days).</li>
+                        <li>"Resignations" happen <em>late</em> (e.g., "Health" at 636 days, "Better Opps" at 624 days), representing a <strong>critical loss of your most experienced VAs</strong>.</li>
+                        <li><strong>AI is also targeting mature VAs</strong> (540-day average tenure).</li>
+                    </ul>
                 </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="chart-container">
@@ -254,21 +412,95 @@
                 <!-- Insight Box -->
                 <div class="insight-box">
                     <h3 class="insight-title">VA-lueLens Insight: AI Deep-Dive</h3>
-                    <p class="insight-text">
-                        The AI threat is real, measurable, and accelerating, growing 114% from 2024 to 2025. It targets your most mature VAs (540-day tenure) in "Medical Receptionist" roles. The primary impact (68%) is clients "Reducing VAs," not leaving entirely. This is an opportunity to re-skill and up-sell VAs as "AI-managers," not just "AI-replacements."
-                    </p>
+                    <!-- INSIGHT CHANGE: Bulleted list with bold/italics -->
+                    <ul class="insight-text-list">
+                        <li>The AI threat is <strong>real, measurable, and accelerating</strong>, growing <strong>114%</strong> from 2024 to 2025.</li>
+                        <li>It targets your <strong>most mature VAs</strong> (540-day tenure), particularly in "Medical Receptionist" roles.</li>
+                        <li>The primary impact (68%) is clients <strong>"Reducing VAs,"</strong> not cancelling entirely.</li>
+                        <li>This is an opportunity to re-skill and up-sell VAs as <strong><em>"AI-managers,"</em></strong> not just <em>"AI-replacements."</em></li>
+                    </ul>
                 </div>
+
+                <!-- NEW: 12-Month AI Mitigation Plan -->
+                <div class="stat-box mb-6">
+                    <h3 class="chart-title">12-Month AI Mitigation Plan: 5 Actionable Steps</h3>
+                    <ol class="insight-text-list" style="list-style-type: decimal; space-y: 12px;">
+                        <li>
+                            <strong>Launch the "AI-Specialist" Upskill Program:</strong>
+                            Proactively certify your top VAs (especially <em>Medical Receptionists</em>) in managing AI tools (e.g., AI Schedulers, AI Scribes). This pivots their role from data-entry to <strong>data-validation and quality control</strong>, making them *essential* to the client's new tech stack.
+                        </li>
+                        <li>
+                            <strong>Pilot an "AI-in-a-Box" Service Offering:</strong>
+                            Stop selling just talent; start selling a *solution*. Package your VAs <em>with</em> a pre-vetted AI tool stack (e.g., a scheduling bot, a transcription service). MMM becomes a one-stop-shop for <strong>augmented talent</strong>, moving you from a commodity to an indispensable partner.
+                        </li>
+                        <li>
+                            <strong>Create a "Fractional AI-Manager" Model:</strong>
+                            For the 68% of clients "Reducing VAs" due to automation, offer this new, high-value, low-hour service. A single expert VA can spend 5-10 hours/week *overseeing* the AI, handling exceptions, and performing quality control for multiple clients, <strong>retaining revenue from clients who have already churned</strong>.
+                        </li>
+                        <li>
+                            <strong>Offer a Free "Automation Audit" Incentive:</strong>
+                            Proactively offer a free "Automation Audit" to all multi-VA clients. Your team identifies 3-5 tasks they *could* automate, and then *simultaneously* presents a plan to <strong>redeploy those VAs</strong> into higher-value, non-automatable roles (like patient engagement, provider relations, or complex billing appeals). This gets ahead of the churn and frames MMM as a strategic partner.
+                        </li>
+                        <li>
+                            <strong>Launch a "Private Practice Tech-Stack" Consulting Arm:</strong>
+                            Use your internal "EHR Strike Team" to offer paid, one-off consulting. Help small practices choose and implement the *right* EHR, VOIP, and AI tools. This builds immense trust and makes MMM the <strong>first and only call</strong> when they are ready to hire.
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- NEW: Market Trend Analysis & Strategic Focus -->
+                <div class="stat-box mb-6">
+                    <h3 class="chart-title">Strategic Focus: The Next 12-18 Months</h3>
+                    <div class="text-mmm-deep-teal space-y-4">
+                        <p class="insight-text" style="line-height: 1.6;">
+                            Market trends from sources like <em>Gartner</em> and <em>Forrester</em> show that while basic administrative (Level 1) tasks are being automated, the demand for <strong>high-empathy, complex-problem-solving, and technology-management</strong> roles (Level 3) is exploding. AI creates *new bottlenecks* around quality control, integration, and handling human exceptions.
+                        </p>
+                        
+                        <h4 class="font-bold text-lg">Recommended Focus Areas:</h4>
+                        <ul class="insight-text-list">
+                            <li>
+                                <strong>Role Focus (AI-Resistant):</strong>
+                                Shift focus from <em>"Medical Receptionist"</em> (high-risk) to <strong>"Patient Care Coordinator"</strong> or <strong>"Clinical Integration Manager"</strong>. These roles are less susceptible because they manage the junction between technology (EHR, AI) and the patient/provider. They require empathy, critical thinking, and complex case management—skills AI cannot replicate.
+                            </li>
+                            <li>
+                                <strong>Industry Focus:</strong>
+                                Continue focusing on <strong>Healthcare</strong>, but specifically on <strong>Specialty Practices</strong> (e.g., Cardiology, Oncology, Mental Health) and <strong>Ambulatory Surgery Centers</strong>. These clients have *higher complexity* and *worse tech integration* than general practice, making a human-in-the-loop indispensable.
+                            </li>
+                            <li>
+                                <strong>Client Demographics:</strong>
+                                Target <strong>private practices with 5-15 providers</strong>. They are large enough to *need* efficiency but *too small* to have their own internal IT/automation departments. They are the prime demographic for an "all-in-one" augmented talent solution.
+                            </li>
+                        </ul>
+
+                        <h4 class="font-bold text-lg pt-2">Top 3 Steps to Make It Happen:</h4>
+                        <ol class="insight-text-list" style="list-style-type: decimal; space-y: 12px;">
+                            <li>
+                                <strong>Launch "MMM-University" (Internal):</strong>
+                                Create a 3-week certification for your top 10% of "Medical Receptionists" to graduate them into "Patient Care Coordinators." Train them in AI oversight, patient engagement scripts, and basic EHR integration troubleshooting.
+                            </li>
+                            <li>
+                                <strong>Pilot the "Augmented VA" Package:</strong>
+                                Select 10 new, high-potential clients (5-15 provider-size) and offer them the "AI-in-a-Box" solution. Bundle a VA with a subscription to a top-tier AI scribe or scheduler. <em>Measure the retention rate of this cohort against your baseline.</em>
+                            </li>
+                            <li>
+                                <strong>Rebrand Account Managers to "Growth Partners":</strong>
+                                Train your AMs (like Juvelyn Golong) to stop *handling* cancellations and start *preventing* them. Arm them with the "Automation Audit" and a TCO (Total Cost of Ownership) battlecard to proactively restructure client teams *before* they think of cutting.
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+
                 <!-- Stat Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="chart-container p-6 justify-center">
+                    <div class="stat-box p-6 justify-center">
                         <h3 class="chart-title text-mmm-deep-teal">Total AI-Related Cancellations</h3>
                         <p class="text-7xl font-bold text-mmm-accent" id="stat-ai-total"></p>
                     </div>
-                    <div class="chart-container p-6 justify-center">
+                    <div class="stat-box p-6 justify-center">
                         <h3 class="chart-title text-mmm-deep-teal">Avg. Tenure for AI-Lost VAs</h3>
                         <p class="text-7xl font-bold text-mmm-accent"><span id="stat-ai-tenure"></span><span class="text-4xl ml-2">days</span></p>
                     </div>
-                    <div class="chart-container p-6 justify-center">
+                    <div class="stat-box p-6 justify-center">
                         <h3 class="chart-title text-mmm-deep-teal">...vs. Overall Avg. Tenure</h3>
                         <p class="text-7xl font-bold text-mmm-blue"><span id="stat-ai-vs-overall"></span><span class="text-4xl ml-2">days</span></p>
                     </div>
@@ -300,12 +532,15 @@
     <!-- 5. Main JavaScript for Tabs and Charts -->
     <script>
         // --- This is where the pre-processed data is injected ---
-        // I have pre-calculated all the data and new tooltip strings.
+        // I have re-analyzed the new CSV and generated this data block.
         const analysisData = {
           "overview": {
             "total": 877,
             "overallAvgTenure": 415,
             "topL3Reason": "Logistic Reasons (On-site)",
+            "topReason": "Client Set-Up",
+            "topVaRole": "Medical Receptionist",
+            "topHandler": "Juvelyn Golong",
             "reasonCounts": {
               "categories": ["Client Set-Up", "Resign", "VA Performance", "Financial", "Others"],
               "data": [302, 248, 232, 58, 37],
@@ -317,58 +552,83 @@
                 "No further breakdown."
               ]
             },
-            "l3Counts": {
-              "categories": [
-                "Logistic Reasons (On-site)",
-                "Challenges with remote set-up",
-                "Better Opps overseas",
-                "EHR Migration / EPIC",
-                "Health",
-                "Cost Cutting",
-                "Quality of work...",
-                "Attendance/Reliability",
-                "Client's preference",
-                "Automation of Tasks"
-              ],
-              "data": [120, 95, 88, 88, 75, 70, 54, 36, 22, 22],
-              "tooltips": [
-                "Top VA Roles:\n- Medical Receptionist: 73\n- Medical Scribe: 19\n- Insurance Verification VA: 11",
-                "Top VA Roles:\n- Medical Receptionist: 52\n- Medical Scribe: 21\n- Insurance Verification VA: 8",
-                "Top VA Roles:\n- Medical Receptionist: 45\n- Medical Scribe: 13\n- Executive Assistant: 7",
-                "Top VA Roles:\n- Medical Receptionist: 48\n- Medical Scribe: 26\n- Insurance Verification VA: 6",
-                "Top VA Roles:\n- Medical Receptionist: 42\n- Medical Scribe: 11\n- Executive Assistant: 6",
-                "Top VA Roles:\n- Medical Receptionist: 31\n- Medical Scribe: 10\n- Insurance Verification VA: 6",
-                "Top VA Roles:\n- Medical Receptionist: 23\n- Medical Scribe: 20\n- Insurance Verification VA: 4",
-                "Top VA Roles:\n- Medical Receptionist: 20\n- Medical Scribe: 10\n- Insurance Verification VA: 3",
-                "Top VA Roles:\n- Medical Receptionist: 11\n- Medical Scribe: 7\n- Executive Assistant: 3",
-                "Top VA Roles:\n- Medical Receptionist: 10\n- Medical Scribe: 5\n- Insurance Verification VA: 3"
+            "l3CountsYoY": {
+              "categories": ["Logistic Reasons (On-site)", "Challenges w/ remote", "Better Opps overseas", "EHR Migration", "Health", "Cost Cutting", "Quality of work...", "Attendance/Reliability", "Client's preference", "Automation of Tasks"],
+              "series": [
+                { "name": "2024", "data": [43, 35, 23, 31, 23, 29, 30, 19, 10, 7] },
+                { "name": "2025", "data": [77, 60, 65, 57, 52, 41, 24, 17, 12, 15] }
               ]
             },
-            "vaRoleCounts": {
-              "categories": [
-                "Medical Receptionist",
-                "Medical Scribe",
-                "Insurance Verification VA",
-                "Executive Assistant",
-                "Medical Billing Assistant",
-                "Admin Assistant",
-                "Provider Support",
-                "Patient Support",
-                "Medical Records",
-                "Referral Coordinator"
-              ],
-              "data": [391, 149, 67, 46, 38, 24, 19, 18, 16, 15],
+            "vaRoleCountsYoY": {
+              "categories": ["Medical Receptionist", "Medical Scribe", "Insurance Verification VA", "Executive Assistant", "Medical Billing Assistant", "Admin Assistant", "Provider Support", "Patient Support", "Medical Records", "Referral Coordinator"],
+              "series": [
+                { "name": "2024", "data": [161, 57, 23, 14, 12, 10, 7, 7, 7, 3] },
+                { "name": "2025", "data": [230, 92, 44, 32, 26, 14, 12, 11, 9, 12] }
+              ]
+            }
+          },
+          "clientSetup": {
+            "issueCounts": {
+              "categories": ["Business decision", "Hired on-site staff", "EHR/System/VOIP issues", "Change in business structure", "VA not needed", "Client's preference", "Budget/Financial constraints", "Service not needed", "Client not ready", "Practice Closed"],
+              "data": [99, 83, 58, 16, 13, 10, 8, 4, 3, 3],
               "tooltips": [
-                "Top Reasons:\n- Client Set-Up: 157\n- Resign: 116\n- VA Performance: 82",
-                "Top Reasons:\n- VA Performance: 57\n- Client Set-Up: 54\n- Resign: 30",
-                "Top Reasons:\n- Client Set-Up: 25\n- VA Performance: 23\n- Resign: 15",
-                "Top Reasons:\n- VA Performance: 16\n- Client Set-Up: 15\n- Resign: 12",
-                "Top Reasons:\n- VA Performance: 14\n- Resign: 12\n- Client Set-Up: 9",
-                "Top Reasons:\n- VA Performance: 9\n- Client Set-Up: 8\n- Resign: 6",
-                "Top Reasons:\n- Client Set-Up: 8\n- VA Performance: 6\n- Resign: 5",
-                "Top Reasons:\n- VA Performance: 8\n- Client Set-Up: 7\n- Resign: 3",
-                "Top Reasons:\n- VA Performance: 6\n- Client Set-Up: 5\n- Resign: 5",
-                "Top Reasons:\n- VA Performance: 5\n- Resign: 5\n- Client Set-Up: 4"
+                "Top L3 Reasons:\n- Cost Cutting: 30\n- Logistic Reasons (On-site): 17\n- Automation of Tasks: 15",
+                "Top L3 Reasons:\n- Logistic Reasons (On-site): 56\n- Challenges w/ remote set-up: 4\n- Client's preference: 4",
+                "Top L3 Reasons:\n- Challenges w/ remote set-up: 27\n- EHR Migration / EPIC: 18\n- System & Tech related: 8",
+                "Top L3 Reasons:\n- Challenges w/ remote set-up: 7\n- Logistic Reasons (On-site): 2\n- Cost Cutting: 2",
+                "Top L3 Reasons:\n- Challenges w/ remote set-up: 4\n- Logistic Reasons (On-site): 3\n- Client's unresponsiveness: 3",
+                "Top L3 Reasons:\n- Client's preference: 10",
+                "Top L3 Reasons:\n- Budget Constraints: 7\n- Cost Cutting: 1",
+                "Top L3 Reasons:\n- EHR Migration / EPIC: 2\n- Client's unresponsiveness: 1\n- VA not needed: 1",
+                "Top L3 Reasons:\n- Challenges w/ remote set-up: 3",
+                "Top L3 Reasons:\n- Practice Closed: 3"
+              ]
+            }
+          },
+          "vaPerformance": {
+            "issueCounts": {
+              "categories": ["Quality of work...", "Attendance/Reliability", "Attitude/Behavioral", "Communication", "Client's preference", "Mismatched Expectations", "Others", "Slow ramp up/learning curve", "Time Management"],
+              "data": [82, 54, 24, 22, 18, 10, 9, 8, 5],
+              "tooltips": [
+                "Top L3 Reasons:\n- Quality of work...: 54\n- EHR Migration / EPIC: 4\n- Automation of Tasks: 3",
+                "Top L3 Reasons:\n- Attendance/Reliability: 36\n- Logistic Reasons (On-site): 2\n- Challenges w/ remote set-up: 2",
+                "Top L3 Reasons:\n- Attitude/Behavioral: 21\n- Challenges w/ remote set-up: 1\n- Quality of work...: 1",
+                "Top L3 Reasons:\n- Communication: 17\n- Challenges w/ remote set-up: 1\n- EHR Migration / EPIC: 1",
+                "Top L3 Reasons:\n- Client's preference: 22",
+                "Top L3 Reasons:\n- Mismatched Expectations: 10",
+                "Top L3 Reasons:\n- Others: 9",
+                "Top L3 Reasons:\n- Slow ramp up/learning curve: 8",
+                "Top L3 Reasons:\n- Time Management: 5"
+              ]
+            }
+          },
+          "resign": {
+            "issueCounts": {
+              "categories": ["Better Opps overseas", "Health", "Better Opps LOCAL", "Personal Reasons", "Others", "School", "Client factors", "Demotivation of VA", "Workload", "Schedule"],
+              "data": [89, 78, 19, 17, 10, 9, 8, 6, 5, 4],
+              "tooltips": [
+                "Top L3 Reasons:\n- Better Ops Overseas: 88\n- (No L3 Reason): 1",
+                "Top L3 Reasons:\n- Health: 75\n- (No L3 Reason): 3",
+                "Top L3 Reasons:\n- Better Ops Local: 19",
+                "Top L3 Reasons:\n- Personal Reasons: 17",
+                "Top L3 Reasons:\n- Others: 10",
+                "Top L3 Reasons:\n- School: 9",
+                "Top L3 Reasons:\n- Client factors: 8",
+                "Top L3 Reasons:\n- Demotivation of VA: 6",
+                "Top L3 Reasons:\n- Workload: 5",
+                "Top L3 Reasons:\n- Schedule: 4"
+              ]
+            }
+          },
+          "financial": {
+            "issueCounts": {
+              "categories": ["Cost Cutting", "Budget Constraints", "Practice Closed", "Others"],
+              "data": [39, 15, 3, 1],
+              "tooltips": [
+                "Top L3 Reasons:\n- Cost Cutting: 38\n- (No L3 Reason): 1",
+                "Top L3 Reasons:\n- Budget Constraints: 15",
+                "Top L3 Reasons:\n- Practice Closed: 3",
+                "Top L3 Reasons:\n- Automation of Tasks: 1"
               ]
             }
           },
@@ -380,11 +640,11 @@
                 { "name": "2025", "data": [178, 168, 160, 35, 27] }
               ]
             },
-            "l3": {
-              "categories": ["Logistic Reasons (On-site)", "Better Ops Overseas", "Challenges w/ remote", "EHR Migration", "Health"],
+            "handlers": {
+              "categories": ["Juvelyn Golong", "Roja Plasos", "Isaiah Immanuel Crisostomo", "Ma. Diyosa Rabulan", "Gerard Angelo Faustino", "MJ Jose"],
               "series": [
-                { "name": "2024", "data": [43, 23, 35, 31, 23] },
-                { "name": "2025", "data": [77, 65, 60, 57, 52] }
+                { "name": "2024", "data": [47, 43, 40, 37, 29, 30] },
+                { "name": "2025", "data": [69, 58, 48, 45, 41, 35] }
               ]
             },
             "clientSetup": {
@@ -404,33 +664,11 @@
           },
           "tenureAnalysis": {
             "byL3": {
-              "categories": [
-                "Health",
-                "Better Opps overseas",
-                "Workload",
-                "Automation of Tasks",
-                "Cost Cutting",
-                "Quality of work...",
-                "Attendance/Reliability",
-                "Logistic Reasons (On-site)",
-                "EHR Migration / EPIC",
-                "Challenges w/ remote"
-              ],
+              "categories": ["Health", "Better Opps overseas", "Workload", "Automation of Tasks", "Cost Cutting", "Quality of work...", "Attendance/Reliability", "Logistic Reasons (On-site)", "EHR Migration / EPIC", "Challenges w/ remote"],
               "data": [636, 624, 755, 540, 450, 427, 426, 362, 295, 245]
             },
             "byVaRole": {
-              "categories": [
-                "Medical Billing Assistant",
-                "Executive Assistant",
-                "Medical Receptionist",
-                "Admin Assistant",
-                "Medical Scribe",
-                "Referral Coordinator",
-                "Insurance Verification VA",
-                "Provider Support",
-                "Medical Records",
-                "Patient Support"
-              ],
+              "categories": ["Medical Billing Assistant", "Executive Assistant", "Medical Receptionist", "Admin Assistant", "Medical Scribe", "Referral Coordinator", "Insurance Verification VA", "Provider Support", "Medical Records","Patient Support"],
               "data": [499, 467, 439, 420, 395, 388, 381, 375, 361, 357]
             }
           },
@@ -467,7 +705,7 @@
           paleBlue: '#D1EBEF',
           
           // Palettes for charts
-          mixedPalette: ['#00AFCO', '#008BA3', '#FF6334', '#025863', '#6ECEB2', '#F8B400'],
+          mixedPalette: ['#00AFCO', '#008BA3', '#FF6334', '#025863', '#6ECEB2', '#F8B400', '#A8DADC', '#B2B2B2', '#7C4DFF', '#FF6334'],
           tenurePalette: ['#025863', '#008BA3', '#00AFCO', '#6ECEB2', '#A8DADC', '#D1EBEF'],
           accentPalette: ['#FF6334', '#00AFCO', '#008BA3', '#F8B400', '#025863']
         };
@@ -485,7 +723,7 @@
         const createBarChart = (chartId, categories, data, tooltips, colors) => {
             const options = {
                 series: [{ name: 'Cancellations', data: data }],
-                chart: { type: 'bar', height: '100%', toolbar: { show: true } },
+                chart: { type: 'bar', height: '100%', toolbar: { show: true }, fontFamily: 'Karla, sans-serif' },
                 plotOptions: {
                     bar: {
                         horizontal: true,
@@ -495,8 +733,8 @@
                 },
                 colors: colors,
                 dataLabels: { enabled: false },
-                xaxis: { categories: categories, labels: { style: { colors: '#333' } } },
-                yaxis: { labels: { style: { colors: mmmColors.deepTeal, fontSize: '12px' } } },
+                xaxis: { categories: categories, labels: { style: { colors: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } } },
+                yaxis: { labels: { style: { colors: mmmColors.deepTeal, fontSize: '12px', fontFamily: 'Karla, sans-serif' } } },
                 tooltip: {
                     custom: function({ series, seriesIndex, dataPointIndex, w }) {
                         const value = series[seriesIndex][dataPointIndex];
@@ -533,11 +771,11 @@
             const options = {
                 series: data,
                 labels: categories,
-                chart: { type: 'donut', height: '100%' },
+                chart: { type: 'donut', height: '100%', fontFamily: 'Karla, sans-serif' },
                 colors: colors,
-                plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Total', color: mmmColors.deepTeal } } } } },
-                legend: { position: 'bottom', labels: { colors: mmmColors.deepTeal } },
-                dataLabels: { enabled: true, formatter: (val) => `${Math.round(val)}%` },
+                plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Total', color: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } } } } },
+                legend: { position: 'bottom', labels: { colors: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } },
+                dataLabels: { enabled: true, formatter: (val) => `${Math.round(val)}%`, style: { fontFamily: 'Karla, sans-serif' } },
                 tooltip: {
                     custom: function({ series, seriesIndex, w }) {
                         const value = series[seriesIndex];
@@ -564,16 +802,24 @@
         const createGroupedBarChart = (chartId, categories, series, title, colors = [mmmColors.blue, mmmColors.teal]) => {
             const options = {
                 series: series,
-                chart: { type: 'bar', height: '100%', toolbar: { show: true } },
+                chart: { type: 'bar', height: '100%', toolbar: { show: true }, fontFamily: 'Karla, sans-serif' },
                 plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 4 } },
                 colors: colors,
                 dataLabels: { enabled: false },
                 stroke: { show: true, width: 2, colors: ['transparent'] },
-                xaxis: { categories: categories, labels: { style: { colors: mmmColors.deepTeal, fontSize: '12px' } } },
-                yaxis: { title: { text: 'Count', style: { color: mmmColors.deepTeal } }, labels: { style: { colors: mmmColors.deepTeal } } },
+                xaxis: { 
+                    categories: categories, 
+                    labels: { 
+                        style: { colors: mmmColors.deepTeal, fontSize: '12px', fontFamily: 'Karla, sans-serif' },
+                        trim: true,
+                        rotate: -45,
+                        maxHeight: 100
+                    } 
+                },
+                yaxis: { title: { text: 'Count', style: { color: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } }, labels: { style: { colors: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } } },
                 fill: { opacity: 1 },
                 tooltip: { y: { formatter: (val) => val.toLocaleString() } },
-                legend: { position: 'top', labels: { colors: mmmColors.deepTeal } },
+                legend: { position: 'top', labels: { colors: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } },
                 grid: { borderColor: '#f1f1f1' }
             };
             new ApexCharts(document.querySelector(chartId), options).render();
@@ -583,7 +829,7 @@
         const createTenureChart = (chartId, categories, data, title, colors = mmmColors.tenurePalette) => {
             const options = {
                 series: [{ name: 'Avg. Tenure (Days)', data: data }],
-                chart: { type: 'bar', height: '100%', toolbar: { show: true } },
+                chart: { type: 'bar', height: '100%', toolbar: { show: true }, fontFamily: 'Karla, sans-serif' },
                 plotOptions: {
                     bar: {
                         horizontal: true,
@@ -596,10 +842,10 @@
                     enabled: true,
                     formatter: (val) => `${val.toLocaleString()} days`,
                     offsetX: 10,
-                    style: { colors: [mmmColors.deepTeal], fontSize: '12px', fontWeight: 500 }
+                    style: { colors: [mmmColors.deepTeal], fontSize: '12px', fontWeight: 500, fontFamily: 'Karla, sans-serif' }
                 },
-                xaxis: { categories: categories, title: { text: 'Average Days Worked', style: { color: mmmColors.deepTeal } } },
-                yaxis: { labels: { style: { colors: mmmColors.deepTeal, fontSize: '12px' } } },
+                xaxis: { categories: categories, title: { text: 'Average Days Worked', style: { color: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } }, labels: { style: { fontFamily: 'Karla, sans-serif' } } },
+                yaxis: { labels: { style: { colors: mmmColors.deepTeal, fontSize: '12px', fontFamily: 'Karla, sans-serif' } } },
                 tooltip: { y: { formatter: (val) => `${val.toLocaleString()} days` } },
                 legend: { show: false },
                 grid: { borderColor: '#f1f1f1' }
@@ -630,6 +876,9 @@
                 document.getElementById('stat-total').innerText = data.overview.total.toLocaleString();
                 document.getElementById('stat-avg-tenure').innerText = data.overview.overallAvgTenure.toLocaleString();
                 document.getElementById('stat-top-l3').innerText = data.overview.topL3Reason;
+                document.getElementById('stat-top-reason').innerText = data.overview.topReason;
+                document.getElementById('stat-top-varole').innerText = data.overview.topVaRole;
+                document.getElementById('stat-top-handler').innerText = data.overview.topHandler;
 
                 createDonutChart(
                     "#chart-overview-reason", 
@@ -639,25 +888,59 @@
                     mmmColors.mixedPalette
                 );
                 
-                createBarChart(
-                    "#chart-overview-l3",
-                    data.overview.l3Counts.categories,
-                    data.overview.l3Counts.data,
-                    data.overview.l3Counts.tooltips,
-                    mmmColors.mixedPalette
+                createGroupedBarChart(
+                    "#chart-overview-l3-yoy",
+                    data.overview.l3CountsYoY.categories,
+                    data.overview.l3CountsYoY.series,
+                    "Top 10 Overall L3 Reasons (YoY)"
                 );
                 
+                createGroupedBarChart(
+                    "#chart-overview-varole-yoy",
+                    data.overview.vaRoleCountsYoY.categories,
+                    data.overview.vaRoleCountsYoY.series,
+                    "Top 10 Affected VA Roles (YoY)"
+                );
+                
+                // --- Client Set-Up Tab ---
                 createBarChart(
-                    "#chart-overview-varole",
-                    data.overview.vaRoleCounts.categories,
-                    data.overview.vaRoleCounts.data,
-                    data.overview.vaRoleCounts.tooltips,
+                    "#chart-csu-issue",
+                    data.clientSetup.issueCounts.categories,
+                    data.clientSetup.issueCounts.data,
+                    data.clientSetup.issueCounts.tooltips,
+                    mmmColors.mixedPalette
+                );
+
+                // --- VA Performance Tab ---
+                createBarChart(
+                    "#chart-vap-issue",
+                    data.vaPerformance.issueCounts.categories,
+                    data.vaPerformance.issueCounts.data,
+                    data.vaPerformance.issueCounts.tooltips,
+                    mmmColors.mixedPalette
+                );
+
+                // --- Resign Tab ---
+                createBarChart(
+                    "#chart-res-issue",
+                    data.resign.issueCounts.categories,
+                    data.resign.issueCounts.data,
+                    data.resign.issueCounts.tooltips,
+                    mmmColors.mixedPalette
+                );
+
+                // --- Financial Tab ---
+                createBarChart(
+                    "#chart-fin-issue",
+                    data.financial.issueCounts.categories,
+                    data.financial.issueCounts.data,
+                    data.financial.issueCounts.tooltips,
                     mmmColors.mixedPalette
                 );
 
                 // --- Yearly Trends Tab ---
                 createGroupedBarChart("#chart-yoy-reason", data.yearlyTrends.reason.categories, data.yearlyTrends.reason.series, "YoY Trend: Top-Level Reason");
-                createGroupedBarChart("#chart-yoy-l3", data.yearlyTrends.l3.categories, data.yearlyTrends.l3.series, "YoY Trend: Top 5 L3 Reasons");
+                createGroupedBarChart("#chart-yoy-handlers", data.yearlyTrends.handlers.categories, data.yearlyTrends.handlers.series, "Cancellations Handled By (YoY)");
                 createGroupedBarChart("#chart-yoy-csu", data.yearlyTrends.clientSetup.categories, data.yearlyTrends.clientSetup.series, "YoY Trend: Top 5 Client Set-Up Issues");
                 createGroupedBarChart("#chart-yoy-va", data.yearlyTrends.vaIssues.categories, data.yearlyTrends.vaIssues.series, "YoY Trend: Top 5 VA Issues");
 
@@ -704,4 +987,5 @@
     </script>
 </body>
 </html>
+
 
