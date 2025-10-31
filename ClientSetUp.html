@@ -104,7 +104,7 @@
         .apexcharts-tooltip {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            color: #025863; /* FIX: Set base font color to dark */
+            color: #025863; /* Base font color */
             border-radius: 8px;
             padding: 10px;
             font-family: 'Karla', sans-serif; /* FONT CHANGE */
@@ -115,24 +115,26 @@
             font-weight: 700;
             padding: 8px 10px;
             margin: -10px -10px 8px -10px;
-            color: #025863; /* FIX: Ensure title is dark */
+            color: #025863; /* Ensure title is dark */
         }
         .apexcharts-tooltip-series-group {
             padding: 0 2px;
+            color: #025863; /* Ensure series is dark */
         }
         .apexcharts-tooltip-marker {
             margin-right: 8px;
         }
         .apexcharts-tooltip-text {
-            color: #025863 !important; /* FIX: Ensure all text is dark */
+            color: #025863 !important; /* Ensure all text is dark */
         }
         .apexcharts-tooltip-text-value {
             font-weight: 600;
+            color: #025863 !important;
         }
         /* Custom class for tooltip breakdown */
         .tooltip-breakdown {
             font-size: 0.8rem;
-            color: #025863; /* FIX: Ensure breakdown is dark */
+            color: #025863; /* Ensure breakdown is dark */
             margin-top: 8px;
             padding-top: 6px;
             border-top: 1px dashed #D1EBEF;
@@ -239,19 +241,24 @@
                     </div>
                 </div>
 
-                <!-- Charts -->
+                <!-- Charts: NEW 2x2 GRID LAYOUT -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="chart-container">
                         <h3 class="chart-title">Cancellations by Top-Level Reason</h3>
                         <div id="chart-overview-reason" class="flex-grow"></div>
+                    </div>
+                    <!-- NEW HANDLER CHART (MOVED HERE) -->
+                    <div class="chart-container">
+                        <h3 class="chart-title">Cancellations Handled By (YoY)</h3>
+                        <div id="chart-overview-handlers-yoy" class="flex-grow"></div>
                     </div>
                     <!-- NEW YoY VA Role Chart -->
                     <div class="chart-container">
                         <h3 class="chart-title">Top 10 Affected VA Roles (YoY)</h3>
                         <div id="chart-overview-varole-yoy" class="flex-grow"></div>
                     </div>
-                    <!-- NEW YoY L3 Reason Chart -->
-                    <div class="chart-container lg:col-span-2">
+                    <!-- NEW YoY L3 Reason Chart (MOVED HERE, col-span removed) -->
+                    <div class="chart-container">
                         <h3 class="chart-title">Top 10 Overall L3 Reasons (YoY)</h3>
                         <div id="chart-overview-l3-yoy" class="flex-grow"></div>
                     </div>
@@ -533,6 +540,7 @@
     <script>
         // --- This is where the pre-processed data is injected ---
         // I have re-analyzed the new CSV and generated this data block.
+        // NEW: Added 'handlersYoY' to overview data.
         const analysisData = {
           "overview": {
             "total": 877,
@@ -551,6 +559,39 @@
                 "Top Issues:\n- Cost Cutting: 39\n- Budget Constraints: 15\n- Practice Closed: 3",
                 "No further breakdown."
               ]
+            },
+            "handlersYoY": {
+              "categories": ["Juvelyn Golong", "Roja Plasos", "Isaiah Immanuel Crisostomo", "Ma. Diyosa Rabulan", "Gerard Angelo Faustino", "MJ Jose"],
+              "series": [
+                { "name": "2024", "data": [47, 43, 40, 37, 29, 30] },
+                { "name": "2025", "data": [69, 58, 48, 45, 41, 35] }
+              ],
+              "tooltips": {
+                "0": {
+                  "0": "2024 Reasons:\n- Client Set-Up: 21\n- Resign: 15\n- VA Performance: 10\n- Financial: 1",
+                  "1": "2025 Reasons:\n- Client Set-Up: 28\n- Resign: 22\n- VA Performance: 15\n- Financial: 4"
+                },
+                "1": {
+                  "0": "2024 Reasons:\n- Client Set-Up: 18\n- Resign: 12\n- VA Performance: 11\n- Financial: 2",
+                  "1": "2025 Reasons:\n- Client Set-Up: 25\n- Resign: 18\n- VA Performance: 12\n- Financial: 3"
+                },
+                "2": {
+                  "0": "2024 Reasons:\n- Client Set-Up: 15\n- Resign: 10\n- VA Performance: 12\n- Financial: 3",
+                  "1": "2025 Reasons:\n- Client Set-Up: 20\n- Resign: 13\n- VA Performance: 11\n- Financial: 4"
+                },
+                "3": {
+                  "0": "2024 Reasons:\n- Client Set-Up: 14\n- Resign: 11\n- VA Performance: 9\n- Financial: 3",
+                  "1": "2025 Reasons:\n- Client Set-Up: 19\n- Resign: 15\n- VA Performance: 8\n- Financial: 3"
+                },
+                "4": {
+                  "0": "2024 Reasons:\n- Client Set-Up: 10\n- Resign: 9\n- VA Performance: 8\n- Financial: 2",
+                  "1": "2025 Reasons:\n- Client Set-Up: 15\n- Resign: 12\n- VA Performance: 10\n- Financial: 4"
+                },
+                "5": {
+                  "0": "2024 Reasons:\n- Client Set-Up: 11\n- Resign: 8\n- VA Performance: 9\n- Financial: 2",
+                  "1": "2025 Reasons:\n- Client Set-Up: 14\n- Resign: 10\n- VA Performance: 8\n- Financial: 3"
+                }
+              }
             },
             "l3CountsYoY": {
               "categories": ["Logistic Reasons (On-site)", "Challenges w/ remote", "Better Opps overseas", "EHR Migration", "Health", "Cost Cutting", "Quality of work...", "Attendance/Reliability", "Client's preference", "Automation of Tasks"],
@@ -740,16 +781,17 @@
                         const value = series[seriesIndex][dataPointIndex];
                         const category = w.globals.labels[dataPointIndex];
                         const breakdown = tooltips[dataPointIndex];
+                        // TOOLTIP FIX: Added inline styles for redundant color safety
                         return `
-                            <div class="apexcharts-tooltip-title">${category}</div>
-                            <div class="apexcharts-tooltip-series-group">
+                            <div class="apexcharts-tooltip-title" style="color: #025863;">${category}</div>
+                            <div class="apexcharts-tooltip-series-group" style="color: #025863;">
                                 <span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[dataPointIndex]}"></span>
-                                <div class="apexcharts-tooltip-text">
-                                    <span class="apexcharts-tooltip-text-label">Cancellations:</span>
-                                    <span class="apexcharts-tooltip-text-value">${value}</span>
+                                <div class="apexcharts-tooltip-text" style="color: #025863;">
+                                    <span class="apexcharts-tooltip-text-label" style="color: #025863;">Cancellations:</span>
+                                    <span class="apexcharts-tooltip-text-value" style="color: #025863;">${value}</span>
                                 </div>
                             </div>
-                            <div class="tooltip-breakdown">${breakdown}</div>
+                            <div class="tooltip-breakdown" style="color: #025863;">${breakdown}</div>
                         `;
                     }
                 },
@@ -781,16 +823,17 @@
                         const value = series[seriesIndex];
                         const category = w.globals.labels[seriesIndex];
                         const breakdown = tooltips[seriesIndex];
+                        // TOOLTIP FIX: Added inline styles for redundant color safety
                         return `
-                            <div class="apexcharts-tooltip-title">${category}</div>
-                            <div class="apexcharts-tooltip-series-group">
+                            <div class="apexcharts-tooltip-title" style="color: #025863;">${category}</div>
+                            <div class="apexcharts-tooltip-series-group" style="color: #025863;">
                                 <span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[seriesIndex]}"></span>
-                                <div class="apexcharts-tooltip-text">
-                                    <span class="apexcharts-tooltip-text-label">Cancellations:</span>
-                                    <span class="apexcharts-tooltip-text-value">${value}</span>
+                                <div class="apexcharts-tooltip-text" style="color: #025863;">
+                                    <span class="apexcharts-tooltip-text-label" style="color: #025863;">Cancellations:</span>
+                                    <span class="apexcharts-tooltip-text-value" style="color: #025863;">${value}</span>
                                 </div>
                             </div>
-                            <div class="tooltip-breakdown">${breakdown}</div>
+                            <div class="tooltip-breakdown" style="color: #025863;">${breakdown}</div>
                         `;
                     }
                 }
@@ -799,7 +842,8 @@
         };
         
         // Factory for GROUPED (YoY) bar charts
-        const createGroupedBarChart = (chartId, categories, series, title, colors = [mmmColors.blue, mmmColors.teal]) => {
+        // NEW: Added 'tooltips' parameter and custom logic
+        const createGroupedBarChart = (chartId, categories, series, title, colors = [mmmColors.blue, mmmColors.teal], tooltips = null) => {
             const options = {
                 series: series,
                 chart: { type: 'bar', height: '100%', toolbar: { show: true }, fontFamily: 'Karla, sans-serif' },
@@ -818,7 +862,32 @@
                 },
                 yaxis: { title: { text: 'Count', style: { color: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } }, labels: { style: { colors: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } } },
                 fill: { opacity: 1 },
-                tooltip: { y: { formatter: (val) => val.toLocaleString() } },
+                // NEW CUSTOM TOOLTIP LOGIC
+                tooltip: {
+                    ...(tooltips ? {
+                        custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                            const value = series[seriesIndex][dataPointIndex];
+                            const category = w.globals.labels[dataPointIndex];
+                            const year = w.globals.seriesNames[seriesIndex];
+                            const breakdown = tooltips[dataPointIndex] ? (tooltips[dataPointIndex][seriesIndex] || 'No breakdown available.') : 'No breakdown available.';
+                            
+                            // TOOLTIP FIX: Added inline styles for redundant color safety
+                            return `
+                                <div class="apexcharts-tooltip-title" style="color: #025863;">${category} - ${year}</div>
+                                <div class="apexcharts-tooltip-series-group" style="color: #025863;">
+                                    <span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[seriesIndex]}"></span>
+                                    <div class="apexcharts-tooltip-text" style="color: #025863;">
+                                        <span class="apexcharts-tooltip-text-label" style="color: #025863;">Cancellations:</span>
+                                        <span class="apexcharts-tooltip-text-value" style="color: #025863;">${value}</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-breakdown" style="color: #025863;">${breakdown}</div>
+                            `;
+                        }
+                    } : {
+                        y: { formatter: (val) => val.toLocaleString() } // Default behavior
+                    })
+                },
                 legend: { position: 'top', labels: { colors: mmmColors.deepTeal, fontFamily: 'Karla, sans-serif' } },
                 grid: { borderColor: '#f1f1f1' }
             };
@@ -888,6 +957,16 @@
                     mmmColors.mixedPalette
                 );
                 
+                // NEW: Call for Handler Chart on Overview
+                createGroupedBarChart(
+                    "#chart-overview-handlers-yoy",
+                    data.overview.handlersYoY.categories,
+                    data.overview.handlersYoY.series,
+                    "Cancellations Handled By (YoY)",
+                    [mmmColors.blue, mmmColors.teal], // Default colors
+                    data.overview.handlersYoY.tooltips // Pass the new tooltip object
+                );
+                
                 createGroupedBarChart(
                     "#chart-overview-l3-yoy",
                     data.overview.l3CountsYoY.categories,
@@ -940,7 +1019,7 @@
 
                 // --- Yearly Trends Tab ---
                 createGroupedBarChart("#chart-yoy-reason", data.yearlyTrends.reason.categories, data.yearlyTrends.reason.series, "YoY Trend: Top-Level Reason");
-                createGroupedBarChart("#chart-yoy-handlers", data.yearlyTrends.handlers.categories, data.yearlyTrends.handlers.series, "Cancellations Handled By (YoY)");
+                createGroupedBarChart("#chart-yoy-handlers", data.yearlyTrends.handlers.categories, data.yearlyTrends.handlers.series, "Cancellations Handled By (YoY)"); // This is the simple version
                 createGroupedBarChart("#chart-yoy-csu", data.yearlyTrends.clientSetup.categories, data.yearlyTrends.clientSetup.series, "YoY Trend: Top 5 Client Set-Up Issues");
                 createGroupedBarChart("#chart-yoy-va", data.yearlyTrends.vaIssues.categories, data.yearlyTrends.vaIssues.series, "YoY Trend: Top 5 VA Issues");
 
@@ -987,5 +1066,4 @@
     </script>
 </body>
 </html>
-
 
