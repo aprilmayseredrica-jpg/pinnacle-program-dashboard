@@ -6,21 +6,18 @@
     <title>VA-lueLens: Cancellation Analysis Dashboard</title>
     
     <!-- 1. Define MMM Colors in Tailwind Config -->
-    <!-- This MUST be before the main Tailwind script -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        'mmm-blue': '#004a99',
-                        'mmm-green': '#6abf4b',
-                        'mmm-gray': {
-                            100: '#f7fafc',
-                            200: '#edf2f7',
-                            300: '#e2e8f0',
-                            800: '#2d3748',
-                        },
-                        'mmm-accent': '#f59e0b', // A warm accent
+                        // Official MMM Brand Guidelines Colors
+                        'mmm-blue': '#00AFCO',      // Cerulean
+                        'mmm-teal-blue': '#008BA3', // Teal Blue
+                        'mmm-deep-teal': '#025863', // Deep Teal
+                        'mmm-pale-blue': '#D1EBEF', // Pale Blue (Corrected from PDF)
+                        'mmm-accent': '#FF6334',    // Portland Orange
+                        'mmm-bg': '#F8F8F8',       // Desert Storm (BG)
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -40,76 +37,107 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc; /* mmm-gray-100 */
+            background-color: #F8F8F8; /* mmm-bg */
         }
         /* Style for active tabs */
         .tab-btn.active {
-            border-bottom-color: #004a99; /* mmm-blue */
-            color: #004a99; /* mmm-blue */
+            border-bottom-color: #00AFCO; /* mmm-blue */
+            color: #00AFCO; /* mmm-blue */
             font-weight: 600;
         }
-        /* Basic styling for chart containers */
+        /* Chart container styling */
         .chart-container {
             background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
             padding: 24px;
-            height: 450px; /* Fixed height for consistency */
+            height: 480px; /* Increased height */
             display: flex;
             flex-direction: column;
         }
         .chart-title {
-            font-size: 1.125rem; /* 18px */
+            font-size: 1.25rem; /* 20px */
             font-weight: 600;
-            color: #004a99; /* mmm-blue */
+            color: #025863; /* mmm-deep-teal */
             margin-bottom: 16px;
         }
+        /* Insight box styling */
+        .insight-box {
+            background-color: #D1EBEF; /* mmm-pale-blue */
+            border-left: 5px solid #00AFCO; /* mmm-blue */
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .insight-title {
+            font-size: 1.125rem; /* 18px */
+            font-weight: 700;
+            color: #025863; /* mmm-deep-teal */
+            margin-bottom: 8px;
+        }
+        .insight-text {
+            font-size: 1rem; /* 16px */
+            color: #025863; /* mmm-deep-teal */
+            line-height: 1.6;
+        }
+        /* Custom Tooltip for complex hovers */
         .apexcharts-tooltip {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            color: #2d3748;
+            color: #025863;
+            border-radius: 8px;
+            padding: 10px;
         }
         .apexcharts-tooltip-title {
-            background: #f7fafc;
+            background: #F8F8F8;
             border-bottom: 1px solid #e2e8f0;
             font-weight: 600;
+            padding: 8px 10px;
+            margin: -10px -10px 8px -10px;
+        }
+        .apexcharts-tooltip-series-group {
+            padding: 0 2px;
+        }
+        .apexcharts-tooltip-marker {
+            margin-right: 8px;
+        }
+        .apexcharts-tooltip-text-value {
+            font-weight: 600;
+        }
+        /* Custom class for tooltip breakdown */
+        .tooltip-breakdown {
+            font-size: 0.8rem;
+            color: #025863;
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed #D1EBEF;
+            white-space: pre-wrap; /* Allows \n to work */
         }
     </style>
 </head>
-<body class="bg-mmm-gray-100 p-4 md:p-8">
+<body class="bg-mmm-bg p-4 md:p-8">
 
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
-        <header class="mb-6 flex items-center space-x-3">
-            <div class="w-12 h-12 bg-mmm-blue rounded-lg flex items-center justify-center shadow">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <header class="mb-8 flex items-center space-x-4">
+            <!--  -->
+            <div class="w-16 h-16 bg-mmm-deep-teal rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             </div>
             <div>
-                <h1 class="text-3xl font-bold text-mmm-blue">VA-lueLens Dashboard</h1>
-                <p class="text-lg text-mmm-gray-800">VA Cancellation Analysis (2024-2025)</p>
+                <h1 class="text-4xl font-bold text-mmm-deep-teal">VA-lueLens Dashboard</h1>
+                <p class="text-xl text-mmm-teal-blue">Executive Cancellation Analysis (2024-2025)</p>
             </div>
         </header>
 
         <!-- Tab Navigation -->
-        <div class="mb-6 border-b border-mmm-gray-300">
+        <div class="mb-6 border-b border-mmm-pale-blue">
             <nav class="flex flex-wrap -mb-px" id="tab-nav">
                 <button class="tab-btn active text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="overview">
-                    Overview
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="clientSetup">
-                    Client Set-Up
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="vaPerformance">
-                    VA Performance
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="resign">
-                    Resign
-                </button>
-                <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="financial">
-                    Financial
+                    Executive Overview
                 </button>
                 <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="yearlyTrends">
-                    YoY Trends
+                    Yearly Trends
                 </button>
                 <button class="tab-btn text-gray-600 py-4 px-6 border-b-2 border-transparent hover:text-mmm-blue hover:border-mmm-blue focus:outline-none" data-tab="tenureAnalysis">
                     Tenure Analysis
@@ -126,19 +154,26 @@
             <!-- == Overview Tab == -->
             <!-- ======================= -->
             <div class="tab-pane active" id="overview">
+                <!-- Insight Box -->
+                <div class="insight-box">
+                    <h3 class="insight-title">VA-lueLens Insight: Overview</h3>
+                    <p class="insight-text">
+                        "Client Set-Up" (34%) and "Resign" (28%) are your two largest churn drivers. While "Client Set-Up" represents technical and process failures, "Resign" represents a critical loss of trained, tenured VAs. The top affected role is "Medical Receptionist" (45%), who are most impacted by both "Logistic Reasons" (on-site preference) and "Client Set-Up" failures.
+                    </p>
+                </div>
                 <!-- Stat Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div class="chart-container p-6 justify-center">
-                        <h3 class="chart-title text-mmm-gray-800">Total Cancellations</h3>
-                        <p class="text-6xl font-bold text-mmm-blue" id="stat-total"></p>
+                        <h3 class="chart-title text-mmm-deep-teal">Total Cancellations</h3>
+                        <p class="text-7xl font-bold text-mmm-blue" id="stat-total"></p>
                     </div>
                     <div class="chart-container p-6 justify-center">
-                        <h3 class="chart-title text-mmm-gray-800">Overall Avg. Tenure</h3>
-                        <p class="text-6xl font-bold text-mmm-blue"><span id="stat-avg-tenure"></span> <span class="text-3xl">days</span></p>
+                        <h3 class="chart-title text-mmm-deep-teal">Overall Avg. Tenure</h3>
+                        <p class="text-7xl font-bold text-mmm-blue"><span id="stat-avg-tenure"></span><span class="text-4xl ml-2">days</span></p>
                     </div>
                     <div class="chart-container p-6 justify-center">
-                        <h3 class="chart-title text-mmm-gray-800">Top Reason for Churn</h3>
-                        <p class="text-5xl font-bold text-mmm-green" id="stat-top-reason"></p>
+                        <h3 class="chart-title text-mmm-deep-teal">Top L3 Reason</h3>
+                        <p class="text-4xl font-bold text-mmm-accent" id="stat-top-l3"></p>
                     </div>
                 </div>
                 <!-- Charts -->
@@ -148,116 +183,27 @@
                         <div id="chart-overview-reason" class="flex-grow"></div>
                     </div>
                     <div class="chart-container">
-                        <h3 class="chart-title">Top 10 Overall L3 Reasons</h3>
-                        <div id="chart-overview-l3" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
                         <h3 class="chart-title">Top 10 Affected VA Roles</h3>
                         <div id="chart-overview-varole" class="flex-grow"></div>
                     </div>
-                </div>
-            </div>
-
-            <!-- ======================= -->
-            <!-- == Client Set-Up Tab == -->
-            <!-- ======================= -->
-            <div class="tab-pane hidden" id="clientSetup">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="chart-container">
-                        <h3 class="chart-title">Client Set-Up Issues (Breakdown)</h3>
-                        <div id="chart-csu-issue" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Top L3 Reasons for "Client Set-Up"</h3>
-                        <div id="chart-csu-l3" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Top VA Roles for "Client Set-Up"</h3>
-                        <div id="chart-csu-varole" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Avg. Tenure by Set-Up Issue</h3>
-                        <div id="chart-csu-tenure" class="flex-grow"></div>
+                    <div class="chart-container lg:col-span-2">
+                        <h3 class="chart-title">Top 10 Overall L3 Reasons</h3>
+                        <div id="chart-overview-l3" class="flex-grow"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- ======================= -->
-            <!-- == VA Performance Tab == -->
-            <!-- ======================= -->
-            <div class="tab-pane hidden" id="vaPerformance">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="chart-container">
-                        <h3 class="chart-title">VA Performance Issues (Breakdown)</h3>
-                        <div id="chart-vap-issue" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Top L3 Reasons for "VA Performance"</h3>
-                        <div id="chart-vap-l3" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Top VA Roles for "VA Performance"</h3>
-                        <div id="chart-vap-varole" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Avg. Tenure by Performance Issue</h3>
-                        <div id="chart-vap-tenure" class="flex-grow"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ======================= -->
-            <!-- == Resign Tab == -->
-            <!-- ======================= -->
-            <div class="tab-pane hidden" id="resign">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="chart-container">
-                        <h3 class="chart-title">Resignation Issues (Breakdown)</h3>
-                        <div id="chart-res-issue" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Top L3 Reasons for "Resign"</h3>
-                        <div id="chart-res-l3" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Top VA Roles for "Resign"</h3>
-                        <div id="chart-res-varole" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Avg. Tenure by Resignation Issue</h3>
-                        <div id="chart-res-tenure" class="flex-grow"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ======================= -->
-            <!-- == Financial Tab == -->
-            <!-- ======================= -->
-            <div class="tab-pane hidden" id="financial">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div class="chart-container">
-                        <h3 class="chart-title">Financial Issues (Breakdown)</h3>
-                        <div id="chart-fin-issue" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Top L3 Reasons for "Financial"</h3>
-                        <div id="chart-fin-l3" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Top VA Roles for "Financial"</h3>
-                        <div id="chart-fin-varole" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Avg. Tenure by Financial Issue</h3>
-                        <div id="chart-fin-tenure" class="flex-grow"></div>
-                    </div>
-                </div>
-            </div>
-            
             <!-- ======================= -->
             <!-- == YoY Trends Tab == -->
             <!-- ======================= -->
             <div class="tab-pane hidden" id="yearlyTrends">
+                <!-- Insight Box -->
+                <div class="insight-box">
+                    <h3 class="insight-title">VA-lueLens Insight: Yearly Trends</h3>
+                    <p class="insight-text">
+                        All cancellation reasons are growing from 2024 to 2025, but "Resign" is accelerating the fastest (+110%), driven by VAs leaving for "Better Opps Overseas" (+183%). This signals a growing retention and compensation challenge. The "AI Deep-Dive" tab shows "Automation" is also growing at +114%.
+                    </p>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="chart-container">
                         <h3 class="chart-title">YoY Trend: Top-Level Reason</h3>
@@ -272,7 +218,7 @@
                         <div id="chart-yoy-csu" class="flex-grow"></div>
                     </div>
                     <div class="chart-container">
-                        <h3 class="chart-title">YoY Trend: Top 5 VA Issues</h3>
+                        <h3 class="chart-title">YoY Trend: Top 5 VA Issues (Performance & Resign)</h3>
                         <div id="chart-yoy-va" class="flex-grow"></div>
                     </div>
                 </div>
@@ -282,22 +228,21 @@
             <!-- == Tenure Analysis Tab == -->
             <!-- ======================= -->
             <div class="tab-pane hidden" id="tenureAnalysis">
+                <!-- Insight Box -->
+                <div class="insight-box">
+                    <h3 class="insight-title">VA-lueLens Insight: Tenure Analysis</h3>
+                    <p class="insight-text">
+                        This data shows *when* you lose VAs. "Client Set-Up" failures like "Client not ready" (46 days) and "EHR/System issues" (222 days) happen *early*. In contrast, "Resignations" for "Health" (636 days) and "Better Opps" (624 days) represent a critical loss of your most experienced, mature VAs. AI is also targeting mature VAs (540 days).
+                    </p>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="chart-container">
                         <h3 class="chart-title">Avg. Tenure by Top 10 L3 Reasons</h3>
                         <div id="chart-tenure-l3" class="flex-grow"></div>
                     </div>
                     <div class="chart-container">
-                        <h3 class="chart-title">Avg. Tenure by Client Set-Up Issue</h3>
-                        <div id="chart-tenure-csu" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Avg. Tenure by VA Issue</h3>
-                        <div id="chart-tenure-va" class="flex-grow"></div>
-                    </div>
-                    <div class="chart-container">
-                        <h3 class="chart-title">Avg. Tenure by Financial Issue</h3>
-                        <div id="chart-tenure-fin" class="flex-grow"></div>
+                        <h3 class="chart-title">Avg. Tenure by Top 10 VA Roles</h3>
+                        <div id="chart-tenure-varole" class="flex-grow"></div>
                     </div>
                 </div>
             </div>
@@ -306,19 +251,26 @@
             <!-- == AI Deep-Dive Tab == -->
             <!-- ======================= -->
             <div class="tab-pane hidden" id="aiDeepDive">
+                <!-- Insight Box -->
+                <div class="insight-box">
+                    <h3 class="insight-title">VA-lueLens Insight: AI Deep-Dive</h3>
+                    <p class="insight-text">
+                        The AI threat is real, measurable, and accelerating, growing 114% from 2024 to 2025. It targets your most mature VAs (540-day tenure) in "Medical Receptionist" roles. The primary impact (68%) is clients "Reducing VAs," not leaving entirely. This is an opportunity to re-skill and up-sell VAs as "AI-managers," not just "AI-replacements."
+                    </p>
+                </div>
                 <!-- Stat Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div class="chart-container p-6 justify-center">
-                        <h3 class="chart-title text-mmm-gray-800">Total AI-Related Cancellations</h3>
-                        <p class="text-6xl font-bold text-mmm-accent" id="stat-ai-total"></p>
+                        <h3 class="chart-title text-mmm-deep-teal">Total AI-Related Cancellations</h3>
+                        <p class="text-7xl font-bold text-mmm-accent" id="stat-ai-total"></p>
                     </div>
                     <div class="chart-container p-6 justify-center">
-                        <h3 class="chart-title text-mmm-gray-800">Avg. Tenure for AI-Lost VAs</h3>
-                        <p class="text-6xl font-bold text-mmm-accent"><span id="stat-ai-tenure"></span> <span class="text-3xl">days</span></p>
+                        <h3 class="chart-title text-mmm-deep-teal">Avg. Tenure for AI-Lost VAs</h3>
+                        <p class="text-7xl font-bold text-mmm-accent"><span id="stat-ai-tenure"></span><span class="text-4xl ml-2">days</span></p>
                     </div>
                     <div class="chart-container p-6 justify-center">
-                        <h3 class="chart-title text-mmm-gray-800">vs. Overall Avg. Tenure</h3>
-                        <p class="text-6xl font-bold text-mmm-blue"><span id="stat-ai-vs-overall"></span> <span class="text-3xl">days</span></p>
+                        <h3 class="chart-title text-mmm-deep-teal">...vs. Overall Avg. Tenure</h3>
+                        <p class="text-7xl font-bold text-mmm-blue"><span id="stat-ai-vs-overall"></span><span class="text-4xl ml-2">days</span></p>
                     </div>
                 </div>
                 <!-- Charts -->
@@ -348,58 +300,48 @@
     <!-- 5. Main JavaScript for Tabs and Charts -->
     <script>
         // --- This is where the pre-processed data is injected ---
-        // I have pre-calculated all the data based on your CSV.
+        // I have pre-calculated all the data and new tooltip strings.
         const analysisData = {
           "overview": {
             "total": 877,
-            "avgTenure": {
-              "Client Set-Up": 331,
-              "Resign": 612,
-              "VA Performance": 435,
-              "Financial": 395,
-              "Others": 402,
-              "BLANK": 272
-            },
+            "overallAvgTenure": 415,
+            "topL3Reason": "Logistic Reasons (On-site)",
             "reasonCounts": {
-              "categories": [
-                "Client Set-Up",
-                "Resign",
-                "VA Performance",
-                "Financial",
-                "Others"
-              ],
-              "data": [
-                302,
-                248,
-                232,
-                58,
-                37
+              "categories": ["Client Set-Up", "Resign", "VA Performance", "Financial", "Others"],
+              "data": [302, 248, 232, 58, 37],
+              "tooltips": [
+                "Top Issues:\n- Business decision: 99\n- Hired on-site staff: 83\n- EHR/System/VOIP issues: 58",
+                "Top Issues:\n- Better Opps overseas: 89\n- Health: 78\n- Better Opps LOCAL: 19",
+                "Top Issues:\n- Quality of work...: 82\n- Attendance/Reliability: 54\n- Attitude/Behavioral: 24",
+                "Top Issues:\n- Cost Cutting: 39\n- Budget Constraints: 15\n- Practice Closed: 3",
+                "No further breakdown."
               ]
             },
             "l3Counts": {
               "categories": [
-                "Logistic Reasons (Doctors' preference to have onsite Staffs)",
-                "Challenges with the remote set-up",
+                "Logistic Reasons (On-site)",
+                "Challenges with remote set-up",
                 "Better Opps overseas",
                 "EHR Migration / EPIC",
                 "Health",
                 "Cost Cutting",
-                "Quality of work (failure to meet quality standards)",
+                "Quality of work...",
                 "Attendance/Reliability",
                 "Client's preference",
                 "Automation of Tasks"
               ],
-              "data": [
-                120,
-                95,
-                88,
-                88,
-                75,
-                70,
-                54,
-                36,
-                22,
-                22
+              "data": [120, 95, 88, 88, 75, 70, 54, 36, 22, 22],
+              "tooltips": [
+                "Top VA Roles:\n- Medical Receptionist: 73\n- Medical Scribe: 19\n- Insurance Verification VA: 11",
+                "Top VA Roles:\n- Medical Receptionist: 52\n- Medical Scribe: 21\n- Insurance Verification VA: 8",
+                "Top VA Roles:\n- Medical Receptionist: 45\n- Medical Scribe: 13\n- Executive Assistant: 7",
+                "Top VA Roles:\n- Medical Receptionist: 48\n- Medical Scribe: 26\n- Insurance Verification VA: 6",
+                "Top VA Roles:\n- Medical Receptionist: 42\n- Medical Scribe: 11\n- Executive Assistant: 6",
+                "Top VA Roles:\n- Medical Receptionist: 31\n- Medical Scribe: 10\n- Insurance Verification VA: 6",
+                "Top VA Roles:\n- Medical Receptionist: 23\n- Medical Scribe: 20\n- Insurance Verification VA: 4",
+                "Top VA Roles:\n- Medical Receptionist: 20\n- Medical Scribe: 10\n- Insurance Verification VA: 3",
+                "Top VA Roles:\n- Medical Receptionist: 11\n- Medical Scribe: 7\n- Executive Assistant: 3",
+                "Top VA Roles:\n- Medical Receptionist: 10\n- Medical Scribe: 5\n- Insurance Verification VA: 3"
               ]
             },
             "vaRoleCounts": {
@@ -408,668 +350,262 @@
                 "Medical Scribe",
                 "Insurance Verification VA",
                 "Executive Assistant",
-                "Medical Billing Assistant/Medical Biller",
+                "Medical Billing Assistant",
                 "Admin Assistant",
                 "Provider Support",
                 "Patient Support",
                 "Medical Records",
                 "Referral Coordinator"
               ],
-              "data": [
-                391,
-                149,
-                67,
-                46,
-                38,
-                24,
-                19,
-                18,
-                16,
-                15
-              ]
-            },
-            "overallAvgTenure": 415
-          },
-          "clientSetup": {
-            "total": 302,
-            "issueCounts": {
-              "categories": [
-                "Business decision",
-                "Hired on-site staff",
-                "EHR/System/VOIP issues",
-                "Change in business structure",
-                "VA not needed",
-                "Client's preference",
-                "Budget/Financial constraints",
-                "Service not needed",
-                "Client not ready",
-                "Practice Closed"
-              ],
-              "data": [
-                99,
-                83,
-                58,
-                16,
-                13,
-                10,
-                8,
-                4,
-                3,
-                3
-              ]
-            },
-            "l3Counts": {
-              "categories": [
-                "Logistic Reasons (Doctors' preference to have onsite Staffs)",
-                "Challenges with the remote set-up",
-                "EHR Migration / EPIC",
-                "Cost Cutting",
-                "Client's preference",
-                "Automation of Tasks",
-                "Budget Constraints",
-                "System & Tech related / latency",
-                "Client's unresponsiveness",
-                "Practice Closed"
-              ],
-              "data": [
-                73,
-                60,
-                52,
-                30,
-                17,
-                15,
-                10,
-                8,
-                6,
-                3
-              ]
-            },
-            "vaRoleCounts": {
-              "categories": [
-                "Medical Receptionist",
-                "Medical Scribe",
-                "Insurance Verification VA",
-                "Executive Assistant",
-                "Medical Billing Assistant/Medical Biller",
-                "Admin Assistant",
-                "Provider Support",
-                "Patient Support",
-                "Medical Records",
-                "Referral Coordinator"
-              ],
-              "data": [
-                157,
-                54,
-                25,
-                15,
-                9,
-                8,
-                8,
-                7,
-                5,
-                4
-              ]
-            },
-            "tenureByIssue": {
-              "categories": [
-                "Business decision",
-                "Hired on-site staff",
-                "EHR/System/VOIP issues",
-                "Change in business structure",
-                "VA not needed",
-                "Client's preference",
-                "Budget/Financial constraints",
-                "Service not needed",
-                "Client not ready",
-                "Practice Closed"
-              ],
-              "data": [
-                391,
-                350,
-                222,
-                375,
-                203,
-                195,
-                214,
-                314,
-                46,
-                720
-              ]
-            }
-          },
-          "vaPerformance": {
-            "total": 232,
-            "issueCounts": {
-              "categories": [
-                "Quality of work (failure to meet quality standards)",
-                "Attendance/Reliability",
-                "Attitude/Behavioral",
-                "Communication",
-                "Client's preference",
-                "Mismatched Expectations",
-                "Others",
-                "Slow ramp up/learning curve",
-                "Time Management"
-              ],
-              "data": [
-                82,
-                54,
-                24,
-                22,
-                18,
-                10,
-                9,
-                8,
-                5
-              ]
-            },
-            "l3Counts": {
-              "categories": [
-                "Quality of work (failure to meet quality standards)",
-                "Attendance/Reliability",
-                "Client's preference",
-                "Attitude/Behavioral",
-                "Communication",
-                "Mismatched Expectations",
-                "Others",
-                "Slow ramp up/learning curve",
-                "Time Management",
-                "EHR Migration / EPIC"
-              ],
-              "data": [
-                54,
-                36,
-                22,
-                21,
-                17,
-                10,
-                9, /* <<< THIS WAS THE ERROR. The underscore is REMOVED. */
-                8,
-                5,
-                4
-              ]
-            },
-            "vaRoleCounts": {
-              "categories": [
-                "Medical Receptionist",
-                "Medical Scribe",
-                "Insurance Verification VA",
-                "Executive Assistant",
-                "Medical Billing Assistant/Medical Biller",
-                "Admin Assistant",
-                "Patient Support",
-                "Provider Support",
-                "Medical Records",
-                "Referral Coordinator"
-              ],
-              "data": [
-                82,
-                57,
-                23,
-                16,
-                14,
-                9,
-                8,
-                6,
-                6,
-                5
-              ]
-            },
-            "tenureByIssue": {
-              "categories": [
-                "Quality of work (failure to meet quality standards)",
-                "Attendance/Reliability",
-                "Attitude/Behavioral",
-                "Communication",
-                "Client's preference",
-                "Mismatched Expectations",
-                "Others",
-                "Slow ramp up/learning curve",
-                "Time Management"
-              ],
-              "data": [
-                427,
-                426,
-                438,
-                412,
-                541,
-                325,
-                465,
-                488,
-                553
-              ]
-            }
-          },
-          "resign": {
-            "total": 248,
-            "issueCounts": {
-              "categories": [
-                "Better Opps overseas",
-                "Health",
-                "Better Opps LOCAL",
-                "Personal Reasons",
-                "Others",
-                "School",
-                "Client factors",
-                "Demotivation of VA",
-                "Workload",
-                "Schedule"
-              ],
-              "data": [
-                89,
-                78,
-                19,
-                17,
-                10,
-                9,
-                8,
-                6,
-                5,
-                4
-              ]
-            },
-            "l3Counts": {
-              "categories": [
-                "Better Ops Overseas",
-                "Health",
-                "Better Ops Local",
-                "Personal Reasons",
-                "Others",
-                "School",
-                "Client factors",
-                "Demotivation of VA",
-                "Workload",
-                "Schedule"
-              ],
-              "data": [
-                88,
-                75,
-                19,
-                17,
-                10,
-                9,
-                8,
-                6,
-                5,
-                4
-              ]
-            },
-            "vaRoleCounts": {
-              "categories": [
-                "Medical Receptionist",
-                "Medical Scribe",
-                "Insurance Verification VA",
-                "Executive Assistant",
-                "Medical Billing Assistant/Medical Biller",
-                "Admin Assistant",
-                "Medical Records",
-                "Provider Support",
-                "Referral Coordinator",
-                "Patient Support"
-              ],
-              "data": [
-                116,
-                30,
-                15,
-                12,
-                12,
-                6,
-                5,
-                5,
-                5,
-                3
-              ]
-            },
-            "tenureByIssue": {
-              "categories": [
-                "Better Opps overseas",
-                "Health",
-                "Better Opps LOCAL",
-                "Personal Reasons",
-                "Others",
-                "School",
-                "Client factors",
-                "Demotivation of VA",
-                "Workload",
-                "Schedule"
-              ],
-              "data": [
-                624,
-                636,
-                622,
-                634,
-                440,
-                463,
-                555,
-                568,
-                755,
-                358
-              ]
-            }
-          },
-          "financial": {
-            "total": 58,
-            "issueCounts": {
-              "categories": [
-                "Cost Cutting",
-                "Budget Constraints",
-                "Practice Closed",
-                "Others"
-              ],
-              "data": [
-                39,
-                15,
-                3,
-                1
-              ]
-            },
-            "l3Counts": {
-              "categories": [
-                "Cost Cutting",
-                "Budget Constraints",
-                "Practice Closed",
-                "Automation of Tasks",
-                "Others"
-              ],
-              "data": [
-                38,
-                15,
-                3,
-                1,
-                1
-              ]
-            },
-            "vaRoleCounts": {
-              "categories": [
-                "Medical Receptionist",
-                "Insurance Verification VA",
-                "Medical Scribe",
-                "Executive Assistant",
-                "Medical Billing Assistant/Medical Biller",
-                "Admin Assistant"
-              ],
-              "data": [
-                24,
-                4,
-                3,
-                3,
-                3,
-                1
-              ]
-            },
-            "tenureByIssue": {
-              "categories": [
-                "Cost Cutting",
-                "Budget Constraints",
-                "Practice Closed",
-                "Others"
-              ],
-              "data": [
-                444,
-                275,
-                391,
-                179
+              "data": [391, 149, 67, 46, 38, 24, 19, 18, 16, 15],
+              "tooltips": [
+                "Top Reasons:\n- Client Set-Up: 157\n- Resign: 116\n- VA Performance: 82",
+                "Top Reasons:\n- VA Performance: 57\n- Client Set-Up: 54\n- Resign: 30",
+                "Top Reasons:\n- Client Set-Up: 25\n- VA Performance: 23\n- Resign: 15",
+                "Top Reasons:\n- VA Performance: 16\n- Client Set-Up: 15\n- Resign: 12",
+                "Top Reasons:\n- VA Performance: 14\n- Resign: 12\n- Client Set-Up: 9",
+                "Top Reasons:\n- VA Performance: 9\n- Client Set-Up: 8\n- Resign: 6",
+                "Top Reasons:\n- Client Set-Up: 8\n- VA Performance: 6\n- Resign: 5",
+                "Top Reasons:\n- VA Performance: 8\n- Client Set-Up: 7\n- Resign: 3",
+                "Top Reasons:\n- VA Performance: 6\n- Client Set-Up: 5\n- Resign: 5",
+                "Top Reasons:\n- VA Performance: 5\n- Resign: 5\n- Client Set-Up: 4"
               ]
             }
           },
           "yearlyTrends": {
             "reason": {
-              "categories": [
-                "Client Set-Up",
-                "Resign",
-                "VA Performance",
-                "Financial",
-                "Others"
-              ],
+              "categories": ["Client Set-Up", "Resign", "VA Performance", "Financial", "Others"],
               "series": [
-                { "name": "2024", "data": [ 124, 80, 72, 23, 10 ] },
-                { "name": "2025", "data": [ 178, 168, 160, 35, 27 ] }
+                { "name": "2024", "data": [124, 80, 72, 23, 10] },
+                { "name": "2025", "data": [178, 168, 160, 35, 27] }
               ]
             },
             "l3": {
-              "categories": [
-                "Logistic Reasons (Doctors' preference to have onsite Staffs)",
-                "Better Ops Overseas",
-                "Challenges with the remote set-up",
-                "EHR Migration / EPIC",
-                "Health"
-              ],
+              "categories": ["Logistic Reasons (On-site)", "Better Ops Overseas", "Challenges w/ remote", "EHR Migration", "Health"],
               "series": [
-                { "name": "2024", "data": [ 43, 23, 35, 31, 23 ] },
-                { "name": "2025", "data": [ 77, 65, 60, 57, 52 ] }
+                { "name": "2024", "data": [43, 23, 35, 31, 23] },
+                { "name": "2025", "data": [77, 65, 60, 57, 52] }
               ]
             },
             "clientSetup": {
-              "categories": [
-                "Business decision",
-                "Hired on-site staff",
-                "EHR/System/VOIP issues",
-                "Change in business structure",
-                "VA not needed"
-              ],
+              "categories": ["Business decision", "Hired on-site staff", "EHR/System/VOIP issues", "Change in structure", "VA not needed"],
               "series": [
-                { "name": "2024", "data": [ 36, 31, 26, 7, 7 ] },
-                { "name": "2025", "data": [ 63, 52, 32, 9, 6 ] }
+                { "name": "2024", "data": [36, 31, 26, 7, 7] },
+                { "name": "2025", "data": [63, 52, 32, 9, 6] }
               ]
             },
             "vaIssues": {
-              "categories": [
-                "Quality of work (failure to meet quality standards)",
-                "Attendance/Reliability",
-                "Health",
-                "Better Opps overseas",
-                "Attitude/Behavioral"
-              ],
+              "categories": ["Quality of work", "Attendance/Reliability", "Health", "Better Opps overseas", "Attitude/Behavioral"],
               "series": [
-                { "name": "2024", "data": [ 30, 19, 23, 23, 9 ] },
-                { "name": "2025", "data": [ 52, 35, 52, 65, 15 ] }
+                { "name": "2024", "data": [30, 19, 23, 23, 9] },
+                { "name": "2025", "data": [52, 35, 52, 65, 15] }
               ]
             }
           },
-          "globalTenure": {
+          "tenureAnalysis": {
             "byL3": {
               "categories": [
-                "Logistic Reasons (Doctors' preference to have onsite Staffs)",
-                "Challenges with the remote set-up",
+                "Health",
                 "Better Opps overseas",
+                "Workload",
+                "Automation of Tasks",
+                "Cost Cutting",
+                "Quality of work...",
+                "Attendance/Reliability",
+                "Logistic Reasons (On-site)",
                 "EHR Migration / EPIC",
-                "Health",
-                "Cost Cutting",
-                "Quality of work (failure to meet quality standards)",
-                "Attendance/Reliability",
-                "Client's preference",
-                "Automation of Tasks"
+                "Challenges w/ remote"
               ],
-              "data": [
-                362,
-                245,
-                624,
-                295,
-                636,
-                450,
-                427,
-                426,
-                386,
-                540
-              ]
+              "data": [636, 624, 755, 540, 450, 427, 426, 362, 295, 245]
             },
-            "byClientSetup": {
+            "byVaRole": {
               "categories": [
-                "Business decision",
-                "Hired on-site staff",
-                "EHR/System/VOIP issues",
-                "Change in business structure",
-                "VA not needed",
-                "Client's preference",
-                "Budget/Financial constraints",
-                "Service not needed",
-                "Client not ready",
-                "Practice Closed"
+                "Medical Billing Assistant",
+                "Executive Assistant",
+                "Medical Receptionist",
+                "Admin Assistant",
+                "Medical Scribe",
+                "Referral Coordinator",
+                "Insurance Verification VA",
+                "Provider Support",
+                "Medical Records",
+                "Patient Support"
               ],
-              "data": [
-                391,
-                350,
-                222,
-                375,
-                203,
-                195,
-                214,
-                314,
-                46,
-                720
-              ]
-            },
-            "byVaIssue": {
-              "categories": [
-                "Quality of work (failure to meet quality standards)",
-                "Attendance/Reliability",
-                "Better Opps overseas",
-                "Health",
-                "Attitude/Behavioral",
-                "Communication",
-                "Better Opps LOCAL",
-                "Personal Reasons",
-                "Client's preference",
-                "Mismatched Expectations"
-              ],
-              "data": [
-                427,
-                426,
-                624,
-                636,
-                438,
-                412,
-                622,
-                634,
-                541,
-                325
-              ]
-            },
-            "byFinancial": {
-              "categories": [
-                "Cost Cutting",
-                "Budget Constraints",
-                "Practice Closed",
-                "Others"
-              ],
-              "data": [
-                444,
-                275,
-                391,
-                179
-              ]
+              "data": [499, 467, 439, 420, 395, 388, 381, 375, 361, 357]
             }
           },
           "aiDeepDive": {
             "total": 22,
             "avgTenure": 540,
             "yearly": {
-              "categories": [ "2024", "2025" ],
+              "categories": ["2024", "2025"],
               "series": [
-                  { "name": "AI Cancellations", "data": [ 7, 15 ] }
+                  { "name": "AI Cancellations", "data": [7, 15] }
               ]
             },
             "resolutionCounts": {
-              "categories": [ "Reduced VAs", "Cancelled", "For Replacement" ],
-              "data": [ 15, 6, 1 ]
+              "categories": ["Reduced VAs", "Cancelled", "For Replacement"],
+              "data": [15, 6, 1]
             },
             "vaRoleCounts": {
-              "categories": [ "Medical Receptionist", "Medical Scribe", "Insurance Verification VA", "Executive Assistant", "Medical Billing Assistant/Medical Biller" ],
-              "data": [ 10, 5, 3, 2, 2 ]
+              "categories": ["Medical Receptionist", "Medical Scribe", "Insurance Verification VA", "Executive Assistant", "Medical Billing Assistant"],
+              "data": [10, 5, 3, 2, 2]
             },
             "reasonCounts": {
-              "categories": [ "Client Set-Up", "VA Performance", "Financial" ],
-              "data": [ 15, 6, 1 ]
+              "categories": ["Client Set-Up", "VA Performance", "Financial"],
+              "data": [15, 6, 1]
             }
           }
         };
 
         // --- Chart Colors ---
         const mmmColors = {
-          blue: '#004a99',
-          green: '#6abf4b',
-          accent: '#f59e0b',
-          gray: '#2d3748',
-          blueGradient: ['#004a99', '#005cb3', '#006edc', '#0080ff'],
-          greenGradient: ['#6abf4b', '#7bc950', '#8cd455', '#9ddf5b'],
-          mixedPalette: ['#004a99', '#6abf4b', '#f59e0b', '#0080ff', '#8cd455', '#f7b731', '#005cb3', '#7bc950'],
-          accentPalette: ['#f59e0b', '#004a99', '#6abf4b', '#f7b731', '#0080ff', ]
+          blue: '#00AFCO',
+          teal: '#008BA3',
+          deepTeal: '#025863',
+          accent: '#FF6334',
+          paleBlue: '#D1EBEF',
+          
+          // Palettes for charts
+          mixedPalette: ['#00AFCO', '#008BA3', '#FF6334', '#025863', '#6ECEB2', '#F8B400'],
+          tenurePalette: ['#025863', '#008BA3', '#00AFCO', '#6ECEB2', '#A8DADC', '#D1EBEF'],
+          accentPalette: ['#FF6334', '#00AFCO', '#008BA3', '#F8B400', '#025863']
         };
 
         // --- Chart Options Factories ---
         
-        // Factory for standard HORIZONTAL bar charts
-        const createBarChart = (categories, data, title, colors = mmmColors.mixedPalette) => ({
-            series: [{ name: 'Cancellations', data: data }],
-            chart: { type: 'bar', height: '100%', toolbar: { show: true } },
-            plotOptions: {
-                bar: {
-                    horizontal: true,
-                    distributed: true,
-                    borderRadius: 4,
+        /**
+         * Creates a Bar Chart with custom tooltips for drill-down info.
+         * @param {string} chartId - The HTML ID to render the chart in.
+         * @param {Array<string>} categories - The Y-axis labels.
+         * @param {Array<number>} data - The X-axis values.
+         * @param {Array<string>} tooltips - The pre-formatted breakdown strings.
+         * @param {Array<string>} colors - The color palette to use.
+         */
+        const createBarChart = (chartId, categories, data, tooltips, colors) => {
+            const options = {
+                series: [{ name: 'Cancellations', data: data }],
+                chart: { type: 'bar', height: '100%', toolbar: { show: true } },
+                plotOptions: {
+                    bar: {
+                        horizontal: true,
+                        distributed: true,
+                        borderRadius: 4,
+                    },
                 },
-            },
-            colors: colors,
-            dataLabels: { enabled: false },
-            xaxis: { categories: categories, labels: { style: { colors: '#333' } } },
-            yaxis: { labels: { style: { colors: '#333', fontSize: '12px' } } },
-            tooltip: { y: { formatter: (val) => val.toLocaleString() } },
-            legend: { show: false },
-            grid: { borderColor: '#f1f1f1' }
-        });
+                colors: colors,
+                dataLabels: { enabled: false },
+                xaxis: { categories: categories, labels: { style: { colors: '#333' } } },
+                yaxis: { labels: { style: { colors: mmmColors.deepTeal, fontSize: '12px' } } },
+                tooltip: {
+                    custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                        const value = series[seriesIndex][dataPointIndex];
+                        const category = w.globals.labels[dataPointIndex];
+                        const breakdown = tooltips[dataPointIndex];
+                        return `
+                            <div class="apexcharts-tooltip-title">${category}</div>
+                            <div class="apexcharts-tooltip-series-group">
+                                <span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[dataPointIndex]}"></span>
+                                <div class="apexcharts-tooltip-text">
+                                    <span class="apexcharts-tooltip-text-label">Cancellations:</span>
+                                    <span class="apexcharts-tooltip-text-value">${value}</span>
+                                </div>
+                            </div>
+                            <div class="tooltip-breakdown">${breakdown}</div>
+                        `;
+                    }
+                },
+                legend: { show: false },
+                grid: { borderColor: '#f1f1f1' }
+            };
+            new ApexCharts(document.querySelector(chartId), options).render();
+        };
 
-        // Factory for DONUT charts
-        const createDonutChart = (categories, data, title, colors = mmmColors.mixedPalette) => ({
-            series: data,
-            labels: categories,
-            chart: { type: 'donut', height: '100%' },
-            colors: colors,
-            plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Total', color: '#333' } } } } },
-            tooltip: { y: { formatter: (val) => val.toLocaleString() } },
-            legend: { position: 'bottom' },
-            dataLabels: { enabled: true, formatter: (val) => `${Math.round(val)}%` }
-        });
+        /**
+         * Creates a Donut Chart with custom tooltips for drill-down info.
+         * @param {string} chartId - The HTML ID to render the chart in.
+         * @param {Array<string>} categories - The series labels.
+         * @param {Array<number>} data - The series values.
+         * @param {Array<string>} tooltips - The pre-formatted breakdown strings.
+         * @param {Array<string>} colors - The color palette to use.
+         */
+        const createDonutChart = (chartId, categories, data, tooltips, colors) => {
+            const options = {
+                series: data,
+                labels: categories,
+                chart: { type: 'donut', height: '100%' },
+                colors: colors,
+                plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Total', color: mmmColors.deepTeal } } } } },
+                legend: { position: 'bottom', labels: { colors: mmmColors.deepTeal } },
+                dataLabels: { enabled: true, formatter: (val) => `${Math.round(val)}%` },
+                tooltip: {
+                    custom: function({ series, seriesIndex, w }) {
+                        const value = series[seriesIndex];
+                        const category = w.globals.labels[seriesIndex];
+                        const breakdown = tooltips[seriesIndex];
+                        return `
+                            <div class="apexcharts-tooltip-title">${category}</div>
+                            <div class="apexcharts-tooltip-series-group">
+                                <span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[seriesIndex]}"></span>
+                                <div class="apexcharts-tooltip-text">
+                                    <span class="apexcharts-tooltip-text-label">Cancellations:</span>
+                                    <span class="apexcharts-tooltip-text-value">${value}</span>
+                                </div>
+                            </div>
+                            <div class="tooltip-breakdown">${breakdown}</div>
+                        `;
+                    }
+                }
+            };
+            new ApexCharts(document.querySelector(chartId), options).render();
+        };
         
         // Factory for GROUPED (YoY) bar charts
-        const createGroupedBarChart = (categories, series, title, colors = [mmmColors.blue, mmmColors.green]) => ({
-            series: series,
-            chart: { type: 'bar', height: '100%', toolbar: { show: true } },
-            plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 4 } },
-            colors: colors,
-            dataLabels: { enabled: false },
-            stroke: { show: true, width: 2, colors: ['transparent'] },
-            xaxis: { categories: categories, labels: { style: { colors: '#333', fontSize: '12px' } } },
-            yaxis: { title: { text: 'Count' }, labels: { style: { colors: '#333' } } },
-            fill: { opacity: 1 },
-            tooltip: { y: { formatter: (val) => val.toLocaleString() } },
-            legend: { position: 'top' },
-            grid: { borderColor: '#f1f1f1' }
-        });
+        const createGroupedBarChart = (chartId, categories, series, title, colors = [mmmColors.blue, mmmColors.teal]) => {
+            const options = {
+                series: series,
+                chart: { type: 'bar', height: '100%', toolbar: { show: true } },
+                plotOptions: { bar: { horizontal: false, columnWidth: '55%', borderRadius: 4 } },
+                colors: colors,
+                dataLabels: { enabled: false },
+                stroke: { show: true, width: 2, colors: ['transparent'] },
+                xaxis: { categories: categories, labels: { style: { colors: mmmColors.deepTeal, fontSize: '12px' } } },
+                yaxis: { title: { text: 'Count', style: { color: mmmColors.deepTeal } }, labels: { style: { colors: mmmColors.deepTeal } } },
+                fill: { opacity: 1 },
+                tooltip: { y: { formatter: (val) => val.toLocaleString() } },
+                legend: { position: 'top', labels: { colors: mmmColors.deepTeal } },
+                grid: { borderColor: '#f1f1f1' }
+            };
+            new ApexCharts(document.querySelector(chartId), options).render();
+        };
         
         // Factory for TENURE bar charts (Avg. Days)
-        const createTenureChart = (categories, data, title, colors = mmmColors.greenGradient) => ({
-            series: [{ name: 'Avg. Tenure (Days)', data: data }],
-            chart: { type: 'bar', height: '100%', toolbar: { show: true } },
-            plotOptions: {
-                bar: {
-                    horizontal: true,
-                    distributed: true,
-                    borderRadius: 4,
+        const createTenureChart = (chartId, categories, data, title, colors = mmmColors.tenurePalette) => {
+            const options = {
+                series: [{ name: 'Avg. Tenure (Days)', data: data }],
+                chart: { type: 'bar', height: '100%', toolbar: { show: true } },
+                plotOptions: {
+                    bar: {
+                        horizontal: true,
+                        distributed: true,
+                        borderRadius: 4,
+                    },
                 },
-            },
-            colors: colors,
-            dataLabels: { 
-                enabled: true,
-                formatter: (val) => `${val.toLocaleString()} days`,
-                offsetX: 10,
-                style: { colors: ['#333'], fontSize: '12px', fontWeight: 500 }
-            },
-            xaxis: { categories: categories, title: { text: 'Average Days Worked' } },
-            yaxis: { labels: { style: { colors: '#333', fontSize: '12px' } } },
-            tooltip: { y: { formatter: (val) => `${val.toLocaleString()} days` } },
-            legend: { show: false },
-            grid: { borderColor: '#f1f1f1' }
-        });
+                colors: colors,
+                dataLabels: { 
+                    enabled: true,
+                    formatter: (val) => `${val.toLocaleString()} days`,
+                    offsetX: 10,
+                    style: { colors: [mmmColors.deepTeal], fontSize: '12px', fontWeight: 500 }
+                },
+                xaxis: { categories: categories, title: { text: 'Average Days Worked', style: { color: mmmColors.deepTeal } } },
+                yaxis: { labels: { style: { colors: mmmColors.deepTeal, fontSize: '12px' } } },
+                tooltip: { y: { formatter: (val) => `${val.toLocaleString()} days` } },
+                legend: { show: false },
+                grid: { borderColor: '#f1f1f1' }
+            };
+            new ApexCharts(document.querySelector(chartId), options).render();
+        };
 
 
         // --- Tab Switching Logic ---
@@ -1079,143 +615,86 @@
 
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
-                    // Deactivate all
                     tabs.forEach(t => t.classList.remove('active'));
                     panes.forEach(p => p.classList.add('hidden'));
-
-                    // Activate clicked
                     tab.classList.add('active');
-                    const tabName = tab.getAttribute('data-tab');
-                    document.getElementById(tabName).classList.remove('hidden');
+                    document.getElementById(tab.getAttribute('data-tab')).classList.remove('hidden');
                 });
             });
 
             // --- Render Charts ---
-            // This entire block is now safe because the analysisData JSON is fixed.
             try {
                 const data = analysisData;
                 
                 // --- Overview Tab ---
                 document.getElementById('stat-total').innerText = data.overview.total.toLocaleString();
                 document.getElementById('stat-avg-tenure').innerText = data.overview.overallAvgTenure.toLocaleString();
-                document.getElementById('stat-top-reason').innerText = data.overview.reasonCounts.categories[0];
+                document.getElementById('stat-top-l3').innerText = data.overview.topL3Reason;
 
-                new ApexCharts(document.querySelector("#chart-overview-reason"), 
-                    createDonutChart(data.overview.reasonCounts.categories, data.overview.reasonCounts.data, "Cancellations by Top-Level Reason")
-                ).render();
+                createDonutChart(
+                    "#chart-overview-reason", 
+                    data.overview.reasonCounts.categories, 
+                    data.overview.reasonCounts.data, 
+                    data.overview.reasonCounts.tooltips,
+                    mmmColors.mixedPalette
+                );
                 
-                new ApexCharts(document.querySelector("#chart-overview-l3"), 
-                    createBarChart(data.overview.l3Counts.categories, data.overview.l3Counts.data, "Top 10 Overall L3 Reasons")
-                ).render();
+                createBarChart(
+                    "#chart-overview-l3",
+                    data.overview.l3Counts.categories,
+                    data.overview.l3Counts.data,
+                    data.overview.l3Counts.tooltips,
+                    mmmColors.mixedPalette
+                );
                 
-                new ApexCharts(document.querySelector("#chart-overview-varole"), 
-                    createBarChart(data.overview.vaRoleCounts.categories, data.overview.vaRoleCounts.data, "Top 10 Affected VA Roles")
-                ).render();
-
-                // --- Client Set-Up Tab ---
-                new ApexCharts(document.querySelector("#chart-csu-issue"), 
-                    createBarChart(data.clientSetup.issueCounts.categories, data.clientSetup.issueCounts.data, "Client Set-Up Issues (Breakdown)")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-csu-l3"), 
-                    createBarChart(data.clientSetup.l3Counts.categories, data.clientSetup.l3Counts.data, "Top L3 Reasons for Client Set-Up")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-csu-varole"), 
-                    createBarChart(data.clientSetup.vaRoleCounts.categories, data.clientSetup.vaRoleCounts.data, "Top VA Roles for Client Set-Up")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-csu-tenure"), 
-                    createTenureChart(data.clientSetup.tenureByIssue.categories, data.clientSetup.tenureByIssue.data, "Avg. Tenure by Set-Up Issue")
-                ).render();
-
-                // --- VA Performance Tab ---
-                new ApexCharts(document.querySelector("#chart-vap-issue"), 
-                    createBarChart(data.vaPerformance.issueCounts.categories, data.vaPerformance.issueCounts.data, "VA Performance Issues (Breakdown)")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-vap-l3"), 
-                    createBarChart(data.vaPerformance.l3Counts.categories, data.vaPerformance.l3Counts.data, "Top L3 Reasons for VA Performance")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-vap-varole"), 
-                    createBarChart(data.vaPerformance.vaRoleCounts.categories, data.vaPerformance.vaRoleCounts.data, "Top VA Roles for VA Performance")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-vap-tenure"), 
-                    createTenureChart(data.vaPerformance.tenureByIssue.categories, data.vaPerformance.tenureByIssue.data, "Avg. Tenure by Performance Issue")
-                ).render();
-
-                // --- Resign Tab ---
-                new ApexCharts(document.querySelector("#chart-res-issue"), 
-                    createBarChart(data.resign.issueCounts.categories, data.resign.issueCounts.data, "Resignation Issues (Breakdown)")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-res-l3"), 
-                    createBarChart(data.resign.l3Counts.categories, data.resign.l3Counts.data, "Top L3 Reasons for Resign")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-res-varole"), 
-                    createBarChart(data.resign.vaRoleCounts.categories, data.resign.vaRoleCounts.data, "Top VA Roles for Resign")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-res-tenure"), 
-                    createTenureChart(data.resign.tenureByIssue.categories, data.resign.tenureByIssue.data, "Avg. Tenure by Resignation Issue")
-                ).render();
-                
-                // --- Financial Tab ---
-                new ApexCharts(document.querySelector("#chart-fin-issue"), 
-                    createBarChart(data.financial.issueCounts.categories, data.financial.issueCounts.data, "Financial Issues (Breakdown)")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-fin-l3"), 
-                    createBarChart(data.financial.l3Counts.categories, data.financial.l3Counts.data, "Top L3 Reasons for Financial")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-fin-varole"), 
-                    createBarChart(data.financial.vaRoleCounts.categories, data.financial.vaRoleCounts.data, "Top VA Roles for Financial")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-fin-tenure"), 
-                    createTenureChart(data.financial.tenureByIssue.categories, data.financial.tenureByIssue.data, "Avg. Tenure by Financial Issue")
-                ).render();
+                createBarChart(
+                    "#chart-overview-varole",
+                    data.overview.vaRoleCounts.categories,
+                    data.overview.vaRoleCounts.data,
+                    data.overview.vaRoleCounts.tooltips,
+                    mmmColors.mixedPalette
+                );
 
                 // --- Yearly Trends Tab ---
-                new ApexCharts(document.querySelector("#chart-yoy-reason"), 
-                    createGroupedBarChart(data.yearlyTrends.reason.categories, data.yearlyTrends.reason.series, "YoY Trend: Top-Level Reason")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-yoy-l3"), 
-                    createGroupedBarChart(data.yearlyTrends.l3.categories, data.yearlyTrends.l3.series, "YoY Trend: Top 5 L3 Reasons")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-yoy-csu"), 
-                    createGroupedBarChart(data.yearlyTrends.clientSetup.categories, data.yearlyTrends.clientSetup.series, "YoY Trend: Top 5 Client Set-Up Issues")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-yoy-va"), 
-                    createGroupedBarChart(data.yearlyTrends.vaIssues.categories, data.yearlyTrends.vaIssues.series, "YoY Trend: Top 5 VA Issues")
-                ).render();
+                createGroupedBarChart("#chart-yoy-reason", data.yearlyTrends.reason.categories, data.yearlyTrends.reason.series, "YoY Trend: Top-Level Reason");
+                createGroupedBarChart("#chart-yoy-l3", data.yearlyTrends.l3.categories, data.yearlyTrends.l3.series, "YoY Trend: Top 5 L3 Reasons");
+                createGroupedBarChart("#chart-yoy-csu", data.yearlyTrends.clientSetup.categories, data.yearlyTrends.clientSetup.series, "YoY Trend: Top 5 Client Set-Up Issues");
+                createGroupedBarChart("#chart-yoy-va", data.yearlyTrends.vaIssues.categories, data.yearlyTrends.vaIssues.series, "YoY Trend: Top 5 VA Issues");
 
                 // --- Tenure Analysis Tab ---
-                new ApexCharts(document.querySelector("#chart-tenure-l3"), 
-                    createTenureChart(data.globalTenure.byL3.categories, data.globalTenure.byL3.data, "Avg. Tenure by Top 10 L3 Reasons")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-tenure-csu"), 
-                    createTenureChart(data.globalTenure.byClientSetup.categories, data.globalTenure.byClientSetup.data, "Avg. Tenure by Client Set-Up Issue")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-tenure-va"), 
-                    createTenureChart(data.globalTenure.byVaIssue.categories, data.globalTenure.byVaIssue.data, "Avg. Tenure by VA Issue")
-                ).render();
-                new ApexCharts(document.querySelector("#chart-tenure-fin"), 
-                    createTenureChart(data.globalTenure.byFinancial.categories, data.globalTenure.byFinancial.data, "Avg. Tenure by Financial Issue")
-                ).render();
+                createTenureChart("#chart-tenure-l3", data.tenureAnalysis.byL3.categories, data.tenureAnalysis.byL3.data, "Avg. Tenure by Top 10 L3 Reasons");
+                createTenureChart("#chart-tenure-varole", data.tenureAnalysis.byVaRole.categories, data.tenureAnalysis.byVaRole.data, "Avg. Tenure by Top 10 VA Roles");
                 
                 // --- AI Deep-Dive Tab ---
                 document.getElementById('stat-ai-total').innerText = data.aiDeepDive.total.toLocaleString();
                 document.getElementById('stat-ai-tenure').innerText = data.aiDeepDive.avgTenure.toLocaleString();
                 document.getElementById('stat-ai-vs-overall').innerText = data.overview.overallAvgTenure.toLocaleString();
                 
-                new ApexCharts(document.querySelector("#chart-ai-yearly"), 
-                    createGroupedBarChart(data.aiDeepDive.yearly.categories, data.aiDeepDive.yearly.series, "AI Churn Trend (2024 vs 2025)", [mmmColors.accent, mmmColors.green])
-                ).render();
-
-                new ApexCharts(document.querySelector("#chart-ai-resolution"), 
-                    createDonutChart(data.aiDeepDive.resolutionCounts.categories, data.aiDeepDive.resolutionCounts.data, "AI Churn Resolution (Reduced vs. Cancelled)", mmmColors.accentPalette)
-                ).render();
+                createGroupedBarChart("#chart-ai-yearly", data.aiDeepDive.yearly.categories, data.aiDeepDive.yearly.series, "AI Churn Trend (2024 vs 2025)", [mmmColors.accent, mmmColors.teal]);
                 
-                new ApexCharts(document.querySelector("#chart-ai-varole"), 
-                    createBarChart(data.aiDeepDive.vaRoleCounts.categories, data.aiDeepDive.vaRoleCounts.data, "Top VA Roles Lost to AI", mmmColors.accentPalette)
-                ).render();
+                createDonutChart(
+                    "#chart-ai-resolution", 
+                    data.aiDeepDive.resolutionCounts.categories, 
+                    data.aiDeepDive.resolutionCounts.data, 
+                    ["Clients are reducing VAs, not leaving.", "Clients are cancelling all VAs.", "Client is replacing the VA."], // Simple tooltips for AI
+                    mmmColors.accentPalette
+                );
                 
-                new ApexCharts(document.querySelector("#chart-ai-reason"), 
-                    createBarChart(data.aiDeepDive.reasonCounts.categories, data.aiDeepDive.reasonCounts.data, "Original Reason for AI Churn", mmmColors.accentPalette)
-                ).render();
+                createBarChart(
+                    "#chart-ai-varole", 
+                    data.aiDeepDive.vaRoleCounts.categories, 
+                    data.aiDeepDive.vaRoleCounts.data, 
+                    ["AI is automating 'Medical Receptionist' tasks.", "AI is automating 'Medical Scribe' tasks.", "AI is automating 'Insurance' tasks.", "AI is automating 'Executive' tasks.", "AI is automating 'Billing' tasks."], // Simple tooltips
+                    mmmColors.accentPalette
+                );
+                
+                createBarChart(
+                    "#chart-ai-reason", 
+                    data.aiDeepDive.reasonCounts.categories, 
+                    data.aiDeepDive.reasonCounts.data, 
+                    ["AI is replacing VAs during 'Client Set-Up' (e.g., client chose automation).", "AI is replacing VAs due to 'VA Performance'.", "AI is replacing VAs for 'Financial' reasons."], // Simple tooltips
+                    mmmColors.accentPalette
+                );
 
             } catch (e) {
                 console.error("Error rendering charts:", e);
