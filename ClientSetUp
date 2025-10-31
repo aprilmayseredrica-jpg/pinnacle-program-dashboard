@@ -1,0 +1,88 @@
+// Define the data loading and parsing function
+const loadData = async (fileName) => {
+  try {
+    // The 'files' object is assumed to be available in the execution environment.
+    // This object is populated by the file upload mechanism.
+    const file = files.find(f => f.fileName === fileName);
+    
+    if (!file) {
+      // If the file isn't found, send an error message to the console.
+      // In a real application, this would be reported to the user.
+      console.error(`Error: File not found - ${fileName}`);
+      return null;
+    }
+
+    // Read the file content as text.
+    // The 'read' method is assumed to be provided by the file object.
+    const csvData = await file.read('text');
+    
+    // Parse the CSV data.
+    // This simple parser splits by lines, then by commas.
+    // It handles quoted fields by removing the quotes.
+    const lines = csvData.trim().split('\n');
+    
+    // Check if there is data to parse
+    if (lines.length === 0) {
+      console.warn("Warning: CSV file is empty or has no lines.");
+      return { headers: [], rows: [] };
+    }
+
+    // Extract headers from the first line.
+    // Clean headers: remove quotes and carriage returns (\r).
+    const headers = lines[0].split(',').map(header => 
+      header.trim().replace(/"/g, '').replace(/\r/g, '')
+    );
+    
+    const rows = [];
+    // Start from the second line (i=1) to process data rows.
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Basic check for an empty or malformed line
+      if (line.trim() === '') {
+        continue;
+      }
+      
+      // A simple regex to split CSV, handling commas inside quotes
+      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(value => 
+        value.trim().replace(/"/g, '').replace(/\r/g, '')
+      );
+
+      // Only create an object if the number of values matches the headers
+      if (values.length === headers.length) {
+        let rowObject = {};
+        headers.forEach((header, index) => {
+          rowObject[header] = values[index];
+        });
+        rows.push(rowObject);
+      } else {
+        // Log a warning if a row is malformed
+        console.warn(`Skipping malformed row ${i + 1}: Expected ${headers.length} fields, but found ${values.length}. Line: "${line}"`);
+      }
+    }
+    
+    return { headers, rows };
+
+  } catch (error) {
+    // Log any errors during the file reading or parsing process.
+    console.error(`An error occurred while loading or parsing ${fileName}:`, error);
+    return null;
+  }
+};
+
+// --- Main Execution ---
+// This is where we call the function with the specific file we want to load.
+(async () => {
+  const fileName = "Client Setup 2025 - Sheet1.csv";
+  const data = await loadData(fileName);
+  
+  if (data) {
+    console.log(`Successfully loaded and parsed ${fileName}.`);
+    console.log(`Headers: ${data.headers.join(', ')}`);
+    console.log(`Loaded ${data.rows.length} data rows.`);
+    // To inspect the first row, you can uncomment the line below:
+    // if(data.rows.length > 0) console.log("First row:", data.rows[0]);
+  } else {
+    console.error(`Failed to load data from ${fileName}.`);
+  }
+})();
