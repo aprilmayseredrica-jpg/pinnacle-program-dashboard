@@ -1,172 +1,217 @@
-import React, { useState, useEffect } from 'react';
-import { Bell, Snowflake, Star, Gift, CircleDashed } from 'lucide-react';
-
-const ChristmasBingo = () => {
-  // Configuration for the Bingo card based on user input
-  const bingoData = {
-    B: [5, 7, 9, 10, 12],
-    I: [18, 21, 28, 19, 25],
-    N: [31, 33, 34, 43, 38],
-    G: [48, 51, 57, 50, 60],
-    O: [65, 63, 74, 66, 71]
-  };
-
-  // 25 Unique Dad Jokes
-  const initialJokes = [
-    "I'm afraid for the calendar. Its days are numbered.",
-    "What do you call a fish wearing a bowtie? Sofishticated.",
-    "Dear Math, grow up and solve your own problems.",
-    "What do you call a factory that makes okay products? A satisfactory.",
-    "Why do fathers take an extra pair of socks golfing? In case they get a hole in one!",
-    "Singing in the shower is fun until you get soap in your mouth. Then it's a soap opera.",
-    "How do you follow Will Smith in the snow? You follow the fresh prints.",
-    "If April showers bring May flowers, what do May flowers bring? Pilgrims.",
-    "I thought the dryer was shrinking my clothes. Turns out it was the refrigerator.",
-    "What do you call a fake noodle? An impasta.",
-    "Want to hear a joke about construction? I'm still working on it.",
-    "Why couldn't the bicycle stand up by itself? It was two tired.",
-    "What did the grape do when he got stepped on? He let out a little wine.",
-    "I wouldn't buy anything with velcro. It's a total rip-off.",
-    "The shovel was a ground-breaking invention.",
-    "I ordered a chicken and an egg from Amazon. I'll let you know.",
-    "What do you call a man with a rubber toe? Roberto.",
-    "Did you hear about the circus fire? It was in tents.",
-    "Can February March? No, but April May.",
-    "How do you make 7 even? You take away the s.",
-    "I used to play piano by ear, but now I use my hands.",
-    "Why did the scarecrow win an award? He was outstanding in his field.",
-    "What do you call a belt made out of watches? A waist of time.",
-    "To the guy who invented zero, thanks for nothing.",
-    "What do you call a pony with a cough? A little horse."
-  ];
-
-  const [jokes, setJokes] = useState([]);
-  const [revealedCells, setRevealedCells] = useState({}); // format: "col-row": { number, joke }
-
-  // Shuffle jokes on mount to ensure randomness each time loaded
-  useEffect(() => {
-    const shuffled = [...initialJokes].sort(() => 0.5 - Math.random());
-    setJokes(shuffled);
-  }, []);
-
-  const handleCellClick = (colKey, rowIndex, number) => {
-    const cellKey = `${colKey}-${rowIndex}`;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Dad Joke Bingo</title>
     
-    // If already revealed, do nothing (or could toggle off if desired)
-    if (revealedCells[cellKey]) return;
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React and ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    
+    <!-- Babel for translating JSX in the browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        /* Custom animation classes */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+    </style>
+</head>
+<body class="bg-green-900">
+    <div id="root"></div>
 
-    // Get the next joke
-    const jokeIndex = Object.keys(revealedCells).length;
-    const nextJoke = jokes[jokeIndex % jokes.length];
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-    setRevealedCells(prev => ({
-      ...prev,
-      [cellKey]: {
-        number: number,
-        joke: nextJoke
-      }
-    }));
-  };
+        // --- Custom Icon Components (Replacements for Lucide) ---
+        const BellIcon = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        );
+        const SnowflakeIcon = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/><path d="M20 16.5 16.5 20"/><path d="M4 7.5 7.5 4"/><path d="m20 7.5-3.5-3.5"/><path d="m4 16.5 3.5 3.5"/></svg>
+        );
+        const StarIcon = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        );
+        const GiftIcon = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+        );
+        const OrnamentIcon = ({ className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="14" r="8"/><path d="M12 6V2"/><path d="M12 2h0"/></svg>
+        );
 
-  // Icons configuration
-  const headerConfig = {
-    B: { icon: Bell, label: 'Bell', color: 'text-red-600' },
-    I: { icon: Snowflake, label: 'Icicle', color: 'text-blue-400' }, // Using Snowflake for Icicle/Ice
-    N: { icon: Star, label: 'North Star', color: 'text-yellow-400' }, // Star for North Star
-    G: { icon: Gift, label: 'Gift', color: 'text-green-600' },
-    O: { icon: CircleDashed, label: 'Ornament', color: 'text-purple-500' } // Circle for Ornament
-  };
+        // --- Main App Component ---
+        const ChristmasBingo = () => {
+            const bingoData = {
+                B: [5, 7, 9, 10, 12],
+                I: [18, 21, 28, 19, 25],
+                N: [31, 33, 34, 43, 38],
+                G: [48, 51, 57, 50, 60],
+                O: [65, 63, 74, 66, 71]
+            };
 
-  return (
-    <div className="min-h-screen bg-green-900 flex flex-col items-center justify-center p-4 font-sans">
-      
-      {/* Title */}
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold text-red-100 drop-shadow-md font-serif tracking-widest mb-2">
-          🎄 DAD JOKE BINGO 🎄
-        </h1>
-        <p className="text-green-100 italic">Click a number to reveal a holiday groaner!</p>
-      </div>
+            const initialJokes = [
+                "I'm afraid for the calendar. Its days are numbered.",
+                "What do you call a fish wearing a bowtie? Sofishticated.",
+                "Dear Math, grow up and solve your own problems.",
+                "What do you call a factory that makes okay products? A satisfactory.",
+                "Why do fathers take an extra pair of socks golfing? In case they get a hole in one!",
+                "Singing in the shower is fun until you get soap in your mouth. Then it's a soap opera.",
+                "How do you follow Will Smith in the snow? You follow the fresh prints.",
+                "If April showers bring May flowers, what do May flowers bring? Pilgrims.",
+                "I thought the dryer was shrinking my clothes. Turns out it was the refrigerator.",
+                "What do you call a fake noodle? An impasta.",
+                "Want to hear a joke about construction? I'm still working on it.",
+                "Why couldn't the bicycle stand up by itself? It was two tired.",
+                "What did the grape do when he got stepped on? He let out a little wine.",
+                "I wouldn't buy anything with velcro. It's a total rip-off.",
+                "The shovel was a ground-breaking invention.",
+                "I ordered a chicken and an egg from Amazon. I'll let you know.",
+                "What do you call a man with a rubber toe? Roberto.",
+                "Did you hear about the circus fire? It was in tents.",
+                "Can February March? No, but April May.",
+                "How do you make 7 even? You take away the s.",
+                "I used to play piano by ear, but now I use my hands.",
+                "Why did the scarecrow win an award? He was outstanding in his field.",
+                "What do you call a belt made out of watches? A waist of time.",
+                "To the guy who invented zero, thanks for nothing.",
+                "What do you call a pony with a cough? A little horse."
+            ];
 
-      {/* Bingo Card Container */}
-      <div className="bg-red-800 p-4 md:p-6 rounded-xl shadow-2xl border-4 border-yellow-500 max-w-4xl w-full">
-        
-        {/* Grid */}
-        <div className="grid grid-cols-5 gap-2 md:gap-4">
-          
-          {/* Headers */}
-          {['B', 'I', 'N', 'G', 'O'].map((letter) => {
-            const Icon = headerConfig[letter].icon;
-            return (
-              <div key={letter} className="flex flex-col items-center justify-center bg-white/90 rounded-t-lg p-2 h-20 md:h-24 shadow-inner border-b-4 border-red-900">
-                <span className={`text-3xl md:text-5xl font-black text-red-700 drop-shadow-sm`}>
-                  {letter}
-                </span>
-                <div className="flex items-center gap-1 mt-1">
-                  <Icon size={16} className={headerConfig[letter].color} />
-                  <span className="text-[10px] md:text-xs uppercase font-bold text-gray-600 hidden md:block">
-                    {headerConfig[letter].label}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+            const [jokes, setJokes] = useState([]);
+            const [revealedCells, setRevealedCells] = useState({});
 
-          {/* Grid Cells */}
-          {/* We need to map row by row (0 to 4) */}
-          {[0, 1, 2, 3, 4].map((rowIndex) => (
-            <React.Fragment key={`row-${rowIndex}`}>
-              {['B', 'I', 'N', 'G', 'O'].map((colKey) => {
-                const number = bingoData[colKey][rowIndex];
+            useEffect(() => {
+                const shuffled = [...initialJokes].sort(() => 0.5 - Math.random());
+                setJokes(shuffled);
+            }, []);
+
+            const handleCellClick = (colKey, rowIndex) => {
                 const cellKey = `${colKey}-${rowIndex}`;
-                const isRevealed = !!revealedCells[cellKey];
-                const cellContent = revealedCells[cellKey];
+                setRevealedCells(prev => {
+                    const newState = { ...prev };
+                    // Toggle logic: If it's open, close it. If it's closed, open it.
+                    if (newState[cellKey]) {
+                        delete newState[cellKey];
+                    } else {
+                        newState[cellKey] = true;
+                    }
+                    return newState;
+                });
+            };
 
-                return (
-                  <button
-                    key={cellKey}
-                    onClick={() => handleCellClick(colKey, rowIndex, number)}
-                    className={`
-                      relative w-full aspect-square rounded-lg shadow-md transition-all duration-300 transform
-                      flex flex-col items-center justify-center p-1 md:p-2
-                      hover:scale-105 hover:z-10 focus:outline-none focus:ring-4 focus:ring-yellow-400
-                      ${isRevealed 
-                        ? 'bg-yellow-100 border-4 border-green-600 rotate-y-180' 
-                        : 'bg-green-100 border-2 border-green-300 hover:bg-white cursor-pointer'
-                      }
-                    `}
-                  >
-                    {!isRevealed ? (
-                      // Unrevealed State
-                      <span className="text-2xl md:text-4xl font-bold text-green-900 font-serif">
-                        {number}
-                      </span>
-                    ) : (
-                      // Revealed State (Joke)
-                      <div className="flex flex-col h-full w-full items-center text-center animate-in fade-in duration-500">
-                        <div className="absolute top-1 right-2 text-xs md:text-sm font-bold text-red-500 border-b border-red-200">
-                          {number}
+            const headerConfig = {
+                B: { icon: BellIcon, label: 'Bell', color: 'text-red-600' },
+                I: { icon: SnowflakeIcon, label: 'Icicle', color: 'text-blue-400' }, 
+                N: { icon: StarIcon, label: 'North Star', color: 'text-yellow-400' }, 
+                G: { icon: GiftIcon, label: 'Gift', color: 'text-green-600' },
+                O: { icon: OrnamentIcon, label: 'Ornament', color: 'text-purple-500' }
+            };
+
+            const letterToIndex = { B: 0, I: 1, N: 2, G: 3, O: 4 };
+
+            return (
+                <div className="min-h-screen bg-green-900 flex flex-col items-center justify-center p-4 font-sans">
+                    {/* Title */}
+                    <div className="mb-8 text-center">
+                        <h1 className="text-4xl md:text-6xl font-bold text-red-100 drop-shadow-md font-serif tracking-widest mb-2">
+                            🎄 DAD JOKE BINGO 🎄
+                        </h1>
+                        <p className="text-green-100 italic">Click a number to reveal a holiday groaner!</p>
+                    </div>
+
+                    {/* Bingo Card Container */}
+                    <div className="bg-red-800 p-4 md:p-6 rounded-xl shadow-2xl border-4 border-yellow-500 max-w-4xl w-full">
+                        {/* Grid */}
+                        <div className="grid grid-cols-5 gap-2 md:gap-4">
+                            {/* Headers */}
+                            {['B', 'I', 'N', 'G', 'O'].map((letter) => {
+                                const Icon = headerConfig[letter].icon;
+                                return (
+                                    <div key={letter} className="flex flex-col items-center justify-center bg-white/90 rounded-t-lg p-2 h-20 md:h-24 shadow-inner border-b-4 border-red-900">
+                                        <span className="text-3xl md:text-5xl font-black text-red-700 drop-shadow-sm">
+                                            {letter}
+                                        </span>
+                                        <div className="flex items-center gap-1 mt-1">
+                                            <Icon className={`w-4 h-4 md:w-5 md:h-5 ${headerConfig[letter].color}`} />
+                                            <span className="text-[10px] md:text-xs uppercase font-bold text-gray-600 hidden md:block">
+                                                {headerConfig[letter].label}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+
+                            {/* Grid Cells */}
+                            {[0, 1, 2, 3, 4].map((rowIndex) => (
+                                <React.Fragment key={`row-${rowIndex}`}>
+                                    {['B', 'I', 'N', 'G', 'O'].map((colKey) => {
+                                        const number = bingoData[colKey][rowIndex];
+                                        const cellKey = `${colKey}-${rowIndex}`;
+                                        const isRevealed = !!revealedCells[cellKey];
+                                        
+                                        const colIdx = letterToIndex[colKey];
+                                        const jokeIdx = (rowIndex * 5) + colIdx;
+                                        const joke = jokes[jokeIdx] || "...";
+
+                                        return (
+                                            <button
+                                                key={cellKey}
+                                                onClick={() => handleCellClick(colKey, rowIndex)}
+                                                className={`
+                                                    relative w-full aspect-square rounded-lg shadow-md transition-all duration-300 transform
+                                                    flex flex-col items-center justify-center p-1 md:p-2
+                                                    hover:scale-105 hover:z-10 focus:outline-none focus:ring-4 focus:ring-yellow-400
+                                                    ${isRevealed 
+                                                        ? 'bg-yellow-100 border-4 border-green-600 rotate-y-180' 
+                                                        : 'bg-green-100 border-2 border-green-300 hover:bg-white cursor-pointer'
+                                                    }
+                                                `}
+                                            >
+                                                {!isRevealed ? (
+                                                    <span className="text-2xl md:text-4xl font-bold text-green-900 font-serif">
+                                                        {number}
+                                                    </span>
+                                                ) : (
+                                                    <div className="flex flex-col h-full w-full items-center text-center animate-in">
+                                                        <div className="absolute top-1 right-2 text-xs md:text-sm font-bold text-red-500 border-b border-red-200">
+                                                            {number}
+                                                        </div>
+                                                        <div className="flex-1 flex items-center justify-center overflow-hidden">
+                                                            <p className="text-[9px] md:text-xs lg:text-sm font-medium text-gray-800 leading-tight p-1">
+                                                                {joke}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </React.Fragment>
+                            ))}
                         </div>
-                        <div className="flex-1 flex items-center justify-center overflow-hidden">
-                          <p className="text-[9px] md:text-xs lg:text-sm font-medium text-gray-800 leading-tight">
-                            {cellContent.joke}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
+                    </div>
+                    <div className="mt-8 text-green-200/60 text-sm text-center">
+                        Created for a Ho-Ho-Wholesome Time
+                    </div>
+                </div>
+            );
+        };
 
-      <div className="mt-8 text-green-200/60 text-sm text-center">
-        Created for a Ho-Ho-Wholesome Time
-      </div>
-    </div>
-  );
-};
-
-export default ChristmasBingo;
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ChristmasBingo />);
+    </script>
+</body>
+</html>
