@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Grit for VAs — Self-Talk & Neuroplasticity (Interactive One-Pager)</title>
+
+  <!-- Optional: Montserrat via Google Fonts.
+       If you want zero external calls, remove this link and keep the fallback stack. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #fff7fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #a78bfa;   /* lavender */
+      --accent2:#f472b6;   /* pink */
+      --accent3:#60a5fa;   /* soft blue */
+      --line: rgba(167,139,250,.22);
+      --shadow: 0 12px 30px rgba(17, 24, 39, 0.08);
+      --radius: 18px;
+
+      --good: #10b981;
+      --warn: #f59e0b;
+      --bad:  #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: "Montserrat", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(900px 500px at 10% 0%, rgba(244,114,182,.16) 0%, transparent 70%),
+        radial-gradient(900px 500px at 90% 10%, rgba(96,165,250,.18) 0%, transparent 70%),
+        radial-gradient(900px 500px at 50% 100%, rgba(167,139,250,.16) 0%, transparent 70%),
+        var(--bg);
+      color: var(--ink);
+    }
+
+    /* ===== Header ===== */
+    header{
+      padding: 26px 18px 16px;
+      text-align:center;
+    }
+    .hero{
+      max-width: 1040px;
+      margin: 0 auto;
+      background: linear-gradient(120deg, rgba(167,139,250,.26), rgba(244,114,182,.18));
+      border: 1px solid rgba(167,139,250,.28);
+      border-radius: var(--radius);
+      padding: 22px 18px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero h1{
+      margin:0 0 8px 0;
+      font-size: clamp(22px, 3.2vw, 34px);
+      letter-spacing: -0.02em;
+    }
+    .hero p{
+      margin:0;
+      color: var(--muted);
+      font-size: 14.6px;
+      line-height: 1.55;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .badgeRow{
+      margin-top: 12px;
+      display:flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 12.5px;
+      padding: 8px 10px;
+      background: rgba(255,255,255,.75);
+      border: 1px solid rgba(167,139,250,.25);
+      border-radius: 999px;
+      user-select: none;
+    }
+
+    main{
+      max-width: 1040px;
+      margin: 14px auto 40px;
+      padding: 0 18px;
+    }
+
+    /* ===== Tabs ===== */
+    .tabs{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 16px 0;
+    }
+
+    .tabBtn{
+      cursor:pointer;
+      border: 1px solid rgba(167,139,250,.35);
+      background: rgba(255,255,255,.80);
+      padding: 10px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 12.6px;
+      letter-spacing: .01em;
+      transition: transform .08s ease, background .15s ease;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .tabBtn:hover{ transform: translateY(-1px); }
+    .tabBtn.active{
+      background: linear-gradient(120deg, rgba(167,139,250,.30), rgba(244,114,182,.22));
+      border-color: rgba(244,114,182,.38);
+    }
+
+    /* ===== Layout ===== */
+    .panel{ display:none; }
+    .panel.active{ display:block; }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    @media (min-width: 900px){
+      .grid{ grid-template-columns: 1.35fr .65fr; }
+    }
+
+    .card{
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .card h2{
+      margin: 0 0 8px 0;
+      font-size: 16.5px;
+      letter-spacing:-0.01em;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .card p{
+      margin: 10px 0 0 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 14px;
+    }
+
+    .doodle{
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+      color: #4b5563;
+    }
+
+    /* ===== Tooltips (hover definitions) ===== */
+    .term{
+      border-bottom: 2px dotted rgba(244,114,182,.75);
+      cursor: help;
+      color: #374151;
+      font-weight: 800;
+      text-decoration: none;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    /* ===== Pills ===== */
+    .pillRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top: 12px;
+    }
+    .pill{
+      font-size: 12.7px;
+      padding: 7px 9px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid rgba(167,139,250,.25);
+      color: #374151;
+      font-weight: 700;
+      user-select: none;
+    }
+    .pill.good{ border-color: rgba(16,185,129,.35); background: rgba(16,185,129,.08); }
+    .pill.warn{ border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.09); }
+    .pill.bad{  border-color: rgba(239,68,68,.30); background: rgba(239,68,68,.08); }
+
+    /* ===== Buttons ===== */
+    .ctaRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top: 14px;
+    }
+    .btn{
+      cursor:pointer;
+      border: 0;
+      background: linear-gradient(120deg, rgba(167,139,250,.98), rgba(244,114,182,.86));
+      color: #fff;
+      font-weight: 900;
+      padding: 10px 12px;
+      border-radius: 12px;
+      box-shadow: 0 10px 22px rgba(167,139,250,.22);
+      transition: transform .08s ease;
+      font-size: 13px;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn.secondary{
+      background: rgba(255,255,255,.88);
+      color: #4b5563;
+      border: 1px solid rgba(167,139,250,.35);
+      box-shadow: none;
+    }
+
+    /* ===== “Mini KPI” rows ===== */
+    .kpi{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      margin-top: 10px;
+    }
+    .kpi strong{
+      display:block;
+      font-size: 13.8px;
+      color: #111827;
+      font-weight: 900;
+    }
+    .kpi span{
+      display:block;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin-top: 2px;
+    }
+
+    /* ===== Modal (popups) ===== */
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display:none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .modalOverlay.show{ display:flex; }
+
+    .modal{
+      width: min(940px, 100%);
+      background: #fff;
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.28);
+      border: 1px solid rgba(167,139,250,.25);
+    }
+    .modalHeader{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .modalHeader h3{
+      margin:0;
+      font-size: 16.5px;
+      letter-spacing:-0.01em;
+    }
+    .closeBtn{
+      border: 1px solid rgba(167,139,250,.35);
+      background: rgba(255,255,255,.92);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      font-weight: 900;
+    }
+    .modalBody{
+      color: #4b5563;
+      line-height: 1.70;
+      font-size: 14px;
+    }
+    .twoCol{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    @media (min-width: 900px){
+      .twoCol{ grid-template-columns: 1fr 1fr; }
+    }
+    .mini{
+      border: 1px solid rgba(167,139,250,.22);
+      background: rgba(167,139,250,.06);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .mini h4{
+      margin:0 0 6px 0;
+      font-size: 13.8px;
+      color: #111827;
+      font-weight: 900;
+    }
+    .mini ul{
+      margin: 6px 0 0 0;
+      padding-left: 18px;
+    }
+    .mini li{
+      margin: 6px 0;
+    }
+    .quote{
+      border-left: 4px solid rgba(244,114,182,.55);
+      padding: 10px 12px;
+      background: rgba(244,114,182,.08);
+      border-radius: 12px;
+      margin-top: 10px;
+      color: #374151;
+      font-weight: 700;
+    }
+    .codebox{
+      margin-top: 10px;
+      border: 1px dashed rgba(167,139,250,.35);
+      background: rgba(96,165,250,.08);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12.8px;
+      color: #111827;
+      white-space: pre-wrap;
+    }
+
+    footer{
+      text-align:center;
+      color: var(--muted);
+      font-size: 12.8px;
+      padding: 16px 0 6px;
+      line-height: 1.5;
+    }
+
+    /* ===== small helper ===== */
+    .muted { color: var(--muted); }
+    .nowrap { white-space: nowrap; }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="hero">
+    <h1>🌟 Grit for VAs: Self-Talk + Neuroplasticity</h1>
+    <p>
+      An interactive, VA-friendly cheat sheet for staying steady when client pressure hits — so you can keep your
+      <span class="term" title="Prefrontal cortex: the thinking brain. It helps you plan, prioritize, problem-solve, and communicate professionally.">thinking brain</span>
+      online and respond with clarity (not panic).
+    </p>
+    <div class="badgeRow">
+      <div class="badge">🧠 Defined terms + examples</div>
+      <div class="badge">⚡ Common client triggers</div>
+      <div class="badge">🛟 RESET method (60 seconds)</div>
+      <div class="badge">🎧 Coach voice scripts</div>
+      <div class="badge">🕒 45-min run of show</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="tabs">
+    <button class="tabBtn active" data-tab="brain">🧠 Brain Basics</button>
+    <button class="tabBtn" data-tab="triggers">⚡ Work Triggers</button>
+    <button class="tabBtn" data-tab="reset">🛟 RESET Tool</button>
+    <button class="tabBtn" data-tab="coach">🎧 Coach Voice</button>
+    <button class="tabBtn" data-tab="runshow">🕒 45-Min Flow</button>
+  </div>
+
+  <!-- PANEL: BRAIN BASICS -->
+  <section class="panel active" id="brain">
+    <div class="grid">
+      <div class="card">
+        <h2>
+          <!-- Brain doodle -->
+          <svg class="doodle" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M26 10c-6 0-10 4-10 10v1c-4 1-7 5-7 10 0 4 2 8 6 10v3c0 6 4 10 10 10h5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M38 10c6 0 10 4 10 10v1c4 1 7 5 7 10 0 4-2 8-6 10v3c0 6-4 10-10 10h-5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M24 20c2 0 4 2 4 4M24 30c2 0 4 2 4 4M40 20c-2 0-4 2-4 4M40 30c-2 0-4 2-4 4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          The Two-System Brain (VA version)
+        </h2>
+
+        <p>
+          When a client message feels intense, your brain can switch into a fast
+          <span class="term" title="Amygdala: a threat detector that reacts quickly. In work situations it can treat criticism, urgency, or silence as danger (even if you are actually safe).">threat mode</span>
+          before your thinking catches up. This doesn’t mean you’re weak — it means you’re human.
+          Your skill is learning how to bring your <span class="term" title="Prefrontal cortex: planning, prioritizing, problem-solving, and calm communication.">thinking brain</span> back online.
+        </p>
+
+        <div class="kpi">
+          <div style="font-size:22px;">🛡️</div>
+          <div>
+            <strong>Amygdala = “Threat detector”</strong>
+            <span>Fast. Protective. Reactive. Great for real danger — messy for client tone, feedback, and uncertainty.</span>
+          </div>
+        </div>
+
+        <div class="kpi">
+          <div style="font-size:22px;">🧭</div>
+          <div>
+            <strong>Prefrontal Cortex = “Professional brain”</strong>
+            <span>Slow(er). Strategic. Clear. This is where you clarify, prioritize, and respond calmly.</span>
+          </div>
+        </div>
+
+        <div class="pillRow">
+          <div class="pill warn">Common sign: overthinking</div>
+          <div class="pill warn">Common sign: freezing</div>
+          <div class="pill warn">Common sign: over-apologizing</div>
+          <div class="pill warn">Common sign: rushing replies</div>
+        </div>
+
+        <div class="ctaRow">
+          <button class="btn" data-modal="modal-brain-defs">Open: Definitions + VA examples</button>
+          <button class="btn secondary" data-modal="modal-hijack">Open: Amygdala hijack explained</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>✨ Neuroplasticity (why this is trainable)</h2>
+        <p>
+          <span class="term" title="Neuroplasticity: your brain changes based on repeated thoughts, emotions, and behaviors. Repetition strengthens pathways; practice makes responses more automatic.">Neuroplasticity</span>
+          means your brain strengthens what you repeatedly think and do. If you repeatedly practice panic-thinking, you get faster at panic.
+          If you repeatedly practice calm scripts, you get faster at calm.
+        </p>
+
+        <div class="pillRow">
+          <div class="pill good">Reps build pathways</div>
+          <div class="pill good">Calm scripts = skill</div>
+          <div class="pill good">Self-talk = training</div>
+        </div>
+
+        <div class="ctaRow">
+          <button class="btn" data-modal="modal-plasticity">Open: how self-talk becomes automatic</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANEL: TRIGGERS -->
+  <section class="panel" id="triggers">
+    <div class="grid">
+      <div class="card">
+        <h2>
+          <!-- Lightning doodle -->
+          <svg class="doodle" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M34 4 12 36h18l-4 24 26-34H34z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+          </svg>
+          VA Work Triggers (what flips you into threat mode)
+        </h2>
+        <p>
+          Most VA stress is <span class="term" title="Social threat: a signal of possible rejection, loss of trust, or loss of status. The brain reacts strongly to this, even if you are physically safe.">social threat</span>,
+          not physical danger. The brain is sensitive to “status” and “approval,” which is why client feedback can feel personal even when it’s task-based.
+        </p>
+
+        <div class="pillRow">
+          <div class="pill bad">“Redo this.”</div>
+          <div class="pill bad">Cold tone</div>
+          <div class="pill bad">Client silence</div>
+          <div class="pill bad">Vague instructions</div>
+          <div class="pill bad">Urgent last-minute tasks</div>
+          <div class="pill bad">Public corrections</div>
+        </div>
+
+        <div class="ctaRow">
+          <button class="btn" data-modal="modal-negativity">Open: negativity bias (why 1 bad msg hits hard)</button>
+          <button class="btn secondary" data-modal="modal-predictions">Open: threat predictions (brain storytelling)</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🪞 Protective behaviors (short-term relief, long-term cost)</h2>
+        <p>
+          Under threat, the brain tries to reduce discomfort quickly. These behaviors make sense — but they can increase rework,
+          confusion, and anxiety later. Awareness = power.
+        </p>
+
+        <div class="pillRow">
+          <div class="pill warn">Avoid replying</div>
+          <div class="pill warn">Over-apologize</div>
+          <div class="pill warn">Over-explain</div>
+          <div class="pill warn">Rush without clarifying</div>
+          <div class="pill warn">Stay quiet / disengage</div>
+        </div>
+
+        <div class="ctaRow">
+          <button class="btn secondary" data-modal="modal-patterns">Open: find your pattern + upgrade it</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANEL: RESET -->
+  <section class="panel" id="reset">
+    <div class="grid">
+      <div class="card">
+        <h2>
+          <!-- Life buoy doodle -->
+          <svg class="doodle" viewBox="0 0 64 64" aria-hidden="true">
+            <circle cx="32" cy="32" r="22" fill="none" stroke="currentColor" stroke-width="3"/>
+            <circle cx="32" cy="32" r="10" fill="none" stroke="currentColor" stroke-width="3"/>
+            <path d="M32 10v8M32 46v8M10 32h8M46 32h8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          RESET (60-second calm-and-clear method)
+        </h2>
+
+        <p>
+          RESET is a short sequence designed to lower threat signals and bring your thinking brain online before you respond.
+          The goal is not “perfect calm.” The goal is “clear and professional.”
+        </p>
+
+        <div class="pillRow">
+          <div class="pill good"><strong>R</strong>egulate</div>
+          <div class="pill good"><strong>E</strong>valuate</div>
+          <div class="pill good"><strong>S</strong>peak</div>
+          <div class="pill good"><strong>E</strong>xecute</div>
+          <div class="pill good"><strong>T</strong>rack</div>
+        </div>
+
+        <div class="ctaRow">
+          <button class="btn" data-modal="modal-reset">Open: step-by-step + why it works</button>
+          <button class="btn secondary" data-modal="modal-templates">Open: copy-paste response templates</button>
+          <button class="btn secondary" data-modal="modal-clarify">Open: clarifying questions bank</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>✅ Rule of thumb</h2>
+        <p>
+          Respond to the <strong>task</strong>, not the <strong>threat story</strong>.
+          Your brain may want to defend your identity (“I’m not incompetent!”) — but professionalism is staying objective:
+          clarify requirements, confirm deadlines, deliver the next step.
+        </p>
+
+        <div class="quote">
+          “Calm VAs get trusted with bigger responsibilities.”
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANEL: COACH VOICE -->
+  <section class="panel" id="coach">
+    <div class="grid">
+      <div class="card">
+        <h2>
+          <!-- Headphones doodle -->
+          <svg class="doodle" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M12 34v10a6 6 0 0 0 6 6h2V34h-2a6 6 0 0 0-6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M52 34v10a6 6 0 0 1-6 6h-2V34h2a6 6 0 0 1 6 6" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M16 34a16 16 0 0 1 32 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          Coach Voice (not fake positivity)
+        </h2>
+
+        <p>
+          Your Coach voice is <strong>accurate</strong>, <strong>kind</strong>, and <strong>action-oriented</strong>.
+          It keeps the thinking brain online. It doesn’t lie. It doesn’t shame. It gives the next step.
+        </p>
+
+        <div class="pillRow">
+          <div class="pill good">Accurate</div>
+          <div class="pill good">Kind</div>
+          <div class="pill good">Action-oriented</div>
+          <div class="pill warn">Not “toxic positivity”</div>
+        </div>
+
+        <div class="ctaRow">
+          <button class="btn" data-modal="modal-voices">Open: Critic vs Protector vs Coach</button>
+          <button class="btn secondary" data-modal="modal-coachlines">Open: VA coach lines (memorize 1)</button>
+          <button class="btn secondary" data-modal="modal-loyal">Open: “brain loyalty” explained</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>🧠 Your weekly practice (simple)</h2>
+        <p>
+          Choose <strong>one</strong> Coach sentence for the week. Repeating one line consistently builds the new pathway faster than collecting many lines.
+        </p>
+        <div class="codebox">Pick ONE:
+1) "This is feedback, not a verdict."
+2) "Clarify first, then execute."
+3) "Progress beats panic."
+4) "One message doesn’t define my value."</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PANEL: RUN OF SHOW -->
+  <section class="panel" id="runshow">
+    <div class="grid">
+      <div class="card">
+        <h2>🕒 45-minute flow (what you’ll do live)</h2>
+        <p class="muted">
+          This tab is built to match your facilitation script, so you can screen share it while you present.
+          Use the popups if you want extra explanation.
+        </p>
+
+        <div class="pillRow">
+          <div class="pill">0–3 min: Warm opening + chat word</div>
+          <div class="pill">3–6 min: Eileen Gu clip + chat prompt</div>
+          <div class="pill">6–13 min: Amygdala vs PFC theory</div>
+          <div class="pill">13–20 min: Social threat + negativity bias</div>
+          <div class="pill">20–27 min: Neuroplasticity + self-talk</div>
+          <div class="pill">27–35 min: RESET tool + templates</div>
+          <div class="pill">35–41 min: Practice in chat</div>
+          <div class="pill">41–45 min: Coach sentence commitment</div>
+        </div>
+
+        <div class="ctaRow">
+          <button class="btn" data-modal="modal-opener">Open: word-for-word opening statement</button>
+          <button class="btn secondary" data-modal="modal-facilitation">Open: facilitation rescue lines</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📌 Presenter reminders</h2>
+        <p>
+          Keep it human. Read 3–5 chat responses out loud. When energy drops: ask a simple question, then wait 10 seconds.
+        </p>
+        <div class="pillRow">
+          <div class="pill">Ask every 3–5 minutes</div>
+          <div class="pill">Read chat out loud</div>
+          <div class="pill">Don’t over-teach</div>
+          <div class="pill">Return to VA examples</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Hover the dotted words for definitions • Click buttons for deeper explanations • This is built for VAs: simple, real, memorable.
+  </footer>
+</main>
+
+<!-- MODAL -->
+<div class="modalOverlay" id="overlay" role="dialog" aria-modal="true" aria-label="Popup">
+  <div class="modal">
+    <div class="modalHeader">
+      <h3 id="modalTitle">Title</h3>
+      <button class="closeBtn" id="closeBtn">Close ✕</button>
+    </div>
+    <div class="modalBody" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  // Tabs
+  const tabs = document.querySelectorAll(".tabBtn");
+  const panels = document.querySelectorAll(".panel");
+  tabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabs.forEach(b => b.classList.remove("active"));
+      panels.forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+      // scroll into view slightly (helps virtual)
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+
+  // Modal
+  const overlay = document.getElementById("overlay");
+  const closeBtn = document.getElementById("closeBtn");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalBody = document.getElementById("modalBody");
+
+  function openModal(title, html){
+    modalTitle.textContent = title;
+    modalBody.innerHTML = html;
+    overlay.classList.add("show");
+  }
+  function closeModal(){ overlay.classList.remove("show"); }
+
+  closeBtn.addEventListener("click", closeModal);
+  overlay.addEventListener("click", (e) => { if(e.target === overlay) closeModal(); });
+  document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+
+  const modalContent = {
+    "modal-brain-defs": {
+      title: "Brain Basics — Clear definitions + VA examples",
+      html: `
+        <div class="twoCol">
+          <div class="mini">
+            <h4>Amygdala (Threat Detector)</h4>
+            <p>
+              The amygdala is a fast alarm system. Its job is to keep you safe by detecting possible danger quickly.
+              In modern work, “danger” often shows up as <strong>social threat</strong>: criticism, urgency, rejection, or uncertainty.
+            </p>
+            <ul>
+              <li><strong>What it sounds like:</strong> “I’m in trouble.” “They’re mad.” “I’m not good enough.”</li>
+              <li><strong>What it pushes you to do:</strong> avoid, rush, over-apologize, over-explain</li>
+              <li><strong>Why:</strong> your brain wants to reduce discomfort fast</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h4>Prefrontal Cortex (Thinking/Professional Brain)</h4>
+            <p>
+              This is the part that supports planning, judgment, and calm communication. It’s where you clarify requirements,
+              prioritize, and choose the best next step.
+            </p>
+            <ul>
+              <li><strong>What it sounds like:</strong> “What does the client need?” “What’s unclear?” “What’s the next step?”</li>
+              <li><strong>What it produces:</strong> clear messages, better questions, fewer mistakes</li>
+              <li><strong>Needs:</strong> enough calm to think</li>
+            </ul>
+          </div>
+        </div>
+        <div class="quote">
+          VA translation: If you feel triggered, your first job is to lower threat signals so your thinking brain can do its job.
+        </div>
+      `
+    },
+
+    "modal-hijack": {
+      title: "Amygdala hijack (what it is + what it looks like for VAs)",
+      html: `
+        <p>
+          An <strong>amygdala hijack</strong> is when your threat system becomes dominant and the thinking brain goes partly offline.
+          You can still function — but you’re more likely to react for protection rather than respond for professionalism.
+        </p>
+        <div class="twoCol">
+          <div class="mini">
+            <h4>Common VA signs</h4>
+            <ul>
+              <li>Re-reading a client message many times and still feeling “stuck”</li>
+              <li>Delaying replies because you fear saying the wrong thing</li>
+              <li>Over-apologizing (trying to reduce threat with submission)</li>
+              <li>Rushing a reply to stop the anxiety, then regretting tone/clarity</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h4>Recovery goal</h4>
+            <ul>
+              <li>One long exhale (signals safety)</li>
+              <li>Name the objective: “What is the client requesting?”</li>
+              <li>Ask 1–2 clarifying questions</li>
+              <li>Take the next smallest step</li>
+            </ul>
+          </div>
+        </div>
+      `
+    },
+
+    "modal-plasticity": {
+      title: "Neuroplasticity — how self-talk becomes automatic",
+      html: `
+        <p>
+          <strong>Neuroplasticity</strong> means the brain strengthens pathways you repeat. That includes:
+          thoughts, emotions, attention patterns, and behavioral responses.
+        </p>
+        <div class="twoCol">
+          <div class="mini">
+            <h4>Automatic thoughts</h4>
+            <ul>
+              <li>Fast, familiar stress sentences</li>
+              <li>Feel “true” because they’re rehearsed</li>
+              <li>Often predict worst-case outcomes</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h4>Training a better pathway</h4>
+            <ul>
+              <li>Notice the old sentence (no shame)</li>
+              <li>Replace with an accurate Coach sentence</li>
+              <li>Repeat consistently (reps build the pathway)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="quote">
+          Key idea: confidence isn’t a personality trait — it’s a practiced brain response.
+        </div>
+      `
+    },
+
+    "modal-negativity": {
+      title: "Negativity bias (why one bad message hits so hard)",
+      html: `
+        <p>
+          The brain tends to pay more attention to negative cues than positive cues.
+          This helped humans survive in the past — but at work it can amplify stress.
+        </p>
+        <div class="mini">
+          <h4>VA example</h4>
+          <ul>
+            <li>You receive 5 neutral/positive messages… then 1 harsh correction</li>
+            <li>Your brain focuses on the correction and replays it</li>
+            <li>Result: anxiety rises, confidence drops, you second-guess everything</li>
+          </ul>
+          <p><strong>Counter-skill:</strong> treat feedback as task data, not identity judgment.</p>
+        </div>
+      `
+    },
+
+    "modal-predictions": {
+      title: "Threat predictions (brain storytelling under pressure)",
+      html: `
+        <p>
+          Under threat, the brain generates fast predictions to protect you. Predictions can be useful — but can also be exaggerated.
+          The goal is to notice: “This is a threat story, not a confirmed fact.”
+        </p>
+        <div class="twoCol">
+          <div class="mini">
+            <h4>Common VA predictions</h4>
+            <ul>
+              <li>“I’m going to get replaced.”</li>
+              <li>“They’re unhappy with me as a person.”</li>
+              <li>“This mistake will ruin everything.”</li>
+              <li>“I shouldn’t ask questions; I’ll look incompetent.”</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h4>Coach reframes (accurate)</h4>
+            <ul>
+              <li>“This is feedback on the task, not my identity.”</li>
+              <li>“Clarifying reduces rework and protects quality.”</li>
+              <li>“One moment doesn’t define competence.”</li>
+              <li>“Next step: ask 1–2 precise questions.”</li>
+            </ul>
+          </div>
+        </div>
+      `
+    },
+
+    "modal-patterns": {
+      title: "Find your protective pattern + upgrade it",
+      html: `
+        <p>
+          Protective behaviors reduce discomfort short-term. They’re understandable — but often costly long-term.
+          The upgrade is to replace protection with professionalism: calm + clarity + next step.
+        </p>
+        <div class="twoCol">
+          <div class="mini">
+            <h4>If you… avoid replying</h4>
+            <ul>
+              <li><strong>Why:</strong> you fear saying the wrong thing</li>
+              <li><strong>Cost:</strong> delays increase anxiety + client uncertainty</li>
+              <li><strong>Upgrade:</strong> send a short clarifier within 10 minutes</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h4>If you… over-apologize</h4>
+            <ul>
+              <li><strong>Why:</strong> you try to reduce threat by submission</li>
+              <li><strong>Cost:</strong> confidence signal weakens</li>
+              <li><strong>Upgrade:</strong> acknowledge + clarify + deadline</li>
+            </ul>
+          </div>
+        </div>
+        <div class="twoCol">
+          <div class="mini">
+            <h4>If you… over-explain</h4>
+            <ul>
+              <li><strong>Why:</strong> you try to prove you’re competent</li>
+              <li><strong>Cost:</strong> message becomes muddy</li>
+              <li><strong>Upgrade:</strong> 3-sentence structure</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h4>If you… rush without clarifying</h4>
+            <ul>
+              <li><strong>Why:</strong> you want the anxiety to stop</li>
+              <li><strong>Cost:</strong> rework increases</li>
+              <li><strong>Upgrade:</strong> ask 2 questions first</li>
+            </ul>
+          </div>
+        </div>
+      `
+    },
+
+    "modal-reset": {
+      title: "RESET — step-by-step + why it works",
+      html: `
+        <div class="mini">
+          <h4>R — Regulate (60 seconds)</h4>
+          <p>
+            Do one long exhale (4 seconds in, 6 seconds out). Relax jaw/shoulders.
+            This reduces threat signals so your thinking brain can re-engage.
+          </p>
+        </div>
+
+        <div class="mini" style="margin-top:10px;">
+          <h4>E — Evaluate</h4>
+          <p>
+            Ask: “What is the client actually requesting?” “What’s unclear?” “What’s the priority?”
+            You are pulling attention from emotion → objective.
+          </p>
+        </div>
+
+        <div class="mini" style="margin-top:10px;">
+          <h4>S — Speak (calm + clear)</h4>
+          <p>
+            Reply with: acknowledgement + clarifying questions + next step + timeline.
+            Avoid defending your identity; respond to the task.
+          </p>
+        </div>
+
+        <div class="mini" style="margin-top:10px;">
+          <h4>E — Execute</h4>
+          <p>
+            Do the next smallest step. Progress reduces anxiety and rebuilds confidence.
+          </p>
+        </div>
+
+        <div class="mini" style="margin-top:10px;">
+          <h4>T — Track</h4>
+          <p>
+            Choose one Coach sentence for the week. Repetition is how neuroplasticity builds the new pathway.
+          </p>
+        </div>
+      `
+    },
+
+    "modal-templates": {
+      title: "Copy-paste templates (calm + competent)",
+      html: `
+        <div class="twoCol">
+          <div class="mini">
+            <h4>When client says: “Redo this.”</h4>
+            <div class="codebox">Thanks for the feedback — understood.
+To align exactly with what you want, can I confirm:
+(1) ______, (2) ______?
+Once confirmed, I’ll send the revised version by ______.</div>
+          </div>
+
+          <div class="mini">
+            <h4>When client tone feels sharp</h4>
+            <div class="codebox">Understood.
+To prioritize correctly, would you like me to focus first on ______ or ______?
+I can deliver the first update by ______.</div>
+          </div>
+        </div>
+
+        <div class="mini" style="margin-top:12px;">
+          <h4>When you made a mistake</h4>
+          <div class="codebox">You’re right — thanks for pointing it out.
+I corrected ______, and I’m adding a quick check to prevent it next time.
+Updated version will be ready by ______.</div>
+        </div>
+
+        <div class="mini" style="margin-top:12px;">
+          <h4>3-sentence structure (when you’re anxious)</h4>
+          <div class="codebox">1) Acknowledge: “Understood / Thanks for the feedback.”
+2) Clarify: “Can I confirm X and Y?”
+3) Next step + time: “I’ll send the update by ____.”</div>
+        </div>
+      `
+    },
+
+    "modal-clarify": {
+      title: "Clarifying questions bank (use any time)",
+      html: `
+        <p>These questions reduce rework and signal competence:</p>
+        <div class="mini">
+          <ul>
+            <li>“What does ‘done’ look like for you on this task?”</li>
+            <li>“Which option do you prefer: A or B?”</li>
+            <li>“What’s the priority order among these items?”</li>
+            <li>“Do you want a quick summary, or full details?”</li>
+            <li>“Is this needed today, or can I deliver by ___?”</li>
+          </ul>
+        </div>
+      `
+    },
+
+    "modal-voices": {
+      title: "Critic vs Protector vs Coach (clean definitions)",
+      html: `
+        <div class="twoCol">
+          <div class="mini">
+            <h4>Critic voice</h4>
+            <ul>
+              <li>Harsh and identity-based</li>
+              <li>“I’m terrible.” “I always mess up.”</li>
+              <li>Creates fear and shame → reduces performance</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h4>Protector voice</h4>
+            <ul>
+              <li>Tries to reduce discomfort quickly</li>
+              <li>Avoids, over-apologizes, stays quiet, rushes</li>
+              <li>Goal: safety now (even if costly later)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mini" style="margin-top:12px;">
+          <h4>Coach voice</h4>
+          <ul>
+            <li>Accurate + kind + action-oriented</li>
+            <li>Turns emotion into objective next steps</li>
+            <li>“Clarify first, then execute.”</li>
+          </ul>
+        </div>
+      `
+    },
+
+    "modal-coachlines": {
+      title: "VA Coach lines (memorize ONE)",
+      html: `
+        <div class="mini">
+          <ul>
+            <li><strong>“This is feedback, not a verdict.”</strong> (Verdict = identity judgment.)</li>
+            <li><strong>“Clarify first, then execute.”</strong></li>
+            <li><strong>“Progress beats panic.”</strong></li>
+            <li><strong>“One message doesn’t define my value.”</strong></li>
+          </ul>
+          <p class="muted"><strong>Best practice:</strong> choose one line for 7 days. Repetition creates the new default.</p>
+        </div>
+      `
+    },
+
+    "modal-loyal": {
+      title: "“The brain is loyal” (what it really means)",
+      html: `
+        <p>
+          “Brain loyalty” means the brain prefers predictable stories and will try to keep you consistent with what you repeat.
+          If you repeatedly think “I’m not good with clients,” your brain may unconsciously steer you toward behaviors that confirm it
+          (avoidance, over-apology, staying small) because predictability feels safer.
+        </p>
+        <div class="twoCol">
+          <div class="mini">
+            <h4>Old belief → behavior</h4>
+            <ul>
+              <li>Belief: “I’m not good with clients.”</li>
+              <li>Behavior: avoid questions, second-guess, apologize too much</li>
+              <li>Outcome: more confusion/rework → belief feels “true”</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <h4>Better belief → behavior</h4>
+            <ul>
+              <li>Belief: “I’m developing client skill.”</li>
+              <li>Behavior: ask 1–2 clarifiers, confirm deadlines, execute</li>
+              <li>Outcome: better results → confidence compounds</li>
+            </ul>
+          </div>
+        </div>
+        <div class="quote">
+          The goal isn’t to “feel confident first.” The goal is to practice confidence behaviors until your brain believes them.
+        </div>
+      `
+    },
+
+    "modal-opener": {
+      title: "Word-for-word opening statement (smooth, not awkward)",
+      html: `
+        <div class="mini">
+          <p><strong>Say this:</strong></p>
+          <div class="codebox">Hi everyone! Thank you for being here.
+
+I want to start with something real: being a VA isn’t just tasks — it’s emotional regulation.
+Because clients are human. Their tone changes. Their urgency changes. Sometimes they’re warm, sometimes they’re short, sometimes they go silent.
+
+And I’m not here to give a motivational talk today.
+This is practical: what to do in the exact moment your stomach drops when you read a client message.
+
+So before we do anything else, in the chat: type one word that describes how you feel when pressure hits.
+One word only.</div>
+          <p class="muted">Then read 3–5 chat responses out loud and transition into the brain basics.</p>
+        </div>
+      `
+    },
+
+    "modal-facilitation": {
+      title: "Facilitation rescue lines (when it gets quiet)",
+      html: `
+        <div class="mini">
+          <ul>
+            <li><strong>If no one answers:</strong> “No worries — drop it in chat, I’ll read a few.”</li>
+            <li><strong>If chat is slow:</strong> “I’ll give you 10 seconds… first thought wins.”</li>
+            <li><strong>If someone is self-critical:</strong> “Thank you for being honest. That’s a very common threat-brain sentence.”</li>
+            <li><strong>If someone shares something heavy:</strong> “I appreciate you sharing that — the goal here is tools, not judgment.”</li>
+            <li><strong>To regain energy:</strong> “Quick check: type 1/2/3 — freeze, rush, or defend?”</li>
+          </ul>
+        </div>
+      `
+    }
+  };
+
+  document.querySelectorAll("[data-modal]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const key = btn.getAttribute("data-modal");
+      const item = modalContent[key];
+      if(!item) return;
+      openModal(item.title, item.html);
+    });
+  });
+</script>
+</body>
+</html>
