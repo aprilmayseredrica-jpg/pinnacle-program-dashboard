@@ -1,0 +1,867 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Users, 
+  UserCheck, 
+  ShieldAlert, 
+  Award, 
+  BookOpen, 
+  ChevronDown, 
+  ChevronUp,
+  X, 
+  CheckCircle2, 
+  AlertTriangle, 
+  Target,
+  Clock,
+  MessageSquare,
+  Zap,
+  TrendingDown,
+  ThumbsUp,
+  XCircle,
+  ClipboardCheck,
+  Calendar,
+  Gift
+} from 'lucide-react';
+
+// --- Brand Guidelines Colors ---
+const COLORS = {
+  cerulean: '#00AFC0',
+  tealBlue: '#008BA3',
+  deepTeal: '#025863',
+  paleBlue: '#D1EBEF',
+  portlandOrange: '#FF6334',
+  desert: '#F8F8F8',
+  storm: '#1A1A1A'
+};
+
+// --- Full Data Definitions from PDF ---
+
+const VA_CHECKIN_DATA = [
+  {
+    section: "Strategic Rapport & Connection",
+    purpose: "Build psychological safety. Detect burnout early.",
+    standard: "VA speaks majority. Duration: 2min",
+    excellent: "VA relaxed. Honest tone",
+    qa: { 
+      3: "3-Professional rapport established; VA engaged and responsive", 
+      2: "2-Rapport present but rushed or surface-level", 
+      1: "1-No rapport or abrupt transition into metrics" 
+    },
+    scripts: [
+      "1. \"Good to see you. How's your week going?\"",
+      "2. \"How was your weekend\"?",
+      "3. \"Anything new on your end?\"",
+      "4. \"How are things outside work-all good?\"",
+      "5. \"Anything heavier than usual this week? How are things at home?\"",
+      "Transition: \"Glad to hear that. I'll keep this focused-I just want to review your current performance, align expectations, and make sure you feel supported.\""
+    ]
+  },
+  {
+    section: "Performance Reality Check",
+    purpose: "(Recap Follow-Through + Metrics) Establish continuity. Reinforce accountability.",
+    standard: "Must recap last action items. Must review metrics vs targets Duration: 2-3min",
+    excellent: "VA aware of numbers Explains performance drivers",
+    autofail: "If no recap / If no metrics",
+    risk: "Decline trend. Defensive tone.",
+    qa: { 
+      3: "3-Clear recap metrics vs target VA engagement in explanation.", 
+      2: "2-Metrics discussed but recap incomplete or limited probing.", 
+      1: "1-No recap, vague metrics, or no performance discussion." 
+    },
+    scripts: [
+      "Always Start With Recap: The last time we spoke, you were hitting [X] calls versus the target of [Y]. We agreed that I would coach and monitor you to help increase that to [Z].",
+      "1. \"Last time, your target was 70 calls. You were at 65. You're now averaging 68. What helped you improve?\"",
+      "2. \"Verification accuracy was at 92% It's now 96% and holding steady What adjustments did you make?\"",
+      "3. \"Turnaround was at 36 hours. You brought it down to 24 and maintained it. Good progress\"",
+      "4. \"Missed calls reduced from 6 to 2 weekly. That's improvement. What changed in your workflow?\"",
+      "5. \"Your productive hours dipped 5% this week. Walk me through what happened. If Decline: \"I noticed your numbers dipped this week. Let's identify what caused it and correct it right away.\""
+    ]
+  },
+  {
+    section: "Issue Identification and Workflow Optimization",
+    purpose: "Detect inefficiencies affecting performance or retention. Duration: 2-3min",
+    standard: "Focus on task load, clarity, tools, scope creep",
+    excellent: "Bottlenecks clearly identified.",
+    risk: "Mentions scope creep. Mentions confusion.",
+    qa: { 
+      3: "3-Questions clearly tied to workflow impact on productivity.", 
+      2: "2-Questions asked but not clearly connected to performance impact", 
+      1: "1-Skipped or irrelevant discussion." 
+    },
+    scripts: [
+      "1. \"Any changes in the client's workflow that are affecting your output?\"",
+      "2. \"Are there tools or systems slowing you down?\"",
+      "3. \"We've been upskilling VAs through the Superhuman Al course with Section Al, and we'll launch more Al-ready training next quarter. Are you seeing any automation on the client's side that we should align with?\"",
+      "4. \"Anything creating friction in your day-to-day work?\"",
+      "5. \"Now that you're consistent in performance, what new task do you think you're ready to learn?\"",
+      "If VA Expresses Difficulty: \"I'm glad you brought that up. That's something we need to address immediately.\"",
+      "\"Thanks for being honest. Let's fix that before it affects performance.\"",
+      "\"That's valid. Let's realign expectations so you're clear and confident\""
+    ]
+  },
+  {
+    section: "Performance Calibration",
+    purpose: "Gauge engagement and confidence level. Duration: 3-5min",
+    standard: "Convert vague ideas into SMART goals. Do not prescribe Immediately-guide them to define their own plan.",
+    excellent: "Encourages critical thinking Prevents dependency mindset",
+    autofail: "If AM did not give the VA a chance to formulate their own action plans",
+    risk: "Low confidence Self-doubt",
+    qa: { 
+      3: "3-Action plans should be coming from the VA with guidance from the AM to ensure that items are SMART", 
+      2: "2-Rating asked but improvement direction unclear.", 
+      1: "1-Skipped or poorly structured." 
+    },
+    scripts: [
+      "Start with: \"Based on what we reviewed, where would you rate your overall performance right now (from 1-10)? Which metrics do we focus on starting this week to get to a 10?\"",
+      "3. \"What would you do differently right after our meeting to increase [name task/metric] by one point by the end of the week?\"",
+      "4. \"What specific adjustment can you start this week to close the gap?\"",
+      "5. \"What's one measurable improvement you can commit to by next Friday?\"",
+      "6. \"What support do you need from me to execute that plan?\"",
+      "7. \"If we check back in one week, what result should we expect to see?\"",
+      "8. \"What will success look like in numbers?\""
+    ]
+  },
+  {
+    section: "Strategic Action Plan (SMART)",
+    purpose: "Drive measurable improvement. Duration: 3-5min",
+    standard: "Specific metric. Timeline defined. Follow-up set.",
+    excellent: "Clear next milestone.",
+    autofail: "If no SMART",
+    risk: "No measurable change",
+    qa: { 
+      3: "3-Clear measurable goal deadline follow-up defined.", 
+      2: "2-Goal stated but missing metric or timeline", 
+      1: "1-Vague improvement language without structure" 
+    },
+    smart: {
+      goal: "Call average will increase from 68 to 72 by next Friday.",
+      raci: {
+        Responsible: "You will hit a minimum of 15 calls daily.",
+        Accountable: "I'll review your tracker mid-week and Friday.",
+        Consulted: "Client will confirm quality if needed.",
+        Informed: "I will update client during next check-in."
+      }
+    },
+    scripts: [
+      "Start With: \"Based on our discussion so far, here's what we're going to do.\"",
+      "Call Volume Improvement: \"Call average will increase from 68 to 72 by next Friday.\"",
+      "Responsible: You will hit a minimum of 15 calls daily.",
+      "Accountable: I'll review your tracker mid-week and Friday.",
+      "Consulted: Client will confirm quality if needed.",
+      "Informed: I'll update client during next check-in.\"",
+      "Transition: \"How does that sound? Anything you want to adjust or clarify?\""
+    ]
+  },
+  {
+    section: "Compliance & Risk Check",
+    purpose: "Protect HIPAA, billing, contractual integrity. Duration: 5min",
+    standard: "HIPAA discussed. TCW reviewed . Workspace validated.",
+    excellent: "Compliance confirmed calmly.",
+    autofail: "Compliance check skipped.",
+    risk: "Resistance Inconsistency.",
+    qa: { 
+      3: "3-Required compliance items reviewed clearly and confirmed.", 
+      2: "2-Compliance mentioned but incomplete verification.", 
+      1: "1-Compliance check skipped." 
+    },
+    scripts: [
+      "1. Time Tracking (TCW) & Leave (VLR)- \"Let's quickly look at your TCW screencap activity and producitivty to ensure that we're making the most of our shift completing tasks\"",
+      "2. \"Let's do a quick workspace compliance check. Kindly turn off your background\"",
+      "\"You're due for HIPAA recertification on [Date]. Please take it at least a week before due date.\"",
+      "3. \"Any upcoming time off? When you file a VLR, please ensure proof of approval shows Client's Name and Date.\"",
+      "4. \"Please review your TCW timesheet and file for TCW Adjustment Request, if applicable.\"",
+      "6. \"Reminder moonlighting is not allowed under contract\""
+    ]
+  },
+  {
+    section: "MMM Events/Updates/Rewards",
+    purpose: "Drive engagement Share events, recognition, rewards appropriately. Duration: 2min",
+    standard: "Share events, recognition, rewards appropriately.",
+    excellent: "VA feels included.",
+    qa: { 
+      3: "3-Mentioned appropriately and delivered naturally.", 
+      2: "2-Mentioned but mechanical or poorly timed.", 
+      1: "1-Skipped when clearly appropriate." 
+    },
+    scripts: [
+      "1. \"We're having our event: [e.g. first GHF for the year] at [Time]. Let me know if you want to register to join.\"",
+      "2. \"Our annual Movers Summit is this August-great chance to meet support staff and other VAs.\"",
+      "3. \"Please take the Superhuman Al certification by [Date] and answer the google form to track completion.\"",
+      "4. \"We need your help finding great clients. If you refer a client to us, you get $100!\"",
+      "6. \"If you're able to influence the client to hire an addon... you'll get a $100 addon incentive!\""
+    ]
+  },
+  {
+    section: "Close",
+    purpose: "End with positive confirmation.",
+    standard: "Final sign-off.",
+    excellent: "Professional closing.",
+    scripts: [
+      "\"Thanks for your time, (VA Name). You're doing great work- really appreciate your consistency. Let's touch base again on [next check-in date].\""
+    ]
+  }
+];
+
+const CLIENT_CHECKIN_DATA = [
+  {
+    section: "Strategic Rapport & Connection",
+    purpose: "Lower stress Build real relationship. Maintain professionalism. Duration: 2min",
+    standard: "Personal but structured. Smooth transition to business.",
+    excellent: "Client relaxed. AM transitions naturally into recap",
+    qa: { 
+      3: "3-Professional small talk established and smoothly transitions to business", 
+      2: "2-Small talk present but abrupt transition or slightly mechanical.", 
+      1: "1-No rapport or inappropriate tone." 
+    },
+    scripts: [
+      "1. \"Good to see you. How's your week going?\"",
+      "2. \"How was your vacation?\"",
+      "3. \"Anything new happening on your end?\"",
+      "4. \"How are things outside the clinic-running smoothly?\"",
+      "5. \"I'll keep this structured. First-how are things overall?\"",
+      "Sample Transition: \"Glad to hear that! I know your time's tight I'll keep this brief and focused just want to check in on [VA Name]'s current performance, align expectations, and make sure you're supported.\""
+    ]
+  },
+  {
+    section: "Performance Reality Check (Recap + Follow-Through Metrics)",
+    purpose: "Establish continuity. Show monitoring. Duration: 3-5min",
+    standard: "Must recap last meeting. Must mention action items. Must present all key metrics.",
+    excellent: "Client confirms rather than calculates. Clear progression/regression stated.",
+    autofail: "If no recap / if no metrics",
+    risk: "Hesitation. \"It's fine.\" Vague response.",
+    qa: { 
+      3: "3-Recap clearly stated, action follow through mentioned, all relevant metrics presented proactively, validation asked confidently.", 
+      2: "2-Metrics discussed but recap incomplete or one key metric missing.", 
+      1: "1-No recap, vague numbers, or client drives explanation instead of AM." 
+    },
+    scripts: [
+      "Format: The last time we touched base, VA was hitting x no. of calls versus the target of [Y]. We've agreed that I'll be coaching and monitoring the VA's performance...",
+      "1. \"Last time we agreed to increase calls to 70. It's averaging 66, trending at 68 this week. Does that align?\"",
+      "2. \"Verification errors dropped to 5% after the checklist. We've been able to hold it steady for two months, is that accurate?\"",
+      "3. \"Turnaround improved to 24 hours and remains consistent. Are you seeing the same?\"",
+      "4. \"Missed calls reduced from 8 to 3 weekly. It's trending upward. Please confirm if the numbers are correct\"",
+      "5. \"Volume of scheduled appointments dipped 5%, cancellations up 12% The VA's workload has remained the same, is that correct?\""
+    ]
+  },
+  {
+    section: "Issue Identification and Workflow Optimization",
+    purpose: "Detect areas for improvement and operational shifts affecting VA performance or retention. Duration: 2-3min",
+    standard: "Focus only on Operational shifts affecting performance or retention.",
+    excellent: "Operational changes surfaced early.",
+    autofail: "Skipped or irrelevant discussion.",
+    risk: "Mentions tech frustration. Mentions overload.",
+    qa: { 
+      3: "3-Questions clearly tied to operational changes impacting performance or retention.", 
+      2: "2-Question asked but not clearly tied to performance impact", 
+      1: "1-Skipped or irrelevant discussion." 
+    },
+    scripts: [
+      "1. \"Any staffing, tool, or volume changes affecting performance?\"",
+      "2. \"Has anything shifted requiring recalibration?\"",
+      "3. \"We're always looking for ways to upskill your VA... Superhuman Al course... Any automation or Al being introduced?\"",
+      "4. \"Anything creating workflow friction?\"",
+      "For tenured VAs: \"Now that your VA is familiar with the process... what new task or process can they start learning so they'll further add value...?\"",
+      "If challenge verbalized: \"That's definitely something that we need to address right away. I know how important it is for tasks to be completed so there wouldn't be backlogs as this affects patient care...\"",
+      "\"Oh, no That's is not good. Thanks for letting me know so we can quickly identify challenges, redirect, and realign on expectations\""
+    ]
+  },
+  {
+    section: "Performance Calibration",
+    purpose: "Reference issues if discussed. Lead solution. Quantify satisfaction strategically. Duration: 2min",
+    standard: "Reference issues if discussed. Lead solution. No redundant \"how to get to 10\".",
+    excellent: "Clear rating obtained. AM leads improvement framing.",
+    risk: "$7 requires save strategy.",
+    qa: { 
+      3: "3-Rating clearly obtained or anchored, and AM confidently frames next step.", 
+      2: "2-Rating asked but follow-through weak or unclear framing.", 
+      1: "1-Skipped or redundant questioning causes confusion" 
+    },
+    scripts: [
+      "1. \"Given the challenges discussed, where are we-1 to 10?\"",
+      "2. \"Considering progress, where do you rate performance?\"",
+      "3. \"Based on what we reviewed, where do we stand?\"",
+      "4. \"To get this to a 10, we'll tighten follow-ups and turnaround. I'll outline specifics next.\"",
+      "5. \"Have you had the chance to give the same feedback to the VA?\"",
+      "6. \"Overall, do you have any suggestions on how we can support you better? Is there anything outside of the VA's performance that you need help with?\""
+    ]
+  },
+  {
+    section: "Strategic Action Plan (SMART + RACI)",
+    purpose: "Guarantee follow-through. Protect retention. Duration: 3-5min",
+    standard: "Specific metric Deadline defined. Ownership clearly assigned using RACI Follow-up scheduled.",
+    excellent: "Clear measurable commitments. No vague language Explicit ownership",
+    autofail: "If no measurable metric / if no deadline / if ownership unclear",
+    risk: "No timeline weakens retention anchor",
+    qa: { 
+      3: "3-Metric, deadline, and all RACI roles clearly stated.", 
+      2: "2-Metric and deadline stated but RACI partially unclear.", 
+      1: "1-Vague commitment without measurable target or ownership clarity." 
+    },
+    smart: {
+      goal: "Call volume will increase from 68 to 75 per week by next Friday.",
+      raci: {
+        Responsible: "VA executes daily call targets.",
+        Accountable: "I will monitor daily and review tracker mid-week.",
+        Consulted: "You'll confirm if volume aligns with clinic flow.",
+        Informed: "I'll send a progress update Wednesday."
+      }
+    },
+    scripts: [
+      "Start with: \"Based on our discussion so far, here are my recommendations...\"",
+      "Call Volume Improvement: \"VA will increase call volume from 68 to 75 per week by next Friday. Responsible: VA executes daily call targets...\"",
+      "Documentation Turnaround: \"Documentation turnaround will be reduced from 36 to under 24 hours within 7 calendar days.\"",
+      "Transition: \"How does that sound? Anything you would like to add? Did I miss anything?\""
+    ]
+  },
+  {
+    section: "MMM Events/ Updates/Rewards (Includes Referral)",
+    purpose: "Reinforce partnership. Drive engagement Encourage referrals only if appropriate. Duration: 2min",
+    standard: "Only mention referral if call strong and performance stable.",
+    excellent: "Natural mention. Not forced",
+    qa: { 
+      3: "3-Mentioned naturally and appropriately based on call tone", 
+      2: "2-Mentioned but slightly awkward or poorly timed", 
+      1: "1-Not mentioned when clearly appropriate OR asked during dissatisfaction." 
+    },
+    scripts: [
+      "1. \"We're hosting [event]. Let me know if you'd like details.\"",
+      "2. \"We have our annual movers summit this August! We hope your VA can join... Let me know if you'd like to sponsor any amount...\"",
+      "3. \"We're looking for clients like yourself who align with our values... If they sign up, you will get a credit of $1,500 on your invoice!\"",
+      "4. \"Quick share we're rewarding our existing clients with $1,500 for every referral who signs up and stays 60 days.\"",
+      "5. \"You've seen how this setup works for you. If you know another clinic owner... we'll credit you $1,500.\""
+    ]
+  },
+  {
+    section: "Close",
+    purpose: "Professional exit.",
+    standard: "Final confirmation.",
+    scripts: [
+      "\"Appreciate your time, [Client Name]. I'll follow through on my end-and if anything shifts, it's important that you let me know right away so we keep things running smoothly. I'll do the same on my end. Have a great rest of your week!\""
+    ]
+  }
+];
+
+const SILENT_CANCELLATIONS = [
+  { id: 1, title: '“It’s fine.”', content: "Client says 'Everything’s fine' but no metrics discussed, no probing, no rating asked. Surface-level calls = delayed cancellation." },
+  { id: 2, title: 'No Follow-Through', content: "If a client flags something and there's no recap next check-in, no update, or no monitoring shown, trust erodes quietly." },
+  { id: 3, title: 'AM Sounds Unsure', content: "Using 'I think...', 'Maybe...', or 'Let’s try...'. Uncertainty creates doubt; doubt leads to replacement." },
+  { id: 4, title: 'Emotional Dismissal', content: "Weak response: 'I’m sorry to hear that.' Strong response: 'That impacts operations. We’ll address it immediately.'" },
+  { id: 5, title: 'No Value Added', content: "If AM only relays messages without monitoring metrics or suggesting improvements, the client questions the layer's cost." },
+  { id: 6, title: 'AI Anxiety Ignored', content: "If client mentions automation and AM does not reposition VA value or suggest upskilling, they explore alternatives quietly." },
+  { id: 7, title: 'Check-Ins Too Loose', content: "Calls over 20 minutes or repeating same questions monthly without structure are seen as low ROI." }
+];
+
+const GOLDEN_RULES_VA = [
+  {
+    title: "1. Speak With Authority, Not Hesitation",
+    avoid: ["“I think…”", "“Maybe you can try…”", "“Is it okay if…”", "“You should probably…”"],
+    use: ["“Here’s what needs to happen.”", "“This is the target.”", "“To improve this, we’ll…”", "“What specific action will you take?”"],
+    note: "You are guiding performance. You are not guessing."
+  },
+  {
+    title: "2. Let the VA Think First",
+    content: "Do not jump into solutions. Your job: Ask, Probe, Clarify, Convert into SMART. Ownership builds retention; dependency creates resignations."
+  },
+  {
+    title: "3. Listen for Burnout Signals",
+    watch: ["“Tired”", "“Confused”", "“Client keeps changing”", "“I’m doing more now”", "“I don’t know if it’s enough”"],
+    respond: "“Let’s break that down.” Burnout ignored = resignation in 30–60 days."
+  },
+  {
+    title: "4. Be Direct But Fair",
+    content: "If performance drops, don't say 'It's okay.' Instead: 'Your numbers dropped this week. Let’s identify why and correct it now.' Calm. Steady. Solution-oriented."
+  },
+  {
+    title: "5. Always Leave With a Clear Target",
+    content: "VA must know: Exact metric, Exact deadline, Exact expectation, When you’ll review again. Otherwise, the check-in failed."
+  }
+];
+
+const QA_CHECKLIST_CLIENT = [
+  { category: "Rapport", items: ["Professional small talk", "Smooth transition", "No robotic tone"] },
+  { category: "Performance Recap", items: ["Last conversation summarized", "Action items mentioned", "Metrics presented proactively", "Client confirms (not calculates)"] },
+  { category: "Optimization", items: ["Operational changes probed", "AI/automation addressed", "No generic filler questions"] },
+  { category: "Calibration", items: ["Rating obtained/anchored", "Dissatisfaction quantified", "No redundant questioning"] },
+  { category: "Empathy", items: ["Issue acknowledged clearly", "No canned responses", "Paraphrased complex issues"] },
+  { category: "Action Plan", items: ["SMART plan", "Deadline stated", "Ownership clear (RACI)", "Next follow-up scheduled"] }
+];
+
+const QA_CHECKLIST_VA = [
+  { category: "Rapport", items: ["Psychological safety created", "VA speaking majority of time"] },
+  { category: "Performance Recap", items: ["Metrics vs target discussed", "Decline addressed directly", "VA asked to explain performance"] },
+  { category: "Ownership Probing", items: ["VA define plan", "AM guided into SMART", "No dependency language"] },
+  { category: "Workflow", items: ["Scope creep discussed", "Tool/system blockers addressed", "Upskilling explored"] },
+  { category: "Compliance", items: ["HIPAA verified", "TCW reviewed", "Workspace confirmed"] },
+  { category: "Action Plan", items: ["Clear target set", "Timeline defined", "Follow-up scheduled"] }
+];
+
+// --- Sub-components ---
+
+const Tooltip = ({ text, children }) => {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative inline-block" onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+      {children}
+      {show && (
+        <div className="absolute z-[60] w-64 p-3 mt-1 text-xs text-white bg-slate-800 rounded-lg shadow-xl -left-1/2 transform translate-x-1/2 border border-slate-600 font-normal">
+          {text}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Modal = ({ isOpen, onClose, title, content, type }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col border border-slate-200" onClick={e => e.stopPropagation()}>
+        <div className="p-5 border-b flex justify-between items-center bg-slate-50">
+          <h3 className="text-xl font-semibold text-slate-800 flex items-center gap-2 uppercase tracking-tight">
+            {type === 'script' ? <MessageSquare className="text-cerulean w-5 h-5" /> : <Target className="text-teal-600 w-5 h-5" />}
+            {title}
+          </h3>
+          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+        <div className="p-8 overflow-y-auto">
+          {type === 'script' ? (
+            <div className="space-y-6">
+              {content ? content.map((s, i) => (
+                <div key={i} className="flex gap-4 items-start group">
+                  <div className="bg-cerulean/10 text-cerulean p-2 rounded-lg font-medium text-xs min-w-[32px] text-center border border-cerulean/20">{i + 1}</div>
+                  <p className="text-slate-700 leading-relaxed italic text-lg font-normal group-hover:text-slate-900 transition-colors text-left">"{s}"</p>
+                </div>
+              )) : <p className="font-normal leading-relaxed text-left">No scripts available.</p>}
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {content && (
+                <>
+                  <div className="bg-teal-50 p-6 rounded-xl border border-teal-100">
+                    <span className="text-teal-800 font-medium text-xs block mb-2 uppercase tracking-widest">SMART Objective</span>
+                    <p className="text-teal-900 text-xl font-semibold leading-relaxed text-left">{content.goal}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {content.raci && Object.entries(content.raci).map(([key, val]) => (
+                      <div key={key} className="p-4 border border-slate-100 rounded-xl bg-slate-50 hover:border-cerulean/30 transition-all">
+                        <span className="font-medium text-cerulean block text-xs mb-2 tracking-widest">{key}</span>
+                        <p className="text-sm text-slate-700 font-normal leading-relaxed text-left">{val}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="p-5 border-t bg-slate-50 text-right">
+          <button onClick={onClose} className="px-8 py-3 bg-slate-800 text-white rounded-xl font-medium hover:bg-slate-700 transition-all shadow-lg active:scale-95 uppercase tracking-widest text-xs">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AccordionRow = ({ data, openModal, isOpen, onToggle }) => (
+  <div className={`border-b border-slate-100 transition-all ${isOpen ? 'bg-slate-50' : 'bg-white hover:bg-slate-50'}`}>
+    <div className="px-8 py-5 flex items-center justify-between cursor-pointer group" onClick={onToggle}>
+      <div className="flex-1 flex items-center gap-4">
+        <div className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-cerulean' : 'bg-slate-300'}`} />
+        <h3 className="font-semibold text-slate-800 text-sm tracking-tight leading-relaxed">{data.section}</h3>
+      </div>
+      <div className="flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-2">
+            {data.autofail && (
+               <div className="inline-flex items-center gap-1 text-[#FF6334] font-medium text-[9px] uppercase tracking-widest bg-orange-50 px-2 py-0.5 rounded">
+                <ShieldAlert size={10} /> Auto-Fail
+              </div>
+            )}
+            {data.risk && (
+              <div className="inline-flex items-center gap-1 text-slate-400 font-medium text-[9px] uppercase tracking-widest">
+                <AlertTriangle size={10} /> Risk
+              </div>
+            )}
+        </div>
+        {isOpen ? <ChevronUp size={20} className="text-slate-400" /> : <ChevronDown size={20} className="text-slate-400" />}
+      </div>
+    </div>
+    
+    {isOpen && (
+      <div className="px-12 pb-8 pt-2 grid grid-cols-1 md:grid-cols-4 gap-8 animate-in fade-in slide-in-from-top-1">
+        <div className="space-y-2 text-left">
+          <span className="text-[10px] font-medium uppercase tracking-widest text-slate-400">Purpose</span>
+          <p className="text-xs text-slate-600 font-normal leading-relaxed">{data.purpose || 'N/A'}</p>
+        </div>
+        <div className="space-y-2 text-left">
+          <span className="text-[10px] font-medium uppercase tracking-widest text-slate-400">Execution Standard</span>
+          <p className="text-xs text-slate-600 font-semibold leading-relaxed">{data.standard || 'N/A'}</p>
+        </div>
+        <div className="space-y-2 text-left">
+          <span className="text-[10px] font-medium uppercase tracking-widest text-slate-400">What Excellent Looks Like</span>
+          <p className="text-xs text-slate-700 italic font-normal leading-relaxed">"{data.excellent || 'N/A'}"</p>
+        </div>
+        <div className="space-y-4 text-left">
+           {data.qa && (
+              <div className="space-y-2">
+                <span className="text-[10px] font-medium uppercase tracking-widest text-slate-400">QA Targets</span>
+                <div className="flex gap-1.5">
+                  {[3, 2, 1].map(num => (
+                    <Tooltip key={num} text={data.qa[num]}>
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold border-2 cursor-help transition-all
+                        ${num === 3 ? 'bg-teal-50 border-teal-100 text-teal-600' : 
+                          num === 2 ? 'bg-slate-50 border-slate-200 text-slate-400' : 
+                          'bg-orange-50 border-orange-100 text-orange-600'}`}>
+                        {num}
+                      </div>
+                    </Tooltip>
+                  ))}
+                </div>
+              </div>
+           )}
+           <div className="flex flex-col gap-2">
+            <button 
+              onClick={(e) => { e.stopPropagation(); openModal('script', data.section, data.scripts); }}
+              className="text-[10px] font-medium uppercase tracking-widest text-cerulean hover:text-deepTeal flex items-center gap-1 transition-colors"
+            >
+              <MessageSquare size={12} /> View Script
+            </button>
+            {data.smart && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); openModal('smart', "SMART + RACI Breakdown", data.smart); }}
+                className="text-[10px] font-medium uppercase tracking-widest text-teal-600 hover:text-deepTeal flex items-center gap-1 transition-colors"
+              >
+                <Target size={12} /> View SMART
+              </button>
+            )}
+           </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+const ChecklistItem = ({ label }) => {
+  const [checked, setChecked] = useState(false);
+  return (
+    <div 
+      className={`flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer ${checked ? 'bg-teal-50 border-teal-200' : 'bg-white border-slate-100 hover:border-slate-300'}`}
+      onClick={() => setChecked(!checked)}
+    >
+      <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${checked ? 'bg-teal-500 border-teal-500' : 'bg-white border-slate-300'}`}>
+        {checked && <CheckCircle2 className="text-white w-4 h-4" />}
+      </div>
+      <span className={`text-sm font-normal leading-relaxed text-left ${checked ? 'text-teal-800' : 'text-slate-700'}`}>{label}</span>
+    </div>
+  );
+};
+
+// --- Main App ---
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('client');
+  const [modal, setModal] = useState({ isOpen: false, type: '', title: '', content: null });
+  const [openRow, setOpenRow] = useState(0);
+
+  const openModal = (type, title, content) => setModal({ isOpen: true, type, title, content });
+  const closeModal = () => setModal({ ...modal, isOpen: false });
+
+  const tabs = [
+    { id: 'client', label: 'Client Track', icon: Users },
+    { id: 'va', label: 'VA Track', icon: UserCheck },
+    { id: 'rules', label: 'Golden Rules', icon: BookOpen },
+    { id: 'checklist', label: 'QA Checklists', icon: ClipboardCheck },
+    { id: 'silent', label: 'Silent Risk', icon: ShieldAlert },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#F8F8F8] font-['Montserrat'] text-[#1A1A1A] antialiased selection:bg-cerulean selection:text-white">
+      {/* Strict Font Import */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+        body { font-family: 'Montserrat', sans-serif; }
+      `}</style>
+
+      {/* Header Section */}
+      <header className="bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col items-center gap-6 text-center">
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 bg-[#025863] rounded-2xl flex items-center justify-center text-white shadow-xl shadow-teal-900/20">
+              <Zap size={40} fill="white" />
+            </div>
+            <div className="text-left">
+              <h1 className="text-4xl font-bold tracking-tighter text-[#1A1A1A] leading-none uppercase">
+                VA & CLIENT <span className="text-[#00AFC0]">Check-in Bible</span>
+              </h1>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="bg-[#00AFC0] text-white text-[10px] font-medium uppercase px-2 py-0.5 rounded tracking-widest">Internal Op Tool</span>
+                <span className="text-slate-400 text-[10px] font-medium uppercase tracking-widest">Mountain Mover Excellence</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="max-w-7xl mx-auto px-6 pb-6">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setOpenRow(0);
+                }}
+                className={`flex items-center gap-2.5 px-6 py-3 rounded-xl text-xs font-medium uppercase tracking-widest transition-all
+                  ${activeTab === tab.id 
+                    ? 'bg-[#025863] text-white shadow-xl shadow-teal-900/10' 
+                    : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`}
+              >
+                <tab.icon size={16} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-6 py-10">
+        
+        {/* Accordion Audit Section */}
+        {(activeTab === 'client' || activeTab === 'va') && (
+          <div className="space-y-10 animate-in fade-in slide-in-from-bottom-2">
+            <div className="bg-white rounded-[2rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+              <div className={`p-6 flex items-center justify-between text-white ${activeTab === 'client' ? 'bg-[#00AFC0]' : 'bg-[#008BA3]'}`}>
+                <div className="flex items-center gap-4">
+                  {activeTab === 'client' ? <Users size={28} /> : <UserCheck size={28} />}
+                  <h2 className="text-2xl font-bold uppercase tracking-tighter leading-relaxed text-left">
+                    Performance Audit: {activeTab === 'client' ? 'Client Experience' : 'VA Performance'}
+                  </h2>
+                </div>
+                <div className="hidden md:flex flex-col items-end">
+                  <span className="text-[10px] font-medium uppercase tracking-widest opacity-80">Operational Standard</span>
+                  <span className="text-xs font-semibold leading-relaxed">Comprehensive Review Mode</span>
+                </div>
+              </div>
+              
+              <div className="flex flex-col">
+                {(activeTab === 'client' ? CLIENT_CHECKIN_DATA : VA_CHECKIN_DATA).map((row, idx) => (
+                  <AccordionRow 
+                    key={idx} 
+                    data={row} 
+                    openModal={openModal}
+                    isOpen={openRow === idx}
+                    onToggle={() => setOpenRow(openRow === idx ? -1 : idx)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Summary Cards */}
+            <div className="grid md:grid-cols-2 gap-8">
+               <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-5"><Users size={120} /></div>
+                  <h3 className="text-lg font-semibold uppercase tracking-widest text-cerulean mb-6 flex items-center gap-2">
+                    <CheckCircle2 size={18} /> Final Standards
+                  </h3>
+                  <div className="space-y-4 relative z-10 text-left">
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <p className="text-[10px] font-medium uppercase tracking-widest text-slate-400 mb-2">Client Should Leave Thinking</p>
+                      <p className="text-sm font-bold text-slate-800 italic leading-relaxed">"Talking to my AM is necessary. They protect my operations."</p>
+                    </div>
+                    <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                      <p className="text-[10px] font-medium uppercase tracking-widest text-slate-400 mb-2">VA Should Leave Thinking</p>
+                      <p className="text-sm font-bold text-slate-800 italic leading-relaxed">"I know exactly what to improve. I'm accountable."</p>
+                    </div>
+                  </div>
+               </div>
+               
+               <div className="bg-[#1A1A1A] p-8 rounded-3xl text-white relative overflow-hidden shadow-xl">
+                  <div className="absolute top-0 right-0 p-4 opacity-10"><Target size={120} /></div>
+                  <h3 className="text-lg font-semibold uppercase tracking-widest text-[#00AFC0] mb-6 flex items-center gap-2">
+                    <TrendingDown size={18} /> Strategic Note
+                  </h3>
+                  <p className="text-slate-400 text-sm font-normal leading-relaxed relative z-10 italic text-left">
+                    "Ownership builds retention. Dependency creates resignations. If the AM provides the answer, the VA lacks buy-in. Always guide them to define their own path to a 10."
+                  </p>
+                  <div className="mt-8 pt-6 border-t border-white/10 flex justify-between items-center text-[10px] font-medium uppercase tracking-widest">
+                    <span>Accountability</span>
+                    <span>Growth</span>
+                    <span>Retention</span>
+                  </div>
+               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Golden Rules Tab */}
+        {activeTab === 'rules' && (
+          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+            <div className="grid lg:grid-cols-2 gap-8">
+              <div className="space-y-6 text-left">
+                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl">
+                  <div className="bg-cerulean/10 text-cerulean w-12 h-12 rounded-2xl flex items-center justify-center mb-6">
+                    <TrendingDown size={28} />
+                  </div>
+                  <h2 className="text-xl font-bold mb-2 uppercase tracking-tighter leading-relaxed">{GOLDEN_RULES_VA[0].title}</h2>
+                  <p className="text-sm font-semibold text-slate-400 mb-6 italic leading-relaxed">{GOLDEN_RULES_VA[0].note}</p>
+                  
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-orange-600 text-[10px] font-medium uppercase tracking-widest mb-1">
+                        <XCircle size={14} /> Avoid
+                      </div>
+                      {GOLDEN_RULES_VA[0].avoid.map((item, i) => (
+                        <div key={i} className="text-sm font-normal text-slate-400 line-through italic leading-relaxed">{item}</div>
+                      ))}
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-teal-600 text-[10px] font-medium uppercase tracking-widest mb-1">
+                        <ThumbsUp size={14} /> Use
+                      </div>
+                      {GOLDEN_RULES_VA[0].use.map((item, i) => (
+                        <div key={i} className="text-sm font-bold text-slate-800 italic leading-relaxed">{item}</div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl">
+                  <h3 className="text-xl font-semibold mb-4 uppercase tracking-tighter leading-relaxed">{GOLDEN_RULES_VA[2].title}</h3>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {GOLDEN_RULES_VA[2].watch.map((item, i) => (
+                      <span key={i} className="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-[10px] font-medium uppercase tracking-widest border border-orange-100">{item}</span>
+                    ))}
+                  </div>
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div className="text-[10px] font-medium uppercase tracking-widest text-slate-400 mb-2">Respond with</div>
+                    <p className="text-lg font-bold text-slate-800 italic leading-relaxed">"{GOLDEN_RULES_VA[2].respond}"</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6 text-left">
+                {[1, 3, 4].map(idx => (
+                  <div key={idx} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl group hover:border-cerulean/30 transition-all">
+                    <h3 className="text-xl font-semibold mb-4 uppercase tracking-tighter group-hover:text-cerulean transition-colors leading-relaxed">{GOLDEN_RULES_VA[idx].title}</h3>
+                    <p className="text-slate-600 text-sm leading-relaxed font-normal">
+                      {GOLDEN_RULES_VA[idx].content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* QA Checklists Tab */}
+        {activeTab === 'checklist' && (
+          <div className="grid lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4">
+            <div className="bg-white p-10 rounded-[2.5rem] shadow-xl border border-slate-100 text-left">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 bg-cerulean/10 text-cerulean rounded-2xl flex items-center justify-center"><Users size={28} /></div>
+                <h2 className="text-2xl font-bold uppercase tracking-tighter leading-relaxed">Client Check-In Audit</h2>
+              </div>
+              
+              <div className="space-y-8">
+                <div className="grid gap-3">
+                  <div className="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-2">Core Behaviors</div>
+                  {QA_CHECKLIST_CLIENT[0].items.map((item, i) => <ChecklistItem key={`c0-${i}`} label={item} />)}
+                  {QA_CHECKLIST_CLIENT[1].items.map((item, i) => <ChecklistItem key={`c1-${i}`} label={item} />)}
+                </div>
+                <div className="grid gap-3">
+                  <div className="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-2">Strategic Standards</div>
+                  {QA_CHECKLIST_CLIENT[3] && QA_CHECKLIST_CLIENT[3].items.map((item, i) => <ChecklistItem key={`c3-${i}`} label={item} />)}
+                  {QA_CHECKLIST_CLIENT[5] && QA_CHECKLIST_CLIENT[5].items.map((item, i) => <ChecklistItem key={`c5-${i}`} label={item} />)}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-10 rounded-[2.5rem] shadow-xl border border-slate-100 text-left">
+              <div className="flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center"><UserCheck size={28} /></div>
+                <h2 className="text-2xl font-bold uppercase tracking-tighter leading-relaxed">VA Check-In Audit</h2>
+              </div>
+              
+              <div className="space-y-8">
+                <div className="grid gap-3">
+                  <div className="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-2">Core Behaviors</div>
+                  {QA_CHECKLIST_VA[0].items.map((item, i) => <ChecklistItem key={`v0-${i}`} label={item} />)}
+                  {QA_CHECKLIST_VA[1].items.map((item, i) => <ChecklistItem key={`v1-${i}`} label={item} />)}
+                </div>
+                <div className="grid gap-3">
+                  <div className="text-[10px] font-medium text-slate-400 uppercase tracking-[0.2em] mb-2">Operational Integrity</div>
+                  {QA_CHECKLIST_VA[4] && QA_CHECKLIST_VA[4].items.map((item, i) => <ChecklistItem key={`v4-${i}`} label={item} />)}
+                  {QA_CHECKLIST_VA[5] && QA_CHECKLIST_VA[5].items.map((item, i) => <ChecklistItem key={`v5-${i}`} label={item} />)}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Silent Risk Tab */}
+        {activeTab === 'silent' && (
+          <div className="space-y-8 animate-in fade-in zoom-in-95">
+            <div className="bg-[#FF6334] p-10 rounded-[2.5rem] text-white flex flex-col md:flex-row items-center gap-10 relative overflow-hidden text-left">
+               <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12"><ShieldAlert size={200} /></div>
+               <div className="flex-1 relative z-10">
+                 <h2 className="text-4xl font-bold uppercase tracking-tighter mb-4 leading-relaxed">Silent Cancellation Guide</h2>
+                 <p className="text-lg font-normal text-white/80 max-w-2xl leading-relaxed">
+                   Cancellation doesn't happen on a phone call. It happens quietly weeks before. Detect the signals.
+                 </p>
+               </div>
+               <div className="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/20 relative z-10">
+                 <div className="text-4xl font-bold mb-1">7</div>
+                 <div className="text-[10px] font-medium uppercase tracking-widest opacity-80">Silent Risk Warning Signs</div>
+               </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {SILENT_CANCELLATIONS.map((risk) => (
+                <div key={risk.id} className="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl group hover:border-[#FF6334]/50 transition-all text-left">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-orange-50 text-[#FF6334] flex items-center justify-center font-bold">{risk.id}</div>
+                    <h3 className="text-lg font-semibold uppercase tracking-tighter group-hover:text-[#FF6334] transition-colors leading-relaxed">{risk.title}</h3>
+                  </div>
+                  <p className="text-slate-600 text-sm leading-relaxed font-normal">{risk.content}</p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="bg-slate-900 rounded-[2.5rem] p-12 text-white text-center relative overflow-hidden">
+               <div className="absolute inset-0 bg-cerulean/5 opacity-50" />
+               <h3 className="text-2xl font-bold uppercase tracking-tighter mb-6 relative z-10 text-[#00AFC0] leading-relaxed">AM Survival Standard</h3>
+               <p className="text-xl font-bold italic max-w-3xl mx-auto relative z-10 leading-relaxed text-left">
+                 "If the AM only relays messages and doesn't monitor metrics, the client asks: 'Why am I paying this layer?' Reposition VA value constantly."
+               </p>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="max-w-7xl mx-auto px-6 py-12 text-center border-t border-slate-200 opacity-40">
+        <div className="flex flex-col items-center gap-4">
+           <div className="flex items-center gap-3">
+             <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center text-white"><Zap size={16} /></div>
+             <span className="text-[10px] font-medium uppercase tracking-[0.3em]">My Mountain Mover Excellence</span>
+           </div>
+           <p className="text-[9px] font-normal uppercase tracking-widest leading-loose">
+             Clarity • Simplicity • Balance • Consistency • Originality<br />
+             Operational Check-in Bible • {new Date().getFullYear()}
+           </p>
+        </div>
+      </footer>
+
+      {/* Modals */}
+      <Modal 
+        isOpen={modal.isOpen} 
+        onClose={closeModal} 
+        title={modal.title} 
+        content={modal.content} 
+        type={modal.type} 
+      />
+    </div>
+  );
+}
