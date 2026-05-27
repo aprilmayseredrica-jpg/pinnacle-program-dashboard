@@ -37,9 +37,17 @@
     }
     .bar-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
+</head>
+<body class="bg-[#F8F8F8] text-[#025863] min-h-screen antialiased">
+  
+  <div id="root"></div>
 
-  <!-- PURE JAVASCRIPT DATA BLOCK -->
-  <script>
+  <script type="text/babel">
+    const { useState, useMemo, Fragment } = React;
+
+    // ==========================================
+    // DATA GENERATORS & CONSTANTS
+    // ==========================================
     const HISTORICAL_SUMMARY = {
       '2023': { starts: 200, cxls: 75, rate: 37.5 },
       '2024': { starts: 259, cxls: 67, rate: 25.9 },
@@ -54,6 +62,7 @@
       const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
       const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics'];
 
+      // Weighted Random Helpers to ensure realistic distributions
       const pickWeighted = (options) => {
         const totalWeight = options.reduce((sum, opt) => sum + opt.w, 0);
         let rand = Math.random() * totalWeight;
@@ -69,6 +78,27 @@
         { v: 'For Replacement', w: 40 },
         { v: 'Reduced VAs', w: 15 }
       ];
+
+      const subIssues = {
+        'VA Issues': [
+          { value: 'Quality / Skills', weight: 40 },
+          { value: 'Attendance', weight: 20 },
+          { value: 'Responsiveness', weight: 15 },
+          { value: 'Commitment', weight: 15 },
+          { value: 'Quantity / Output', weight: 10 }
+        ],
+        'Client Setup Issues': [
+          { value: 'Unrealistic Expectations', weight: 40 },
+          { value: 'Unclear Workflow', weight: 40 },
+          { value: 'Tech Setup Gaps', weight: 20 }
+        ],
+        'Financial Issues': [
+          { value: 'Budget Cuts', weight: 60 },
+          { value: 'Clinic Downsizing', weight: 40 }
+        ],
+        'Failed Placement': [{ value: 'HTP Mismatch', weight: 100 }],
+        'Back Out VA': [{ value: 'Ghosted pre-start', weight: 100 }]
+      };
 
       [2023, 2024, 2025, 2026].forEach(year => {
         const count = HISTORICAL_SUMMARY[year].cxls;
@@ -91,24 +121,21 @@
           }
 
           // Assign Sub-Issue
-          if (reason === 'VA Issues') specificIssue = pickWeighted([{v:'Quality / Skills', w:40}, {v:'Attendance', w:20}, {v:'Responsiveness', w:15}, {v:'Commitment', w:15}, {v:'Quantity / Output', w:10}]);
-          else if (reason === 'Client Setup Issues') specificIssue = pickWeighted([{v:'Unrealistic Expectations', w:40}, {v:'Unclear Workflow', w:40}, {v:'Tech Setup Gaps', w:20}]);
-          else if (reason === 'Financial Issues') specificIssue = pickWeighted([{v:'Budget Cuts', w:60}, {v:'Clinic Downsizing', w:40}]);
-          else specificIssue = pickWeighted([{v:'HTP Mismatch', w:60}, {v:'Backout VA', w:40}]);
+          specificIssue = pickWeighted(subIssues[reason] || [{ value: 'Unknown', weight: 100 }]);
 
           // Preventable Link
-          if (reason === 'Client Setup Issues') prevent = 'Sales Qualification / Readiness';
+          if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
           else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
           else prevent = 'Uncontrollable / N/A';
 
-          let controllability = (prevent === 'Placements & Matching' || prevent === 'Sales Qualification / Readiness') ? 'Controllable' : 'Partially controllable';
+          let controllability = (prevent === 'Placements & Matching' || prevent === 'Sales Qualification/Client Readiness') ? 'Controllable' : 'Partially controllable';
           if (reason === 'Financial Issues') controllability = 'Mostly uncontrollable';
 
           const resolution = pickWeighted(resolutions);
 
-          // Tenure Data Constraints (<90 days)
+          // Tenure Data Constraints (Must be <90 days)
           let daysBeforeCxl;
-          if (reason === 'Failed Placement' || specificIssue === 'Backout VA') {
+          if (reason === 'Failed Placement' || reason === 'Back Out VA') {
             daysBeforeCxl = Math.floor(Math.random() * 14); // 0-13 days
           } else if (reason === 'Client Setup Issues') {
             daysBeforeCxl = Math.floor(Math.random() * 16) + 15; // 15-30 days
@@ -130,14 +157,6 @@
       });
       return data;
     })();
-  </script>
-</head>
-<body class="bg-[#F8F8F8] text-[#025863] min-h-screen antialiased">
-  
-  <div id="root"></div>
-
-  <script type="text/babel">
-    const { useState, useMemo, Fragment } = React;
 
     // ==========================================
     // UI HELPER COMPONENTS
@@ -150,8 +169,6 @@
         Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
         Target: <Fragment><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Fragment>,
         Search: <Fragment><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></Fragment>,
-        ShieldAlert: <Fragment><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></Fragment>,
-        AlertTriangle: <Fragment><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></Fragment>,
         Clock: <Fragment><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></Fragment>
       };
       return (
@@ -278,7 +295,7 @@
       const requestSort = key => setLedgerSortConfig({ key, direction: ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc' ? 'desc' : 'asc' });
       const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>;
 
-      // Month Ledger Aggregation
+      // Month Ledger Aggregation (Ignores month filter to show full calendar)
       const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear]);
 
       const monthlyBreakdown = useMemo(() => {
@@ -295,6 +312,7 @@
       const dynamicKPIs = useMemo(() => {
         const totalCxls = filteredCancellations.length;
         let startsCount = 100, dynamicCxlRate = 0;
+        
         if (selectedYear !== 'All') {
           startsCount = HISTORICAL_SUMMARY[selectedYear]?.starts || 100;
           dynamicCxlRate = (totalCxls / startsCount) * 100;
@@ -311,11 +329,12 @@
         return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1), topTrigger };
       }, [filteredCancellations, selectedYear]);
 
-      // Hierarchical Drill-down Logic
+      // Safely Derived Hierarchical Drill-down Logic (No render-phase state mutations)
       const drillDownData = useMemo(() => {
         if (!cxlYearFocus) return null;
-        const focusData = RAW_CANCELLATIONS.filter(c => c.year === cxlYearFocus);
+        const focusData = filteredCancellations.filter(c => c.year === cxlYearFocus);
         
+        // 1. Resolutions
         const resMap = {};
         focusData.forEach(c => {
           resMap[c.resolution] = resMap[c.resolution] || { count: 0, days: 0 };
@@ -323,28 +342,34 @@
         });
         const resList = Object.entries(resMap).map(([k, v]) => ({ name: k, count: v.count, avgDays: Math.round(v.days/v.count) })).sort((a,b)=>b.count-a.count);
 
-        let currentRes = focusResolution;
-        if (!resMap[currentRes] && resList.length > 0) { currentRes = resList[0].name; setTimeout(() => setFocusResolution(currentRes), 0); }
+        // Safe Default Selection for Resolutions
+        const activeRes = resMap[focusResolution] ? focusResolution : (resList[0]?.name || '');
 
+        // 2. Reasons 
         const reasonMap = {};
-        focusData.filter(c => c.resolution === currentRes).forEach(c => {
+        focusData.filter(c => c.resolution === activeRes).forEach(c => {
           reasonMap[c.reason] = reasonMap[c.reason] || { count: 0, days: 0 };
           reasonMap[c.reason].count++; reasonMap[c.reason].days += c.daysBeforeCxl;
         });
         const reasonList = Object.entries(reasonMap).map(([k, v]) => ({ name: k, count: v.count, avgDays: Math.round(v.days/v.count) })).sort((a,b)=>b.count-a.count);
 
-        let currentReas = focusReason;
-        if (!reasonMap[currentReas] && reasonList.length > 0) { currentReas = reasonList[0].name; setTimeout(() => setFocusReason(currentReas), 0); }
+        // Safe Default Selection for Reasons
+        const activeReas = reasonMap[focusReason] ? focusReason : (reasonList[0]?.name || '');
 
+        // 3. Sub Issues
         const specMap = {};
-        focusData.filter(c => c.resolution === currentRes && c.reason === currentReas).forEach(c => {
+        focusData.filter(c => c.resolution === activeRes && c.reason === activeReas).forEach(c => {
           specMap[c.specificIssue] = specMap[c.specificIssue] || { count: 0, days: 0 };
           specMap[c.specificIssue].count++; specMap[c.specificIssue].days += c.daysBeforeCxl;
         });
         const specList = Object.entries(specMap).map(([k, v]) => ({ name: k, count: v.count, avgDays: Math.round(v.days/v.count) })).sort((a,b)=>b.count-a.count);
 
-        return { resList, reasonList, specList, totalFocus: focusData.length };
-      }, [cxlYearFocus, focusResolution, focusReason]);
+        return { 
+          resList, reasonList, specList, 
+          totalFocus: focusData.length,
+          activeRes, activeReas 
+        };
+      }, [cxlYearFocus, focusResolution, focusReason, filteredCancellations]);
 
       // Tenure Buckets Logic (Brass Tacks Forensics)
       const tenureData = useMemo(() => {
@@ -356,12 +381,23 @@
         ];
 
         let runningTotal = 0;
-        return buckets.map((b, index) => {
+        return buckets.map((b) => {
           const cases = filteredCancellations.filter(c => c.daysBeforeCxl >= b.min && c.daysBeforeCxl <= b.max);
           const reasons = {};
           cases.forEach(c => reasons[c.reason] = (reasons[c.reason] || 0) + 1);
           runningTotal += cases.length;
           return { ...b, total: cases.length, reasons, cases, cumulative: runningTotal };
+        });
+      }, [filteredCancellations]);
+
+      // Dynamic YoY Stats Calculation to sync Line Chart with active filters
+      const yoyStats = useMemo(() => {
+        const years = ['2023', '2024', '2025', '2026'];
+        return years.map(y => {
+          const starts = HISTORICAL_SUMMARY[y].starts;
+          const cxls = filteredCancellations.filter(c => c.year === y).length;
+          const rate = starts > 0 ? ((cxls / starts) * 100).toFixed(1) : 0;
+          return { year: y, starts, cxls, rate: parseFloat(rate) };
         });
       }, [filteredCancellations]);
 
@@ -391,7 +427,7 @@
               <div>
                 <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Reality</p>
                 <p className="text-sm font-medium leading-relaxed text-slate-300">
-                  Yes. Following the Q1 2025 ROCK implementation (April 1, 2025), OS teams successfully stabilized the pipeline, hitting the goal to reduce <strong className="text-white">Client Setup-driven</strong> early cancellations by 40%. The overall early churn dropped by <strong className="text-white">~1,000 bps</strong>. However, OS currently functions as a defensive "containment layer"—catching upstream mismatches.
+                  Yes. Following the Q1 2025 ROCK implementation, OS teams successfully stabilized the pipeline, hitting the goal to reduce <strong className="text-white">Client Setup-driven</strong> early cancellations by &gt;40%. The overall early churn dropped by <strong className="text-white">~1,000 bps</strong>. However, OS currently functions as a defensive "containment layer"—catching upstream mismatches.
                 </p>
               </div>
               
@@ -407,9 +443,10 @@
       );
 
       const renderMacroPipeline = () => {
-        const years = ['2023', '2024', '2025', '2026'];
-        const linePoints = years.map((y, i) => `${150 + (i * 170)},${200 - (HISTORICAL_SUMMARY[y].rate / 50) * 160}`);
-        
+        // Build dynamic SVG paths for the line chart based on filtered data
+        const linePoints = yoyStats.map((stat, i) => `${150 + (i * 170)},${200 - (stat.rate / 50) * 160}`);
+        const dPath = "M " + linePoints.join(" L ");
+
         return (
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
             <div className="border-b border-slate-100 pb-4 mb-6">
@@ -429,36 +466,40 @@
                 <g className="fill-slate-400 text-[9px] font-mono"><text x="15" y="44">300</text><text x="15" y="124">150</text><text x="15" y="204">0</text></g>
                 <g className="fill-[#F59E0B] text-[9px] font-mono font-bold"><text x="710" y="44">50%</text><text x="710" y="124">25%</text><text x="710" y="204">0%</text></g>
 
-                {years.map((y, idx) => {
+                {yoyStats.map((stat, idx) => {
                   const cx = 150 + (idx * 170);
-                  const sH = (HISTORICAL_SUMMARY[y].starts / 300) * 160;
-                  const cH = (HISTORICAL_SUMMARY[y].cxls / 300) * 160;
-                  const isFocused = cxlYearFocus === y;
+                  const sH = (stat.starts / 300) * 160;
+                  const cH = (stat.cxls / 300) * 160;
+                  const isFocused = cxlYearFocus === stat.year;
 
                   return (
-                    <g key={y}>
-                      <text x={cx} y="220" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{y}</text>
+                    <g key={stat.year}>
+                      <text x={cx} y="220" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{stat.year}</text>
                       <rect x={cx - 20} y={200 - sH} width="18" height={sH} fill="#025863" rx="2" opacity="0.9" />
-                      <text x={cx - 11} y={195 - sH} className="text-[9px] font-bold fill-[#025863]" textAnchor="middle">{HISTORICAL_SUMMARY[y].starts}</text>
+                      <text x={cx - 11} y={195 - sH} className="text-[9px] font-bold fill-[#025863]" textAnchor="middle">{stat.starts}</text>
                       
                       <rect 
                         x={cx + 2} y={200 - cH} width="18" height={cH} 
                         fill={isFocused ? "#E11D48" : "#FF6334"} rx="2" 
                         className="cursor-pointer transition-all duration-200 hover:brightness-110 hover:stroke-2 hover:stroke-rose-900" 
-                        onClick={() => setCxlYearFocus(isFocused ? null : y)} 
+                        onClick={() => setCxlYearFocus(isFocused ? null : stat.year)} 
                       />
-                      <text x={cx + 11} y={195 - cH} className="text-[9px] font-bold fill-[#FF6334]" textAnchor="middle">{HISTORICAL_SUMMARY[y].cxls}</text>
+                      <text x={cx + 11} y={195 - cH} className="text-[9px] font-bold fill-[#FF6334]" textAnchor="middle">{stat.cxls}</text>
                     </g>
                   );
                 })}
 
-                <path d={`M ${linePoints.join(" L ")}`} fill="none" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
-                {years.map((y, i) => (
-                  <g key={`line-${y}`}>
-                    <circle cx={150 + (i * 170)} cy={200 - (HISTORICAL_SUMMARY[y].rate / 50) * 160} r="6" fill="#fff" stroke="#F59E0B" strokeWidth="3" />
-                    <text x={150 + (i * 170)} y={200 - (HISTORICAL_SUMMARY[y].rate / 50) * 160 - 12} className="text-[10px] font-bold fill-[#F59E0B]" textAnchor="middle">{HISTORICAL_SUMMARY[y].rate}%</text>
-                  </g>
-                ))}
+                <path d={dPath} fill="none" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
+                {yoyStats.map((stat, i) => {
+                  const cx = 150 + (i * 170);
+                  const cy = 200 - (stat.rate / 50) * 160;
+                  return (
+                    <g key={`line-${stat.year}`}>
+                      <circle cx={cx} cy={cy} r="6" fill="#fff" stroke="#F59E0B" strokeWidth="3" />
+                      <text x={cx} y={cy - 12} className="text-[10px] font-bold fill-[#F59E0B]" textAnchor="middle">{stat.rate}%</text>
+                    </g>
+                  );
+                })}
               </svg>
 
               <div className="absolute top-0 right-0 bg-slate-50 border border-slate-200 p-3 rounded text-xs shadow-sm">
@@ -475,7 +516,7 @@
                   <div>
                     <h3 className="text-lg font-bold text-[#025863]">Hierarchical Causal Drill-Down: {cxlYearFocus}</h3>
                     <div className="bg-amber-50 border-l-4 border-amber-500 p-2 mt-2 max-w-4xl">
-                      <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Accurately maps the anatomy of failure. Select a Resolution to reveal its Reasons. Select a Reason to expose specific Sub-Issues. <br/><strong className="text-amber-700">ACTION: Target root defects with highest volume & lowest average tenure.</strong></p>
+                      <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Accurately maps the anatomy of failure. Select a Resolution to reveal its Reasons. Select a Reason to expose specific Sub-Issues. <br/><strong className="text-amber-700">ACTION: Target root defects with highest volume &amp; lowest average tenure.</strong></p>
                     </div>
                   </div>
                   <button onClick={() => setCxlYearFocus(null)} className="text-[10px] font-bold text-slate-500 hover:text-rose-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 transition shrink-0">CLOSE</button>
@@ -487,7 +528,7 @@
                     <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">1. Resolution Outcomes</h4>
                     <div className="space-y-2">
                       {drillDownData.resList.map(item => {
-                        const isSel = focusResolution === item.name;
+                        const isSel = drillDownData.activeRes === item.name;
                         const pct = Math.round((item.count / drillDownData.totalFocus) * 100);
                         return (
                           <div key={item.name} onClick={() => {setFocusResolution(item.name);}} className={`p-2 rounded border cursor-pointer transition-colors relative overflow-hidden ${isSel ? 'bg-white border-[#025863] shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-100'}`}>
@@ -508,11 +549,11 @@
                   {/* Column 2: Reasons */}
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 relative">
                     <div className="hidden md:block absolute -left-3 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-300"></div>
-                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">2. Reasons for '{focusResolution}'</h4>
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">2. Reasons for '{drillDownData.activeRes}'</h4>
                     <div className="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scroll-x">
                       {drillDownData.reasonList.map(item => {
-                        const isSel = focusReason === item.name;
-                        const parentCount = drillDownData.resList.find(r=>r.name===focusResolution)?.count || 1;
+                        const isSel = drillDownData.activeReas === item.name;
+                        const parentCount = drillDownData.resList.find(r=>r.name===drillDownData.activeRes)?.count || 1;
                         const pct = Math.round((item.count / parentCount) * 100);
                         return (
                           <div key={item.name} onClick={() => setFocusReason(item.name)} className={`p-2 rounded border cursor-pointer transition-colors relative overflow-hidden ${isSel ? 'bg-white border-[#00AFC0] shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-100'}`}>
@@ -533,10 +574,10 @@
                   {/* Column 3: Sub Issues */}
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 relative">
                     <div className="hidden md:block absolute -left-3 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-300"></div>
-                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">3. Sub-Issues for '{focusReason}'</h4>
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">3. Sub-Issues for '{drillDownData.activeReas}'</h4>
                     <div className="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scroll-x">
                       {drillDownData.specList.map(item => {
-                        const parentCount = drillDownData.reasonList.find(r=>r.name===focusReason)?.count || 1;
+                        const parentCount = drillDownData.reasonList.find(r=>r.name===drillDownData.activeReas)?.count || 1;
                         const pct = Math.round((item.count / parentCount) * 100);
                         return (
                           <div key={item.name} className="p-2 rounded border border-transparent bg-white shadow-xs relative overflow-hidden">
@@ -565,8 +606,6 @@
       function renderTenureForensics() {
         const maxTotal = Math.max(...tenureData.map(d => d.total)) || 10;
         const totalCxlsAll = filteredCancellations.length || 1;
-
-        // Path for cumulative percentage line overlay
         const linePoints = tenureData.map((b, i) => `${140 + (i * 170) + 20},${210 - ((b.cumulative / totalCxlsAll) * 180)}`);
 
         return (
@@ -596,9 +635,9 @@
 
                 {tenureData.map((bucket, idx) => {
                   const colWidth = 40; 
-                  const startX = 140 + idx * 170; // 4 columns spread out
+                  const startX = 140 + idx * 170; 
                   let currentHeightSum = 0; 
-                  const scale = 180 / maxTotal; // max height is 180px
+                  const scale = 180 / maxTotal; 
 
                   const segments = Object.entries(bucket.reasons).map(([r, count]) => {
                     const h = count * scale; 
@@ -796,7 +835,7 @@
                 <div className="mt-2 pl-3 border-l-2 border-[#00AFC0]">
                   <p className="text-[11px] text-slate-500 font-semibold mb-0.5">
                     <span className="text-rose-500 uppercase tracking-widest text-[9px] mr-1">Data Scope:</span> 
-                    Exclusively dissecting new client cancellations within <strong className="text-slate-700">90 days</strong> of their RVA start date.
+                    Exclusively dissecting new client cancellations within <strong className="text-slate-700">&lt;90 days</strong> of their RVA start date.
                   </p>
                   <p className="text-[11px] text-slate-500 font-semibold">
                     <span className="text-[#008BA3] uppercase tracking-widest text-[9px] mr-1">System Note:</span> 
