@@ -37,17 +37,9 @@
     }
     .bar-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
-</head>
-<body class="bg-slate-50 text-[#025863] min-h-screen antialiased">
-  
-  <div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useMemo, Fragment } = React;
-
-    // ==========================================
-    // DATA GENERATORS & CONSTANTS
-    // ==========================================
+  <!-- PURE JAVASCRIPT DATA BLOCK (Outside Babel to prevent memory crashes) -->
+  <script>
     const HISTORICAL_SUMMARY = {
       '2023': { starts: 200, cxls: 75, rate: 37.5 },
       '2024': { starts: 259, cxls: 67, rate: 25.9 },
@@ -55,12 +47,14 @@
       '2026': { starts: 77, cxls: 17, rate: 22.1 }
     };
 
-    // Generating Data based on Q1C2025 ROCK Document Context
     const RAW_CANCELLATIONS = (() => {
       const data = [];
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const monthMap = {'Jan':1,'Feb':2,'Mar':3,'Apr':4,'May':5,'Jun':6,'Jul':7,'Aug':8,'Sep':9,'Oct':10,'Nov':11,'Dec':12};
       const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
-      
+      const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics'];
+
+      // Weighted Random Helpers to ensure realistic, unequal distributions
       const pickWeighted = (options) => {
         const totalWeight = options.reduce((sum, opt) => sum + opt.w, 0);
         let rand = Math.random() * totalWeight;
@@ -69,6 +63,45 @@
           rand -= opt.w;
         }
         return options[0].v;
+      };
+
+      const resolutions = [
+        { value: 'Cancelled', weight: 45 },
+        { value: 'For Replacement', weight: 40 },
+        { value: 'Reduced VAs', weight: 15 }
+      ];
+
+      const reasons = [
+        { value: 'VA Issues', weight: 50 },
+        { value: 'Client Setup Issues', weight: 20 },
+        { value: 'Failed Placement', weight: 10 },
+        { value: 'Financial Issues', weight: 10 },
+        { value: 'Resignation', weight: 5 },
+        { value: 'Back Out VA', weight: 5 }
+      ];
+
+      const subIssues = {
+        'VA Issues': [
+          { value: 'Quality / Skills', weight: 40 },
+          { value: 'Attendance', weight: 20 },
+          { value: 'Responsiveness', weight: 15 },
+          { value: 'Commitment', weight: 10 },
+          { value: 'Quantity / Output', weight: 10 },
+          { value: 'Backout VA', weight: 5 }
+        ],
+        'Client Setup Issues': [
+          { value: 'Unrealistic Expectations', weight: 40 },
+          { value: 'Unclear Workflow', weight: 40 },
+          { value: 'Tech Setup Gaps', weight: 20 }
+        ],
+        'Financial Issues': [
+          { value: 'Budget Cuts', weight: 60 },
+          { value: 'Clinic Downsizing', weight: 30 },
+          { value: 'Non-Payment', weight: 10 }
+        ],
+        'Failed Placement': [{ value: 'HTP Mismatch', weight: 100 }],
+        'Resignation': [{ value: 'Overwhelmed VA', weight: 80 }, { value: 'Personal/Health', weight: 20 }],
+        'Back Out VA': [{ value: 'Ghosted pre-start', weight: 100 }]
       };
 
       [2023, 2024, 2025, 2026].forEach(year => {
@@ -80,59 +113,41 @@
           const day = ((i * 7) % 28) + 1;
           const dateStr = `${year}-${monthNum}-${day.toString().padStart(2, '0')}`;
           
-          // ROCK Target: OS launched April 1, 2025.
-          const isPreOS = year < 2025 || (year === 2025 && mIdx < 3);
-          const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
-
-          let reason, specificIssue, prevent, controllability, resolution;
-
-          if (isPreOS) {
-            // High client setup issues before OS implementation
-            reason = pickWeighted([
-              { v: 'Client Setup Issues', w: 45 },
-              { v: 'VA Issues', w: 30 },
-              { v: 'Failed Placement', w: 15 },
-              { v: 'Financial Issues', w: 10 }
-            ]);
-          } else {
-            // Client setup issues dropped drastically (Meeting 40% reduction ROCK target)
-            reason = pickWeighted([
-              { v: 'VA Issues', w: 55 },
-              { v: 'Failed Placement', w: 20 },
-              { v: 'Client Setup Issues', w: 15 },
-              { v: 'Financial Issues', w: 10 }
-            ]);
+          let specialist = 'Unassigned / Pre-System';
+          // No OS assigned prior to April 2025
+          if (year > 2025 || (year === 2025 && mIdx >= 3)) {
+            specialist = specsList[i % specsList.length];
           }
 
-          // Assign exact sub-issues from the CSV parameters
-          if (reason === 'VA Issues') {
-            specificIssue = pickWeighted([{v:'Quality / Skills', w:40}, {v:'Attendance', w:20}, {v:'Responsiveness', w:15}, {v:'Commitment', w:15}, {v:'Quantity / Output', w:10}]);
+          const resolution = pickWeighted(resolutions);
+          const reason = pickWeighted(reasons);
+          const specificIssue = pickWeighted(subIssues[reason] || [{ value: 'Unknown', weight: 100 }]);
+          
+          let controllability = 'Partially controllable';
+          if (reason === 'Failed Placement' || specificIssue === 'Unrealistic Expectations') controllability = 'Controllable';
+          if (reason === 'Financial Issues' || specificIssue === 'Personal/Health') controllability = 'Mostly uncontrollable';
+
+          // Tenure Logic: Backouts/Failed placements happen early. Setup issues typically pop within 14-30 days. VA quality 30-60.
+          let daysBeforeCxl = Math.floor(Math.random() * 85) + 5; // 5 to 89 days (<90)
+          
+          if (reason === 'Failed Placement' || reason === 'Back Out VA' || specificIssue === 'Backout VA') {
+            daysBeforeCxl = Math.floor(Math.random() * 10); // 0-9 days
           } else if (reason === 'Client Setup Issues') {
-            specificIssue = pickWeighted([{v:'Unrealistic Expectations', w:40}, {v:'Unclear Workflow', w:40}, {v:'System Incompatibility / Tech', w:20}]);
-          } else if (reason === 'Financial Issues') {
-            specificIssue = pickWeighted([{v:'Budget Cuts', w:60}, {v:'Clinic Downsizing', w:40}]);
-          } else {
-            specificIssue = pickWeighted([{v:'HTP Mismatch', w:60}, {v:'Backout VA', w:40}]);
+            daysBeforeCxl = Math.floor(Math.random() * 25) + 5; // 5-30 days
+          } else if (reason === 'VA Issues' && specificIssue === 'Quality / Skills') {
+            daysBeforeCxl = Math.floor(Math.random() * 45) + 20; // 20-65 days
           }
 
-          // Assign Pre-Onboarding Preventables logically based on the reason
+          let prevent = 'Uncontrollable / N/A';
           if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
-          else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
-          else prevent = 'Uncontrollable / N/A';
-
-          if (prevent === 'Placements & Matching' || prevent === 'Sales Qualification/Client Readiness') controllability = 'Controllable';
-          else controllability = 'Mostly uncontrollable';
-
-          resolution = pickWeighted([{v:'Cancelled', w:50}, {v:'For Replacement', w:35}, {v:'Reduced VAs', w:15}]);
-
-          let daysBeforeCxl = Math.floor(Math.random() * 85) + 5;
-          if (reason === 'Failed Placement' || specificIssue === 'Backout VA') daysBeforeCxl = Math.floor(Math.random() * 7);
+          else if (reason === 'VA Issues' || reason === 'Failed Placement' || reason === 'Back Out VA') prevent = 'Placements & Matching';
+          else if (specificIssue === 'Unclear Workflow') prevent = 'Lack of KPI/Direction during start';
 
           data.push({
             id: `cxl-${year}-${i}`, year: String(year), month: monthStr, date: dateStr,
-            client: `Client Sample ${year}-${i+1}`, vaName: `VA Candidate ${i+1}`,
+            client: clientPool[i % clientPool.length], vaName: `VA Candidate ${i+1}`,
             specialist, reason, specificIssue, controllability, resolution, daysBeforeCxl, preOnboardingIssue: prevent,
-            summary: `Ended in ${resolution}. Primary Driver: ${reason} (${specificIssue}).`,
+            summary: `Ended in ${resolution}. Driver: ${reason} (${specificIssue}).`,
             amResponse: "Processed standard operational save protocols.",
             intervention: `Require structural gate for ${specificIssue}.`
           });
@@ -140,6 +155,14 @@
       });
       return data;
     })();
+  </script>
+</head>
+<body class="bg-[#F8F8F8] text-[#025863] min-h-screen antialiased">
+  
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, Fragment } = React;
 
     // ==========================================
     // UI HELPER COMPONENTS
@@ -152,6 +175,9 @@
         Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
         Target: <Fragment><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Fragment>,
         Search: <Fragment><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></Fragment>,
+        ShieldAlert: <Fragment><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></Fragment>,
+        AlertTriangle: <Fragment><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></Fragment>,
+        Clock: <Fragment><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></Fragment>
       };
       return (
         <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -167,54 +193,15 @@
       return `${months[month]} ${parseInt(day, 10)}, ${year}`;
     }
 
-    // ==========================================
-    // SPARTAN MODAL (DEEP DIVE)
-    // ==========================================
-    const SpartanModal = ({ month, data, onClose }) => {
-      const reasonMap = {}; const specMap = {};
-      if(data && Array.isArray(data)) {
-        data.forEach(d => {
-          reasonMap[d.reason] = (reasonMap[d.reason] || 0) + 1;
-          specMap[d.specificIssue] = (specMap[d.specificIssue] || 0) + 1;
-        });
-      }
-      
-      const topReason = Object.keys(reasonMap).sort((a,b) => reasonMap[b] - reasonMap[a])[0] || 'Unknown';
-      const topSpec = Object.keys(specMap).sort((a,b) => specMap[b] - specMap[a])[0] || 'Unknown';
-
-      const getSpartanAction = (spec) => {
-        if (spec.includes('Quality') || spec.includes('Skills') || spec.includes('HTP')) return "Mandate Day -3 technical skills audit. Reject unvetted profiles.";
-        if (spec.includes('Expectations') || spec.includes('Workflow')) return "Halt kickoff until workflow blueprint is signed by client.";
-        if (spec.includes('Attendance') || spec.includes('Backout')) return "Audit placement recruitment sourcing stability. Issue warning.";
-        if (spec.includes('Overwhelmed')) return "Deploy Day 7 stress-index survey. Adjust workload threshold.";
-        if (spec.includes('Financial') || spec.includes('Budget') || spec.includes('Downsizing')) return "Deploy downscaling/hibernation packages rather than full churn.";
-        return "Audit and restructure handover gateway.";
-      };
-
-      return (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[200] animate-fadeIn p-4">
-          <div className="bg-white p-8 rounded-none border-4 border-[#025863] shadow-2xl w-full max-w-md relative">
-            <h2 className="font-black text-2xl uppercase border-b-4 border-[#025863] pb-2 mb-6 text-[#025863]">
-              {month} FORENSICS
-            </h2>
-            <div className="mb-6">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Primary Driver</p>
-              <p className="text-xl font-bold text-[#FF6334] leading-tight">{topReason}</p>
-            </div>
-            <div className="mb-6">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Root Defect</p>
-              <p className="text-lg font-bold text-[#00AFC0] leading-tight">{topSpec}</p>
-            </div>
-            <div className="mb-8 bg-slate-50 p-4 border-l-4 border-[#025863]">
-              <p className="text-[10px] font-bold text-[#025863] uppercase tracking-widest mb-1">Required Action</p>
-              <p className="text-sm font-semibold text-slate-800">{getSpartanAction(topSpec)}</p>
-            </div>
-            <button onClick={onClose} className="w-full bg-[#025863] hover:bg-[#008BA3] text-white font-black uppercase tracking-widest py-4 transition-colors">
-              Acknowledge
-            </button>
-          </div>
-        </div>
-      );
+    // Standard Reason Color Mapping for consistency across all charts
+    const reasonColorMap = {
+      'VA Issues': '#818CF8', // Indigo
+      'Client Setup Issues': '#00AFC0', // Teal
+      'Financial Issues': '#94A3B8', // Slate
+      'Failed Placement': '#E11D48', // Rose
+      'Back Out VA': '#FB923C', // Orange
+      'Commitment': '#A78BFA', // Purple
+      'Resignation': '#EC4899' // Pink
     };
 
     // ==========================================
@@ -229,13 +216,15 @@
       const [searchQuery, setSearchQuery] = useState('');
       
       const [cxlYearFocus, setCxlYearFocus] = useState(null);
-      const [spartanMonth, setSpartanMonth] = useState(null);
+      const [hoveredTenureBucket, setHoveredTenureBucket] = useState(null);
 
+      // Hierarchical Drill-down State
       const [focusResolution, setFocusResolution] = useState('Cancelled');
       const [focusReason, setFocusReason] = useState('VA Issues');
 
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
+      // Core Filter Pipeline
       const filteredCancellations = useMemo(() => {
         return RAW_CANCELLATIONS.filter(item => {
           if (selectedYear !== 'All' && item.year !== selectedYear) return false;
@@ -248,6 +237,7 @@
         });
       }, [selectedYear, selectedMonth, searchQuery]);
 
+      // Sorted Ledger
       const sortedLedger = useMemo(() => {
         let sortable = [...filteredCancellations];
         sortable.sort((a, b) => {
@@ -264,6 +254,7 @@
       const requestSort = key => setLedgerSortConfig({ key, direction: ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc' ? 'desc' : 'asc' });
       const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>;
 
+      // Month Ledger Aggregation (Ignores month filter to show calendar)
       const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear]);
 
       const monthlyBreakdown = useMemo(() => {
@@ -276,6 +267,7 @@
         });
       }, [baseForMonths]);
 
+      // Top KPIs
       const dynamicKPIs = useMemo(() => {
         const totalCxls = filteredCancellations.length;
         let startsCount = 100, dynamicCxlRate = 0;
@@ -286,6 +278,7 @@
           startsCount = Object.values(HISTORICAL_SUMMARY).reduce((sum, item) => sum + item.starts, 0);
           dynamicCxlRate = (RAW_CANCELLATIONS.length / startsCount) * 100;
         }
+
         const reasonCounts = {};
         filteredCancellations.forEach(c => reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1);
         let topTrigger = 'N/A', topCount = 0;
@@ -329,6 +322,23 @@
         return { resList, reasonList, specList, totalFocus: focusData.length };
       }, [cxlYearFocus, focusResolution, focusReason]);
 
+      // Tenure Buckets Logic (Brass Tacks Forensics)
+      const tenureData = useMemo(() => {
+        const buckets = [
+          { label: '0-14 Days', min: 0, max: 14 },
+          { label: '15-30 Days', min: 15, max: 30 },
+          { label: '31-60 Days', min: 31, max: 60 },
+          { label: '61-90 Days', min: 61, max: 90 }
+        ];
+
+        return buckets.map(b => {
+          const cases = filteredCancellations.filter(c => c.daysBeforeCxl >= b.min && c.daysBeforeCxl <= b.max);
+          const reasons = {};
+          cases.forEach(c => reasons[c.reason] = (reasons[c.reason] || 0) + 1);
+          return { ...b, total: cases.length, reasons, cases };
+        });
+      }, [filteredCancellations]);
+
       // Render Modules
       function renderExecutiveVerdict() {
         return (
@@ -356,7 +366,7 @@
                 <div>
                   <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Reality</p>
                   <p className="text-sm font-medium leading-relaxed text-slate-300">
-                    Yes. Following the Q1 2025 ROCK implementation, OS teams stabilized the pipeline, hitting the 40% reduction target for Client Setup-driven early cancellations. The standardization of pre-contract readiness calls (INTERDEPT: 017) effectively sanitized the intake flow. However, OS currently functions as a defensive "containment layer"—catching upstream mismatches.
+                    Yes. Following the Q1 2025 ROCK implementation, OS teams stabilized the pipeline, hitting the 40% reduction target for Client Setup-driven early cancellations. The standardization of pre-contract readiness calls effectively sanitized the intake flow. However, OS currently functions as a defensive "containment layer"—catching upstream mismatches.
                   </p>
                 </div>
                 
@@ -528,13 +538,107 @@
         );
       }
 
+      function renderTenureForensics() {
+        const maxTotal = Math.max(...tenureData.map(d => d.total)) || 10;
+        const totalCxlsAll = filteredCancellations.length || 1;
+
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mt-6 animate-fadeIn">
+            <div className="border-b border-slate-100 pb-3 mb-5">
+              <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 2: Brass Tacks Forensics</span>
+              <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Tenure Breakdown: Days to Cancellation</h3>
+              <div className="bg-slate-50 border-l-4 border-[#FF6334] p-2 mt-2">
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Segments cancellations into exact time-to-failure buckets. Identifies immediate bleed vs. systemic friction. <br/><strong className="text-[#FF6334]">ACTION:</strong> Hover over any column to see the exact composition of reasons for that timeframe.</p>
+              </div>
+            </div>
+
+            <div className="w-full h-80 relative flex items-center justify-center pt-4">
+              <svg className="w-full h-full" viewBox="0 0 800 250">
+                <line x1="60" y1="30" x2="740" y2="30" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="90" x2="740" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="150" x2="740" y2="150" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="210" x2="740" y2="210" stroke="#e2e8f0" strokeWidth="1.5" />
+                
+                <text x="30" y="35" className="text-[10px] fill-slate-400 font-bold font-mono">{maxTotal}</text>
+                <text x="30" y="95" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxTotal*0.66)}</text>
+                <text x="30" y="155" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxTotal*0.33)}</text>
+                <text x="30" y="215" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
+
+                {tenureData.map((bucket, idx) => {
+                  const colWidth = 40; 
+                  const startX = 140 + idx * 170; // 4 columns spread out
+                  let currentHeightSum = 0; 
+                  const scale = 180 / maxTotal; // max height is 180px
+
+                  const segments = Object.entries(bucket.reasons).map(([r, count]) => {
+                    const h = count * scale; 
+                    const y = 210 - currentHeightSum - h; 
+                    currentHeightSum += h;
+                    return { reason: r, count, h, y, color: reasonColorMap[r] || '#cbd5e1' };
+                  });
+
+                  // Cumulative path point for line (just using bucket total for curve)
+                  const cy = 210 - (bucket.total * scale);
+
+                  return (
+                    <g key={idx}>
+                      <text x={startX + 20} y="230" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{bucket.label}</text>
+                      <text x={startX + 20} y="245" className="text-[9px] font-bold fill-slate-400 text-center" textAnchor="middle">{bucket.total} Cxls ({((bucket.total/totalCxlsAll)*100).toFixed(0)}%)</text>
+                      
+                      {segments.map((seg, sIdx) => (
+                        <rect key={sIdx} x={startX} y={seg.y} width={colWidth} height={seg.h} fill={seg.color} stroke="#fff" strokeWidth="1" className="transition-all duration-150 cursor-pointer hover:brightness-110" 
+                          onMouseEnter={() => setHoveredTenureBucket(bucket)} onMouseLeave={() => setHoveredTenureBucket(null)} 
+                        />
+                      ))}
+                      {bucket.total === 0 && <rect x={startX} y="170" width={colWidth} height="40" fill="transparent" onMouseEnter={() => setHoveredTenureBucket(bucket)} onMouseLeave={() => setHoveredTenureBucket(null)} />}
+                      
+                      {/* Top value indicator */}
+                      {bucket.total > 0 && (
+                        <text x={startX + 20} y={210 - (bucket.total * scale) - 5} className="text-[10px] font-bold fill-[#025863]" textAnchor="middle">{bucket.total}</text>
+                      )}
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {/* Hover Tooltip for Tenure Bucket */}
+              {hoveredTenureBucket && (
+                <div className="absolute top-4 right-4 bg-slate-900 text-white p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] w-64 text-xs animate-fadeIn pointer-events-none">
+                  <div className="text-[10px] text-[#00AFC0] font-bold uppercase tracking-widest border-b border-slate-700 pb-2 mb-3">Forensics: {hoveredTenureBucket.label}</div>
+                  <p className="font-bold text-white mb-3 text-sm">Total: {hoveredTenureBucket.total} Cancellations</p>
+                  <div className="space-y-1.5">
+                    {Object.entries(hoveredTenureBucket.reasons).sort((a,b)=>b[1]-a[1]).map(([r, c], i) => (
+                      <div key={i} className="flex justify-between items-center text-[10px]">
+                        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{backgroundColor: reasonColorMap[r] || '#cbd5e1'}}></span><span className="text-slate-300 truncate max-w-[120px]">{r}</span></div>
+                        <span className="font-bold">{c}</span>
+                      </div>
+                    ))}
+                    {hoveredTenureBucket.total === 0 && <span className="text-slate-500 italic">No cancellations in this timeframe.</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Standard Color Legend */}
+            <div className="flex flex-wrap items-center justify-center gap-4 border-t border-slate-100 pt-4 mt-2 text-[10px]">
+              {Object.entries(reasonColorMap).map(([r, c]) => (
+                <div key={r} className="flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-sm" style={{backgroundColor: c}}></span>
+                  <span className="text-slate-600 font-semibold uppercase">{r}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
       function renderMonthLedger() {
         return (
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mt-6">
             <div className="border-b border-slate-100 pb-3 mb-5 flex justify-between items-start">
               <div>
-                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 2: Timeline Distribution</span>
-                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Interactive Month Ledger</h3>
+                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: Timeline Distribution</span>
+                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Interactive Month Ledger: {selectedYear}</h3>
                 <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
                   <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Distributes cancellations by calendar month. Shows the volume of each <strong>Reason for Cancellation</strong> per month. <br/><strong className="text-mmmTeal">ACTION:</strong> Click any month to filter the dashboard, or click again to clear.</p>
                 </div>
@@ -561,8 +665,12 @@
                     </div>
                     <div className="space-y-1 mt-3">
                       {Object.entries(m.reasons).sort((a,b)=>b[1]-a[1]).map(([r, c], dIdx) => (
-                        <div key={dIdx} className={`text-[10px] flex justify-between ${isActive ? 'text-slate-200' : 'text-slate-500'}`}>
-                          <span className="truncate max-w-[80px]">{r}</span><span className="font-bold">{c}</span>
+                        <div key={dIdx} className={`text-[10px] flex justify-between items-center ${isActive ? 'text-slate-200' : 'text-slate-500'}`}>
+                          <div className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full" style={{backgroundColor: reasonColorMap[r] || '#ccc'}}></span>
+                            <span className="truncate max-w-[70px]">{r}</span>
+                          </div>
+                          <span className="font-bold">{c}</span>
                         </div>
                       ))}
                       {m.count === 0 && <span className={`text-[10px] italic ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>No activity</span>}
@@ -580,7 +688,7 @@
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm pb-12 mt-6">
             <div className="border-b border-slate-100 pb-3 mb-4 flex justify-between items-end">
               <div>
-                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: Record Forensics</span>
+                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 4: Record Forensics</span>
                 <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Detailed Cancellation Ledger</h3>
                 <div className="bg-slate-50 border-l-4 border-slate-400 p-2 mt-2">
                   <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Raw, unfiltered log of all matching cancellations. <br/><strong className="text-slate-700">ACTION:</strong> Hover over any row to view specific pre-onboarding defects and AM response logs.</p>
@@ -643,8 +751,12 @@
                   <span className="text-[10px] text-[#008BA3] font-bold uppercase tracking-wider">Operations & Retention Forensics</span>
                 </div>
                 <h1 className="text-xl font-black tracking-tight text-[#025863] mt-1">Onboarding Attrition Analytics</h1>
+                <p className="text-[11px] text-slate-500 mt-1 font-semibold border-l-2 border-[#00AFC0] pl-2">
+                  <span className="text-rose-500 uppercase tracking-widest text-[9px] mr-1">Data Scope:</span> Exclusively dissecting new client cancellations within 90 days of their RVA start date. <br/>
+                  <span className="text-[#008BA3] uppercase tracking-widest text-[9px] mr-1">System Note:</span> The Onboarding Specialist (OS) role officially launched on April 1, 2025.
+                </p>
               </div>
-              <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+              <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-200 self-start md:self-center">
                 <button onClick={() => setViewMode('executive')} className={`px-4 py-2 text-xs font-bold rounded transition-all ${viewMode === 'executive' ? 'bg-[#025863] text-white shadow-sm' : 'text-slate-500 hover:text-[#025863]'}`}><Icon name="BarChart3" size={13} /><span>📊 Executive Dashboard</span></button>
                 <button onClick={() => setViewMode('classic')} className={`px-4 py-2 text-xs font-bold rounded transition-all ${viewMode === 'classic' ? 'bg-[#025863] text-white shadow-sm' : 'text-slate-500 hover:text-[#025863]'}`}><Icon name="Layers" size={13} /><span>🗂️ Classic Tabs</span></button>
               </div>
@@ -662,7 +774,7 @@
                 </div>
                 <div className="relative flex items-center bg-[#F8F8F8] border border-slate-200 rounded px-2 py-1 max-w-xs">
                   <Icon name="Search" size={14} className="text-slate-400 absolute left-2.5" />
-                  <input type="text" placeholder="Search Client, VA..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-transparent text-xs focus:outline-none text-[#025863] pl-6 w-48" />
+                  <input type="text" placeholder="Search Client, VA, Reason..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-transparent text-xs focus:outline-none text-[#025863] pl-6 w-48" />
                 </div>
               </div>
               <button onClick={() => { setSelectedYear('All'); setSelectedMonth('All'); setSearchQuery(''); setCxlYearFocus(null); }} className="text-xs text-[#00AFC0] font-bold py-1.5 px-3 rounded hover:bg-[#D1EBEF]/30 transition border border-dashed border-[#00AFC0]/40">Reset Filters</button>
@@ -700,6 +812,7 @@
               <div className="flex flex-wrap border-b border-slate-200 gap-1 overflow-x-auto bg-white p-1 rounded-t shadow-sm mb-6">
                 {[
                   { label: 'Macro Pipeline & Causality', icon: 'BarChart3' },
+                  { label: 'Tenure Forensics', icon: 'Clock' },
                   { label: 'Timeline Distribution', icon: 'Layers' },
                   { label: 'Record Forensics', icon: 'Search' }
                 ].map((tab, idx) => (
@@ -712,8 +825,9 @@
 
             <div className="space-y-8">
               {(viewMode === 'executive' || activeTab === 1) && renderMacroPipeline()}
-              {(viewMode === 'executive' || activeTab === 2) && renderMonthLedger()}
-              {(viewMode === 'executive' || activeTab === 3) && renderDataTable()}
+              {(viewMode === 'executive' || activeTab === 2) && renderTenureForensics()}
+              {(viewMode === 'executive' || activeTab === 3) && renderMonthLedger()}
+              {(viewMode === 'executive' || activeTab === 4) && renderDataTable()}
             </div>
           </main>
 
