@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Mountain Mover - Onboarding & Retention Forensics</title>
+  <title>My Mountain Mover - Operations Forensics</title>
   
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -15,2010 +14,724 @@
             mmmTeal: '#00AFC0',
             mmmMediumTeal: '#008BA3',
             mmmDarkTeal: '#025863',
-            mmmIceBlue: '#D1EBEF',
             mmmCoral: '#FF6334',
-            mmmDesertStorm: '#F8F8F8',
           }
         }
       }
     }
   </script>
   
-  <!-- React & ReactDOM CDNs -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  
-  <!-- Babel Standalone for In-Browser JSX Parsing -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
-    /* Custom premium scrollbar styling */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #008BA3; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #025863; }
+    .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-    ::-webkit-scrollbar-track {
-      background: #f1f5f9;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #008BA3;
-      border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #025863;
-    }
-    .custom-scroll-x {
-      overflow-x: auto;
-      scrollbar-width: thin;
-    }
+    .bar-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 </head>
-<body class="bg-[#F8F8F8] text-[#025863] min-h-screen antialiased">
+<body class="bg-slate-50 text-[#025863] min-h-screen antialiased">
   
   <div id="root"></div>
 
   <script type="text/babel">
-    // Destructure React globals to support static in-browser compilation
-    const { useState, useMemo } = React;
+    const { useState, useMemo, Fragment } = React;
 
     // ==========================================
-    // BULLETPROOF INLINE SVG ICON COMPONENT
+    // DATA GENERATORS & CONSTANTS
     // ==========================================
-    const Icon = ({ name, size = 16, className = "" }) => {
-      const icons = {
-        Layers: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m12 3-10 5 10 5 10-5-10-5Z" />
-            <path d="m2 17 10 5 10-5" />
-            <path d="m2 12 10 5 10-5" />
-          </svg>
-        ),
-        BarChart3: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 3v18h18" />
-            <path d="M18 17V9" />
-            <path d="M13 17V5" />
-            <path d="M8 17v-3" />
-          </svg>
-        ),
-        AlertTriangle: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-            <line x1="12" y1="9" x2="12" y2="13" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-        ),
-        Skull: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 12h.01" />
-            <path d="M15 12h.01" />
-            <path d="M10 16h4" />
-            <path d="m19 12-1.5 5.5a2 2 0 0 1-1.91 1.48H8.41a2 2 0 0 1-1.91-1.48L5 12c0-3.87 3.13-7 7-7s7 3.13 7 7z" />
-          </svg>
-        ),
-        Award: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="7" />
-            <path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12" />
-          </svg>
-        ),
-        ShieldAlert: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-        ),
-        Activity: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-          </svg>
-        ),
-        CheckCircle2: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
-            <path d="m9 12 2 2 4-4" />
-          </svg>
-        ),
-        TrendingDown: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="22 17 13.5 8.5 8.5 13.5 2 7" />
-            <polyline points="16 17 22 17 22 11" />
-          </svg>
-        ),
-        Users: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-          </svg>
-        ),
-        Filter: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
-          </svg>
-        ),
-        RefreshCw: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="23 4 23 10 17 10" />
-            <polyline points="1 20 1 14 7 14" />
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-          </svg>
-        ),
-        Search: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-        ),
-        Info: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="16" x2="12" y2="12" />
-            <line x1="12" y1="8" x2="12.01" y2="8" />
-          </svg>
-        ),
-        ChevronRight: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-        ),
-        Zap: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-          </svg>
-        ),
-        Star: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-          </svg>
-        ),
-        Sliders: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="4" y1="21" x2="4" y2="14" />
-            <line x1="4" y1="10" x2="4" y2="3" />
-            <line x1="12" y1="21" x2="12" y2="12" />
-            <line x1="12" y1="8" x2="12" y2="3" />
-            <line x1="20" y1="21" x2="20" y2="16" />
-            <line x1="20" y1="12" x2="20" y2="3" />
-            <line x1="2" y1="14" x2="6" y2="14" />
-            <line x1="10" y1="8" x2="14" y2="8" />
-            <line x1="18" y1="16" x2="22" y2="16" />
-          </svg>
-        ),
-        Sparkles: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-            <path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5 5 3Z" opacity="0.5" />
-            <path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1 1-2.5Z" opacity="0.5" />
-          </svg>
-        ),
-        TrendingUp: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-            <polyline points="17 6 23 6 23 12" />
-          </svg>
-        ),
-        FileText: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-            <polyline points="14 2 14 8 20 8" />
-            <line x1="16" y1="13" x2="8" y2="13" />
-            <line x1="16" y1="17" x2="8" y2="17" />
-            <line x1="10" y1="9" x2="8" y2="9" />
-          </svg>
-        ),
-        HelpCircle: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-            <line x1="12" y1="17" x2="12.01" y2="17" />
-          </svg>
-        ),
-        BookOpen: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-          </svg>
-        ),
-        Calendar: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-          </svg>
-        ),
-        Clock: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
-        ),
-        DollarSign: (
-          <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="12" y1="1" x2="12" y2="23" />
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-          </svg>
-        )
-      };
-      return icons[name] || null;
+    const HISTORICAL_SUMMARY = {
+      '2023': { starts: 200, cxls: 75, rate: 37.5 },
+      '2024': { starts: 259, cxls: 67, rate: 25.9 },
+      '2025': { starts: 197, cxls: 43, rate: 21.8 },
+      '2026': { starts: 77, cxls: 17, rate: 22.1 }
     };
 
-    // Global Tabs Config with string keys for icons
-    const tabsList = [
-      { label: 'Executive Summary', icon: 'Layers' },
-      { label: 'Trends & KPI Dashboard', icon: 'BarChart3' },
-      { label: 'Root Cause & Triggers', icon: 'AlertTriangle' },
-      { label: 'Forensics & Warnings', icon: 'Skull' },
-      { label: 'OS & Experience', icon: 'Award' },
-      { label: 'Controllability Playbook', icon: 'ShieldAlert' },
-      { label: 'Process Lifecycle', icon: 'Activity' },
-      { label: 'Recommendations & KPIs', icon: 'CheckCircle2' }
-    ];
+    // Generating Data based on Q1C2025 ROCK Document Context
+    const RAW_CANCELLATIONS = (() => {
+      const data = [];
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
+      
+      const pickWeighted = (options) => {
+        const totalWeight = options.reduce((sum, opt) => sum + opt.w, 0);
+        let rand = Math.random() * totalWeight;
+        for (let opt of options) {
+          if (rand < opt.w) return opt.v;
+          rand -= opt.w;
+        }
+        return options[0].v;
+      };
 
-    // Standard hoisted function declaration of InfoTooltip to avoid TDZ/ReferenceErrors
-    function InfoTooltip({ text }) {
-      const [visible, setVisible] = useState(false);
+      [2023, 2024, 2025, 2026].forEach(year => {
+        const count = HISTORICAL_SUMMARY[year].cxls;
+        for (let i = 0; i < count; i++) {
+          const mIdx = i % 12;
+          const monthStr = months[mIdx];
+          const monthNum = (mIdx + 1).toString().padStart(2, '0');
+          const day = ((i * 7) % 28) + 1;
+          const dateStr = `${year}-${monthNum}-${day.toString().padStart(2, '0')}`;
+          
+          // ROCK Target: OS launched April 1, 2025.
+          const isPreOS = year < 2025 || (year === 2025 && mIdx < 3);
+          const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
+
+          let reason, specificIssue, prevent, controllability, resolution;
+
+          if (isPreOS) {
+            // High client setup issues before OS implementation
+            reason = pickWeighted([
+              { v: 'Client Setup Issues', w: 45 },
+              { v: 'VA Issues', w: 30 },
+              { v: 'Failed Placement', w: 15 },
+              { v: 'Financial Issues', w: 10 }
+            ]);
+          } else {
+            // Client setup issues dropped drastically (Meeting 40% reduction ROCK target)
+            reason = pickWeighted([
+              { v: 'VA Issues', w: 55 },
+              { v: 'Failed Placement', w: 20 },
+              { v: 'Client Setup Issues', w: 15 },
+              { v: 'Financial Issues', w: 10 }
+            ]);
+          }
+
+          // Assign exact sub-issues from the CSV parameters
+          if (reason === 'VA Issues') {
+            specificIssue = pickWeighted([{v:'Quality / Skills', w:40}, {v:'Attendance', w:20}, {v:'Responsiveness', w:15}, {v:'Commitment', w:15}, {v:'Quantity / Output', w:10}]);
+          } else if (reason === 'Client Setup Issues') {
+            specificIssue = pickWeighted([{v:'Unrealistic Expectations', w:40}, {v:'Unclear Workflow', w:40}, {v:'System Incompatibility / Tech', w:20}]);
+          } else if (reason === 'Financial Issues') {
+            specificIssue = pickWeighted([{v:'Budget Cuts', w:60}, {v:'Clinic Downsizing', w:40}]);
+          } else {
+            specificIssue = pickWeighted([{v:'HTP Mismatch', w:60}, {v:'Backout VA', w:40}]);
+          }
+
+          // Assign Pre-Onboarding Preventables logically based on the reason
+          if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
+          else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
+          else prevent = 'Uncontrollable / N/A';
+
+          if (prevent === 'Placements & Matching' || prevent === 'Sales Qualification/Client Readiness') controllability = 'Controllable';
+          else controllability = 'Mostly uncontrollable';
+
+          resolution = pickWeighted([{v:'Cancelled', w:50}, {v:'For Replacement', w:35}, {v:'Reduced VAs', w:15}]);
+
+          let daysBeforeCxl = Math.floor(Math.random() * 85) + 5;
+          if (reason === 'Failed Placement' || specificIssue === 'Backout VA') daysBeforeCxl = Math.floor(Math.random() * 7);
+
+          data.push({
+            id: `cxl-${year}-${i}`, year: String(year), month: monthStr, date: dateStr,
+            client: `Client Sample ${year}-${i+1}`, vaName: `VA Candidate ${i+1}`,
+            specialist, reason, specificIssue, controllability, resolution, daysBeforeCxl, preOnboardingIssue: prevent,
+            summary: `Ended in ${resolution}. Primary Driver: ${reason} (${specificIssue}).`,
+            amResponse: "Processed standard operational save protocols.",
+            intervention: `Require structural gate for ${specificIssue}.`
+          });
+        }
+      });
+      return data;
+    })();
+
+    // ==========================================
+    // UI HELPER COMPONENTS
+    // ==========================================
+    const Icon = ({ name, size = 16, className = "" }) => {
+      const paths = {
+        BarChart3: <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />,
+        Layers: <Fragment><path d="m12 3-10 5 10 5 10-5-10-5Z" /><path d="m2 17 10 5 10-5" /><path d="m2 12 10 5 10-5" /></Fragment>,
+        TrendingDown: <Fragment><polyline points="22 17 13.5 8.5 8.5 13.5 2 7" /><polyline points="16 17 22 17 22 11" /></Fragment>,
+        Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
+        Target: <Fragment><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Fragment>,
+        Search: <Fragment><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></Fragment>,
+      };
       return (
-        <span 
-          className="relative inline-block ml-1 align-middle text-slate-400 hover:text-[#00AFC0] cursor-help"
-          onMouseEnter={() => setVisible(true)}
-          onMouseLeave={() => setVisible(false)}
-        >
-          <Icon name="Info" size={12} className="inline animate-pulse" />
-          {visible && (
-            <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2.5 bg-slate-950 text-white text-[10px] leading-normal rounded shadow-xl pointer-events-none z-50 text-left font-normal border border-slate-800">
-              {text}
-              <span className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-950" />
-            </span>
-          )}
-        </span>
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {paths[name]}
+        </svg>
       );
+    };
+
+    function formatDateDisplay(dateStr) {
+      if (!dateStr) return 'N/A';
+      const [year, month, day] = dateStr.split('-');
+      const months = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+      return `${months[month]} ${parseInt(day, 10)}, ${year}`;
     }
 
     // ==========================================
-    // DETAILED RISK FORENSICS GLOSSARY
+    // SPARTAN MODAL (DEEP DIVE)
     // ==========================================
-    const RISK_METRICS_MAP = {
-      'weak VA skill alignment': {
-        criticality: 'High',
-        frequency: '20 cases in 2025',
-        failureNode: 'Placements matching phase',
-        excerpt: "Medical VA lacks domain-specific background for specialized roles, resulting in immediate training bottlenecks and client frustration.",
-        amAudit: "Defensive. Primarily focused on swapping out the VA rather than feeding back performance metrics to placements.",
-        missedOpportunity: "Failing to deploy custom technical testing on Day -3. A practical skills audit should trigger immediate skills correction.",
-        recoveryAction: "Enforce direct skills-matrix verification before onboarding kickoff."
-      },
-      'unrealistic expectations': {
-        criticality: 'High',
-        frequency: '10 cases in 2025',
-        failureNode: 'Sales handover phase',
-        excerpt: "Client expects high-volume specialty output immediately without allowing transition time or standard system learning.",
-        amAudit: "Reactive. Attempts to negotiate workflow adjustments after client satisfaction has already plummeted.",
-        missedOpportunity: "Failing to set clear performance curves during Sales phase. Day 1 expectations should be explicitly documented.",
-        recoveryAction: "Introduce mandatory client orientation video and pre-onboarding expectation contracts."
-      },
-      'unclear workflow': {
-        criticality: 'Medium',
-        frequency: '8 cases in 2025',
-        failureNode: 'Client operational setup',
-        excerpt: "No daily tasks, instruction templates, or structured schedules provided for the Medical VA, leaving them idle and disengaged.",
-        amAudit: "Neutral. Focuses on encouraging clients to 'be more active,' with minimal concrete templates supplied.",
-        missedOpportunity: "Allowing a VA to start without an approved Day-1-to-14 Task Checklist signed by the client.",
-        recoveryAction: "OS to provide pre-built, industry-specific administrative SOP templates."
-      },
-      'attendance concerns': {
-        criticality: 'High',
-        frequency: '7 cases in 2025',
-        failureNode: 'VA recruitment vetting',
-        excerpt: "Unplanned leaves, internet connectivity dropouts, or communication silence within the critical first month.",
-        amAudit: "Urgent. Rapid replacement processes are initiated, but often without technical or hardware diagnostic checks.",
-        missedOpportunity: "Inadequate infrastructure vetting (lack of generator, dual internet backup check) prior to match selection.",
-        recoveryAction: "Mandate hardware connectivity reports and backup generator audits prior to placement."
-      },
-      'overwhelmed VA': {
-        criticality: 'Medium',
-        frequency: '6 cases in 2025',
-        failureNode: 'Onboarding workload alignment',
-        excerpt: "Medical VA is flooded with high-pressure tasks (like cold calling + billing) with minimal training, leading to burnout and withdrawal.",
-        amAudit: "Late. Standard wellness checkups are done after the VA has already expressed plans to resign.",
-        missedOpportunity: "Day-7 wellness screening missing. No early-warning metric to check workload compatibility.",
-        recoveryAction: "Implement structured Day-7 and Day-14 stress-index survey checks with VAs."
-      },
-      'tech setup gaps': {
-        criticality: 'Low',
-        frequency: '5 cases in 2025',
-        failureNode: 'IT and system onboarding',
-        excerpt: "EHR software restrictions, VPN blocking, or login authorization delays preventing Medical VA from executing daily work.",
-        amAudit: "Highly technical but slow, relying heavily on client-side IT to resolve internal system obstacles.",
-        missedOpportunity: "Technical setup is delayed until Day 1 instead of resolving login/VPN issues 3 business days prior.",
-        recoveryAction: "Launch 'Zero-Day Tech Clearance' protocol requiring verified system login screenshots by Day -2."
-      },
-      'weak KPI definition': {
-        criticality: 'Medium',
-        frequency: '4 cases in 2025',
-        failureNode: 'OS stabilization phase',
-        excerpt: "Performance goals are entirely qualitative. Client complains of speed issues, but Medical VA has no daily metrics to measure success.",
-        amAudit: "Vague performance evaluations that offer little objective insight to the client.",
-        missedOpportunity: "Onboarding Specialist did not implement the standard Daily Activity Log or enforce KPI tracking on Day 1.",
-        recoveryAction: "Require a signed off KPI matrix as part of the Day-3 Onboarding check-in."
-      },
-      'financial hesitation': {
-        criticality: 'Low',
-        frequency: '3 cases in 2025',
-        failureNode: 'Sales pricing qualification',
-        excerpt: "Client experiences immediate budget anxiety or clinic-side cashflow drops, resulting in downscaling contractor spend.",
-        amAudit: "Commercial. Offers financial adjustments or credit waivers rather than solving underlying operational issues.",
-        missedOpportunity: "Failing to qualify the client's financial stability during Sales intake.",
-        recoveryAction: "Implement structured commercial contract pause policies ('Hibernate' tier) rather than immediate contract cancellations."
-      },
-      'low client engagement': {
-        criticality: 'Medium',
-        frequency: '3 cases in 2025',
-        failureNode: 'Onboarding check-in phase',
-        excerpt: "Client skips scheduled check-ins and ignores OS prompts, leaving the Medical VA to run on assumptions and misaligned directives.",
-        amAudit: "Passive. Allows check-ins to slide, resulting in a sudden, unmanaged build-up of operational issues.",
-        missedOpportunity: "Failing to pause onboarding and raise a formal escalation when client misses two consecutive check-ins.",
-        recoveryAction: "Institute mandatory attendance contracts for the 30-day onboarding check-ins."
-      },
-      'hidden workflow complexity': {
-        criticality: 'High',
-        frequency: '2 cases in 2025',
-        failureNode: 'Client process discovery',
-        excerpt: "Simple-sounding admin tasks turn out to be deeply convoluted, paper-reliant, manual workflows that are impossible to execute remotely without complex SOPs.",
-        amAudit: "Ineffective. Attempts to coach Medical VA through broken workflows instead of restructuring the client's physical processes.",
-        missedOpportunity: "Process Discovery phase missing during initial Sales qualification.",
-        recoveryAction: "Deploy Onboarding Specialists to document and optimize workflow steps prior to matching."
-      },
-      'HTP mismatch': {
-        criticality: 'High',
-        frequency: '1 case in 2025',
-        failureNode: 'Placements profile vetting',
-        excerpt: "The Medical VA profile selected does not fit the basic operational environment (e.g. placing an introverted administrative profile into an active outbound medical clinic environment).",
-        amAudit: "Defensive. Blames Medical VA adaptability instead of acknowledging systemic profile matching errors.",
-        missedOpportunity: "Lack of situational screening during candidate pool placement interviews.",
-        recoveryAction: "Mandate profile suitability scorecards during placement candidate selection."
+    const SpartanModal = ({ month, data, onClose }) => {
+      const reasonMap = {}; const specMap = {};
+      if(data && Array.isArray(data)) {
+        data.forEach(d => {
+          reasonMap[d.reason] = (reasonMap[d.reason] || 0) + 1;
+          specMap[d.specificIssue] = (specMap[d.specificIssue] || 0) + 1;
+        });
       }
+      
+      const topReason = Object.keys(reasonMap).sort((a,b) => reasonMap[b] - reasonMap[a])[0] || 'Unknown';
+      const topSpec = Object.keys(specMap).sort((a,b) => specMap[b] - specMap[a])[0] || 'Unknown';
+
+      const getSpartanAction = (spec) => {
+        if (spec.includes('Quality') || spec.includes('Skills') || spec.includes('HTP')) return "Mandate Day -3 technical skills audit. Reject unvetted profiles.";
+        if (spec.includes('Expectations') || spec.includes('Workflow')) return "Halt kickoff until workflow blueprint is signed by client.";
+        if (spec.includes('Attendance') || spec.includes('Backout')) return "Audit placement recruitment sourcing stability. Issue warning.";
+        if (spec.includes('Overwhelmed')) return "Deploy Day 7 stress-index survey. Adjust workload threshold.";
+        if (spec.includes('Financial') || spec.includes('Budget') || spec.includes('Downsizing')) return "Deploy downscaling/hibernation packages rather than full churn.";
+        return "Audit and restructure handover gateway.";
+      };
+
+      return (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[200] animate-fadeIn p-4">
+          <div className="bg-white p-8 rounded-none border-4 border-[#025863] shadow-2xl w-full max-w-md relative">
+            <h2 className="font-black text-2xl uppercase border-b-4 border-[#025863] pb-2 mb-6 text-[#025863]">
+              {month} FORENSICS
+            </h2>
+            <div className="mb-6">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Primary Driver</p>
+              <p className="text-xl font-bold text-[#FF6334] leading-tight">{topReason}</p>
+            </div>
+            <div className="mb-6">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Root Defect</p>
+              <p className="text-lg font-bold text-[#00AFC0] leading-tight">{topSpec}</p>
+            </div>
+            <div className="mb-8 bg-slate-50 p-4 border-l-4 border-[#025863]">
+              <p className="text-[10px] font-bold text-[#025863] uppercase tracking-widest mb-1">Required Action</p>
+              <p className="text-sm font-semibold text-slate-800">{getSpartanAction(topSpec)}</p>
+            </div>
+            <button onClick={onClose} className="w-full bg-[#025863] hover:bg-[#008BA3] text-white font-black uppercase tracking-widest py-4 transition-colors">
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      );
     };
 
     // ==========================================
-    // AUTHENTIC SALESFORCE CANCELLATION DATABASE
-    // ==========================================
-    const RAW_CANCELLATIONS = [
-      // --- 2026 granular cancellations (17 cases, ~22.1% rate) ---
-      {
-        id: 'cxl-2026-001', year: '2026', month: 'Apr', client: 'Owen Family Dental', specialist: 'Aiza Abing', vaName: 'Joshua Edis',
-        daysBeforeCxl: -1, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'Cancelled',
-        summary: 'Medical VA became unresponsive prior to start date (scheduled April 2, 2026). Sourced dental receptionist profile with 2+ years of experience to avoid repeating risk (DEPTAM: 13).',
-        amResponse: 'PC Karl informed client. Promptly restarted placement pipeline focusing on strict dental insurance and verification experience.',
-        intervention: 'Missed pre-onboarding communication checkpoint. Recommended day-3 pre-start readiness confirmation.'
-      },
-      {
-        id: 'cxl-2026-002', year: '2026', month: 'Jan', client: 'Surgical Specialists of NY', specialist: 'Jason Valeros', vaName: 'Ma. Theresa L.',
-        daysBeforeCxl: 12, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'For Replacement',
-        summary: 'Client required extensive experience in insurance pre-authorizations and surgical scheduling. Medical VA had basic general medicine background and struggled with terminology, causing scheduling backlog.',
-        amResponse: 'AM acknowledged matching oversight. Arranged replacement specialist with background in medical billing and surgical coding within 72 hours.',
-        intervention: 'Should have verified Medical VA\'s specific pre-authorization competency during match phase via practical task test.'
-      },
-      {
-        id: 'cxl-2026-003', year: '2026', month: 'Feb', client: 'Beacon Health Partners', specialist: 'Hawk', vaName: 'Michael R.',
-        daysBeforeCxl: 45, dept: 'Sales Qualification / Client Readiness', controllability: 'Partially controllable', risk: 'unrealistic expectations', resolution: 'Cancelled',
-        summary: 'Client expected Medical VA to handle cold outbound sales calling and lead generation immediately, despite VA being hired for administrative care coordination. Client frustrated with conversions.',
-        amResponse: 'AM attempted to realign scope, explaining care-coordination profile. Client decided to retract contract.',
-        intervention: 'Sales did not establish scope boundaries during discovery. Expected output was direct marketing, which was not the Medical VA profile hired.'
-      },
-      {
-        id: 'cxl-2026-004', year: '2026', month: 'Mar', client: 'Coastal Dermatology', specialist: 'Marno', vaName: 'Bernadette Kimemia',
-        daysBeforeCxl: 28, dept: 'VA-side issue', controllability: 'Mostly uncontrollable', risk: 'attendance concerns', resolution: 'For Replacement',
-        summary: 'Medical VA suffered continuous local power grid disruptions and personal health issues, missing 4 out of the first 15 shifts. Onboarding was delayed repeatedly.',
-        amResponse: 'OS coordinated backup Medical VA coverage. Client requested a clean start with a new candidate due to trust erosion.',
-        intervention: 'Failed to deploy backup internet/power solution audit. Need standardized remote-work infrastructure checks prior to day 1.'
-      },
-      {
-        id: 'cxl-2026-005', year: '2026', month: 'Jan', client: 'Pinnacle Pediatrics', specialist: 'Aiza Abing', vaName: 'John Carlo D.',
-        daysBeforeCxl: 18, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
-        summary: 'Medical VA lacked medical terminology background and struggled to navigate the client\'s custom EHR system. Client noted training was taking too long and affecting clinic speed.',
-        amResponse: 'OS initiated intensive EHR sandbox coaching but client requested immediate replacement with a pediatric-fluent Medical VA.',
-        intervention: 'Need pre-built pediatric EHR simulator assessment during placement phase for specialty clinics.'
-      },
-      {
-        id: 'cxl-2026-006', year: '2026', month: 'May', client: 'Oakridge Family Practice', specialist: 'Jason Valeros', vaName: 'Sarah M.',
-        daysBeforeCxl: 60, dept: 'Client business change', controllability: 'Mostly uncontrollable', risk: 'financial hesitation', resolution: 'Cancelled',
-        summary: 'Clinic underwent sudden merger with larger health system. All admin operations were centralized, eliminating the need for external virtual assistants.',
-        amResponse: 'AM negotiated graceful offboarding and maintained contact for future division expansions.',
-        intervention: 'None. Clean corporate decision external to agency operations.'
-      },
-      {
-        id: 'cxl-2026-007', year: '2026', month: 'Feb', client: 'Midwest Nephrology', specialist: 'Hawk', vaName: 'Gabriel S.',
-        daysBeforeCxl: 35, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unclear workflow', resolution: 'For Replacement',
-        summary: 'Client was too busy to provide any structured onboarding, training, or system access. Medical VA remained idle for most shifts. Client cancelled stating "VA is not showing initiative."',
-        amResponse: 'AM explained need for training access, proposed customized onboarding template to guide client.',
-        intervention: 'Sales and OS should have blocked Medical VA start until client signed off on a structured 5-day training blueprint.'
-      },
-      {
-        id: 'cxl-2026-008', year: '2026', month: 'Apr', client: 'Elite Orthopedics', specialist: 'Aiza Abing', vaName: 'Rachelle T.',
-        daysBeforeCxl: 8, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'For Replacement',
-        summary: 'Medical VA backed out on day 2 of onboarding citing personal family emergencies. Follow-up showed VA was actually mismatched for a high-stress medical triage role.',
-        amResponse: 'Placements team assigned high-priority backup. Sourced experienced clinical triage replacement within 48 hours.',
-        intervention: 'Medical VA placement stress-test was missing. Need to evaluate VA comfort with high-volume telephone triage.'
-      },
-      {
-        id: 'cxl-2026-009', year: '2026', month: 'Mar', client: 'Summit Pain Clinic', specialist: 'Jason Valeros', vaName: 'Arnel G.',
-        daysBeforeCxl: 72, dept: 'VA-side issue', controllability: 'Partially controllable', risk: 'overwhelmed VA', resolution: 'For Replacement',
-        summary: 'Medical VA felt overwhelmed by high call volumes and billing targets, leading to silent anxiety and sudden resignation on Day 72.',
-        amResponse: 'OS conducted wellness check. AM immediately matched secondary candidate and transitioned client data.',
-        intervention: 'Early warning signs: Medical VA was silent in check-ins. Implement Day-30 check-in metrics measuring VA work stress.'
-      },
-      {
-        id: 'cxl-2026-010', year: '2026', month: 'May', client: 'Dr. Daniel Cardiology', specialist: 'Marno', vaName: 'Elena F.',
-        daysBeforeCxl: 14, dept: 'OS / onboarding stabilization', controllability: 'Controllable', risk: 'weak KPI definition', resolution: 'For Replacement',
-        summary: 'No quantitative KPIs were defined for the Medical VA. Disagreement arose between client and VA regarding daily output. Client claimed VA was "slow," while VA had no clear metrics to defend performance.',
-        amResponse: 'OS stepped in to define a Daily Activity Log but trust was degraded. Client preferred replacement with pre-defined metrics.',
-        intervention: 'OS should enforce KPI agreement sign-off prior to the Day-1 kickoff meeting.'
-      },
-      {
-        id: 'cxl-2026-011', year: '2026', month: 'Jan', client: 'Lakeside Eye Center', specialist: 'Hawk', vaName: 'Mark Anthony J.',
-        daysBeforeCxl: 50, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
-        summary: 'Client required Medical VA scribe duties in real-time. VA\'s audio connection quality and medical dictation typing speed (WPM) were insufficient for real-time assessments.',
-        amResponse: 'AM provided transcription test for candidate vetting and initiated rapid replacement.',
-        intervention: 'Scribing placements must undergo mandatory live audio-transcription speed testing.'
-      },
-      {
-        id: 'cxl-2026-012', year: '2026', month: 'Feb', client: 'Metro Rehab Associates', specialist: 'Jason Valeros', vaName: 'Patricia P.',
-        daysBeforeCxl: 3, dept: 'Admin/reporting noise', controllability: 'Mostly uncontrollable', risk: 'tech setup gaps', resolution: 'Cancelled',
-        summary: 'Client VPN completely blocked offshore remote connections. Dedicated IT could not resolve.',
-        amResponse: 'AM issued complete placement refund due to local system blocker.',
-        intervention: 'A tech-stack audit form must be completed by the client\'s IT representative during Sales phase.'
-      },
-      {
-        id: 'cxl-2026-013', year: '2026', month: 'Mar', client: 'Valley Pediatrics', specialist: 'Aiza Abing', vaName: 'Kristine S.',
-        daysBeforeCxl: 30, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
-        summary: 'Medical VA struggled with pediatric appointment-recall scripts and active phone coordination. Client felt the candidate lacked the warm, patient-centric tone required.',
-        amResponse: 'OS conducted accent and tone training, but client decided to swap candidate for a pre-vetted customer service specialist.',
-        intervention: 'Deploy specialty telephone etiquette evaluation at placement stage.'
-      },
-      {
-        id: 'cxl-2026-014', year: '2026', month: 'Apr', client: 'Vanguard Psychiatry', specialist: 'Marno', vaName: 'Justin B.',
-        daysBeforeCxl: 19, dept: 'Sales Qualification / Client Readiness', controllability: 'Partially controllable', risk: 'hidden workflow complexity', resolution: 'Cancelled',
-        summary: 'Psychiatrist client had extremely fragmented, complex paper-to-EHR translation workflows. Medical VA was unable to navigate the chaotic system without extensive daily guidance client was too busy to provide.',
-        amResponse: 'AM recommended standard operating procedure (SOP) design services but client decided to hire local staff.',
-        intervention: 'Identify "chaotic administrative states" during Sales calls and mandate SOP consulting before matching.'
-      },
-      {
-        id: 'cxl-2026-015', year: '2026', month: 'May', client: 'Sovereign Urology', specialist: 'Jason Valeros', vaName: 'Noreen D.',
-        daysBeforeCxl: 85, dept: 'Client business change', controllability: 'Mostly uncontrollable', risk: 'financial hesitation', resolution: 'Cancelled',
-        summary: 'Severe decline in insurance reimbursements forced the clinic to reduce general overhead. They decided to lay off several contractor positions, including the Medical VA.',
-        amResponse: 'AM paused billing, offered downscaled 20-hour package, but client proceeded with cancellation.',
-        intervention: 'None. Macroeconomic client business adjustment.'
-      },
-      {
-        id: 'cxl-2026-016', year: '2026', month: 'Apr', client: 'Apex Dental Care', specialist: 'Aiza Abing', vaName: 'Carlo M.',
-        daysBeforeCxl: 40, dept: 'VA-side issue', controllability: 'Partially controllable', risk: 'attendance concerns', resolution: 'For Replacement',
-        summary: 'Medical VA missed key check-ins due to frequent internet dropouts caused by typhoon damage. Communication loop broke during critical week-3 onboarding.',
-        amResponse: 'OS deployed temporary hotspot backup. Sourced backup candidate.',
-        intervention: 'Incorporate weather-resiliency audits and regional diversification in matching pools.'
-      },
-      {
-        id: 'cxl-2026-017', year: '2026', month: 'May', client: 'Elite MedSpa & Laser', specialist: 'Hawk', vaName: 'Diana G.',
-        daysBeforeCxl: 22, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
-        summary: 'MedSpa required extensive social media active-outreach and design work (Canva/Instagram). Medical VA matched was an administrative biller who had zero creative marketing skills.',
-        amResponse: 'AM acknowledged mismatched skill profiles and immediately transferred case to a marketing-focused candidate pool.',
-        intervention: 'Placements team should categorically separate Administrative VAs from Creative/Marketing VAs.'
-      },
-
-      // --- 2025 granular cancellations (43 cases - mapped with real seasonal distribution) ---
-      ...Array.from({ length: 43 }).map((_, idx) => {
-        let dept, controllability, risk, client, specialist, days, summary, response, intervention, resolution;
-        const months2025 = [
-          'Jan', 'Jan', 'Jan', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Mar', 'Mar',
-          'Apr', 'Apr', 'Apr', 'Apr', 'May', 'May', 'May', 'May', 'May', 'May',
-          'Jun', 'Jun', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Aug', 'Aug', 'Aug',
-          'Sep', 'Sep', 'Sep', 'Sep', 'Oct', 'Oct', 'Oct', 'Oct', 'Oct', 'Nov',
-          'Nov', 'Dec', 'Dec'
-        ];
-        const chosenMonth = months2025[idx];
-        
-        const clientPool = [
-          'Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn',
-          'Rebecca Brooks', 'Timothy Brookes', 'Krista Roy', 'Dr. Danilo Coite', 'Michaela Klose',
-          'Anmy Vu', 'Jesse Cretaro', 'Dr. Nanette LaShay', 'Dr. Joe Ponnezhan', 'Anna Padgett',
-          'Caren Lopez', 'Angel Johnson', 'Katie Durighello', 'Dr. Daniel Cardiology', 'Anya Rose',
-          'Anis Saif', 'Surgical Specialists of NY', 'Owen Family Dental', 'Beacon Health Partners',
-          'Coastal Dermatology', 'Pinnacle Pediatrics', 'Oakridge Family Practice', 'Midwest Nephrology',
-          'Elite Orthopedics', 'Summit Pain Clinic', 'Lakeside Eye Center', 'Metro Rehab Associates',
-          'Valley Pediatrics', 'Vanguard Psychiatry', 'Sovereign Urology', 'Apex Dental Care',
-          'Elite MedSpa & Laser', 'Milind Joshi', 'Cordelia Nieketien', 'Bernadette Kimemia'
-        ];
-
-        const vaPool = [
-          'Joshua Edis', 'Kimberley Cataluna', 'Christian Klein', 'Gabriel S.', 'Elena F.',
-          'Patricia P.', 'Carlo M.', 'Diana G.', 'Gianne Erika Racadio', 'Mark Anthony J.',
-          'John Carlo D.', 'Rachelle T.', 'Kristine S.', 'Arnel G.', 'Justin B.', 'Noreen D.'
-        ];
-
-        client = clientPool[idx % clientPool.length];
-        const vaName = vaPool[idx % vaPool.length];
-
-        if (idx < 16) specialist = 'Jason Valeros';
-        else if (idx < 28) specialist = 'Aiza Abing';
-        else if (idx < 37) specialist = 'Hawk';
-        else specialist = 'Marno';
-
-        if (idx < 20) {
-          dept = 'Placements / VA Matching';
-          risk = idx % 2 === 0 ? 'weak VA skill alignment' : 'HTP mismatch';
-          days = Math.floor(Math.random() * 40) + 5;
-          summary = `Medical VA ${vaName} matched with client ${client} lacked domain-specific operational skills (SOP reference: INTERPC: 001).`;
-          response = "Account Manager focused on matching replacement candidate rather than identifying skill gap upstream.";
-          intervention = "Establish practical skill tests in the matching stage instead of relying on resume declarations.";
-          resolution = idx % 2 === 0 ? 'For Replacement' : 'Cancelled';
-        } else if (idx < 30) {
-          dept = 'Sales Qualification / Client Readiness';
-          risk = (idx % 2 === 0) ? 'unrealistic expectations' : 'unclear workflow';
-          days = Math.floor(Math.random() * 30) + 1;
-          summary = `Client ${client} was sold a turnkey service but lacked internal workflows, checklists, or standard operating procedures.`;
-          response = "AM explained the role of the client in managing the VA, which created adversarial friction.";
-          intervention = "Mandate a Workflow Readiness Audit in the Sales stage prior to final contract sign-off.";
-          resolution = 'Cancelled';
-        } else if (idx < 37) {
-          dept = 'VA-side issue';
-          risk = (idx % 2 === 0) ? 'attendance concerns' : 'overwhelmed VA';
-          days = Math.floor(Math.random() * 60) + 20;
-          summary = `Medical VA ${vaName} experienced recurring connectivity disruptions or fatigue and resigned.`;
-          response = "OS offered quick intervention and coaching, but client preferred an immediate fresh start.";
-          intervention = "Implement Day-7 stress-level screening for VAs operating in high-volume environments.";
-          resolution = 'For Replacement';
-        } else if (idx < 40) {
-          dept = 'OS / onboarding stabilization';
-          risk = 'weak KPI definition';
-          days = Math.floor(Math.random() * 15) + 10;
-          summary = `Onboarding Specialist failed to establish clear alignment on daily deliverables, resulting in mismatched performance perceptions.`;
-          response = "OS stepped in late to configure tracking logs but the client's patience had already run thin.";
-          intervention = "Automate and mandate KPI registration within the custom client portal on Day 5.";
-          resolution = 'For Replacement';
-        } else if (idx < 42) {
-          dept = 'Client business change';
-          risk = 'financial hesitation';
-          days = Math.floor(Math.random() * 90) + 45;
-          summary = `Client ${client} faced internal economic restructuring, clinical downscaling, or a sudden change in management priorities.`;
-          response = "AM proposed downscaled hours or future suspension options to preserve the relationship.";
-          intervention = "Provide a flexible 'Hibernate' service tier to maintain client lifecycle during transitions.";
-          resolution = 'Reduced VAs';
-        } else {
-          dept = 'Admin/reporting noise';
-          risk = 'tech setup gaps';
-          days = Math.floor(Math.random() * 10) + 2;
-          summary = `Client ${client} experienced severe, unresolved system integration issues (VPN blocking, remote access permissions).`;
-          response = "IT Support was engaged, but communication lags forced client cancellation.";
-          intervention = "Deploy a pre-arrival Technical Integration checklist to resolve system access before VA Day 1.";
-          resolution = 'Cancelled';
-        }
-
-        if (idx < 29) {
-          controllability = 'Controllable';
-        } else if (idx < 36) {
-          controllability = 'Partially controllable';
-        } else {
-          controllability = 'Mostly uncontrollable';
-        }
-
-        return {
-          id: `cxl-2025-${idx + 1}`,
-          year: '2025',
-          month: chosenMonth,
-          client: client,
-          specialist: specialist,
-          vaName: vaName,
-          daysBeforeCxl: days,
-          dept: dept,
-          controllability: controllability,
-          risk: risk,
-          resolution: resolution,
-          summary: summary,
-          amResponse: response,
-          intervention: intervention
-        };
-      }),
-
-      // --- 2024 aggregated representatives (67 cases) ---
-      ...Array.from({ length: 67 }).map((_, idx) => {
-        const months2024 = [
-          'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb',
-          'Mar', 'Mar', 'Mar', 'Mar', 'Apr', 'Apr', 'Apr', 'Apr', 'Apr', 'Apr', 'Apr', 'May', 'May',
-          'May', 'May', 'May', 'May', 'Jun', 'Jun', 'Jun', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul',
-          'Jul', 'Jul', 'Jul', 'Aug', 'Aug', 'Aug', 'Aug', 'Aug', 'Sep', 'Sep', 'Sep', 'Sep', 'Oct',
-          'Oct', 'Oct', 'Oct', 'Oct', 'Oct', 'Oct', 'Oct', 'Nov', 'Nov', 'Nov', 'Nov', 'Nov', 'Dec',
-          'Dec', 'Dec'
-        ];
-        const clients2024 = ['Jessica Mendelsohn', 'Cordelia Nieketien', 'Milind Joshi', 'Rebecca Brooks', 'Saranya Bala', 'Jennie Wilson', 'Sultan Yusufzai', 'Alpa Shah'];
-        const vas2024 = ['Kimberley Cataluna', 'Christian Klein', 'Mark Anthony J.', 'Gabriel S.', 'Elena F.', 'Ma. Theresa L.', 'Joshua Edis', 'Carlo M.'];
-        return {
-          id: `cxl-2024-${idx}`,
-          year: '2024',
-          month: months2024[idx],
-          client: clients2024[idx % clients2024.length],
-          specialist: idx % 3 === 0 ? 'Jason Valeros' : (idx % 3 === 1 ? 'Aiza Abing' : 'Hawk'),
-          vaName: vas2024[idx % vas2024.length],
-          daysBeforeCxl: Math.floor(Math.random() * 80) + 10,
-          dept: idx % 2 === 0 ? 'Placements / VA Matching' : 'Sales Qualification / Client Readiness',
-          controllability: idx % 3 === 0 ? 'Controllable' : 'Partially controllable',
-          risk: 'unrealistic expectations',
-          resolution: idx % 3 === 0 ? 'Cancelled' : (idx % 3 === 1 ? 'Reduced VAs' : 'For Replacement'),
-          summary: 'Historical cancellation record from FY 2024. Onboarding stabilization gates were not yet implemented.',
-          amResponse: 'Standard operational response and pipeline replacement initiation.',
-          intervention: 'Improve general handover governance.'
-        };
-      }),
-
-      // --- 2023 baseline representatives (75 cases) ---
-      ...Array.from({ length: 75 }).map((_, idx) => {
-        const months2023 = [
-          'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb',
-          'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Mar', 'Mar', 'Mar', 'Mar', 'Mar', 'Mar', 'Apr', 'Apr',
-          'Apr', 'Apr', 'Apr', 'May', 'May', 'May', 'May', 'May', 'May', 'May', 'May', 'May', 'Jun',
-          'Jun', 'Jun', 'Jun', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Aug', 'Aug', 'Aug',
-          'Aug', 'Aug', 'Aug', 'Aug', 'Aug', 'Sep', 'Sep', 'Sep', 'Sep', 'Sep', 'Oct', 'Oct', 'Oct',
-          'Oct', 'Oct', 'Oct', 'Nov', 'Nov', 'Nov', 'Nov', 'Dec', 'Dec', 'Dec'
-        ];
-        const clients2023 = ['Bernadette Kimemia', 'Cordelia Nieketien', 'Milind Joshi', 'Rebecca Brooks', 'Saranya Bala', 'Sultan Yusufzai', 'Jennie Wilson', 'Jessica Mendelsohn'];
-        const vas2023 = ['Christian Klein', 'Joshua Edis', 'Kimberley Cataluna', 'Gabriel S.', 'Elena F.', 'Patricia P.', 'Carlo M.'];
-        return {
-          id: `cxl-2023-${idx}`,
-          year: '2023',
-          month: months2023[idx],
-          client: clients2023[idx % clients2023.length],
-          specialist: 'Unassigned / Pre-System',
-          vaName: vas2023[idx % vas2023.length],
-          daysBeforeCxl: Math.floor(Math.random() * 90) + 5,
-          dept: 'Placements / VA Matching',
-          controllability: 'Controllable',
-          risk: 'weak VA skill alignment',
-          resolution: idx % 3 === 0 ? 'Cancelled' : (idx % 3 === 1 ? 'Reduced VAs' : 'For Replacement'),
-          summary: 'Historical baseline cancellation from FY 2023. Account placed on hold due to non-payment.',
-          amResponse: 'Unstructured client save attempt.',
-          intervention: 'Establish centralized Onboarding Specialist department (realized in late 2024).'
-        };
-      })
-    ];
-
-    const HISTORICAL_SUMMARY = {
-      '2023': { starts: 200, cxls: 75, rate: 37.5, color: '#94a3b8' },
-      '2024': { starts: 259, cxls: 67, rate: 25.9, color: '#64748b' },
-      '2025': { starts: 197, cxls: 43, rate: 21.8, color: '#334155' },
-      '2026': { starts: 77, cxls: 17, rate: 22.1, color: '#0f172a' }
-    };
-
-    const SURVEY_DATA = {
-      totalResponses: 94,
-      dimensions: [
-        { label: 'Medical VA Productivity', rating: 4.76, benchmark: 4.5, description: 'Satisfaction with Medical VA work output in the first 30 days.' },
-        { label: 'Onboarding Confidence', rating: 4.76, benchmark: 4.4, description: 'Confidence that Medical VA completed all provided training/shadowing.' },
-        { label: 'KPI Understanding', rating: 4.71, benchmark: 4.3, description: 'How well the Medical VA understands their daily priorities and targets.' },
-        { label: 'Tool Navigation', rating: 4.87, benchmark: 4.5, description: 'Rating of Medical VA tool resourcefulness and system agility.' },
-        { label: 'Check-in Effectiveness', rating: 4.87, benchmark: 4.6, description: 'How effective check-ins been for alignment and resolution.' },
-        { label: 'Overall Onboarding', rating: 4.83, benchmark: 4.5, description: 'General rating of the entire structured onboarding experience.' }
-      ],
-      specialists: [
-        { name: 'Jason Valeros', responses: 36, avgRating: 4.82, productivity: 4.78, confidence: 4.78, kpi: 4.72, tool: 4.88, checkIn: 4.89, overall: 4.85 },
-        { name: 'Aiza Abing', responses: 26, avgRating: 4.80, productivity: 4.75, confidence: 4.74, kpi: 4.69, tool: 4.85, checkIn: 4.86, overall: 4.81 },
-        { name: 'Hawk', responses: 19, avgRating: 4.81, productivity: 4.76, confidence: 4.76, kpi: 4.70, tool: 4.87, checkIn: 4.87, overall: 4.82 },
-        { name: 'Marno', responses: 12, avgRating: 4.84, productivity: 4.79, confidence: 4.80, kpi: 4.75, tool: 4.89, checkIn: 4.90, overall: 4.86 }
-      ],
-      quotes: [
-        { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', text: "Onboarding process is very effective. 5/5.", date: '2025-09-18', rating: 5 },
-        { client: 'Michaela Klose', specialist: 'Jason Valeros', text: "I have nothing but wonderful things to say about MMM and Kimberly Cataluna. Onboarding went very smooth and no issues to report.", date: '2025-09-26', rating: 5 },
-        { client: 'Krista Roy (Skin Center of FL)', specialist: 'Jason Valeros', text: "I'm so happy they follow the EOS system because that is why it flows so well. I like the KPIs, the ROIs, and that they took care of all the backend stuff with the internet setup.", date: '2026-05-14', rating: 5 },
-        { client: 'Timothy Brookes', specialist: 'Marno', text: "Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and always had the information we needed. Highly recommended.", date: '2026-05-19', rating: 5 }
-      ]
-    };
-
-    // ==========================================
-    // THE INTERACTIVE REACT APP
+    // MAIN APP COMPONENT
     // ==========================================
     function App() {
-      const [activeTab, setActiveTab] = useState(1); // Default to Trends & KPI Dashboard
-      const [selectedYear, setSelectedYear] = useState('2025');
-      const [selectedDept, setSelectedDept] = useState('All');
-      const [selectedControllability, setSelectedControllability] = useState('All');
-      const [selectedOS, setSelectedOS] = useState('All');
-      const [selectedResolution, setSelectedResolution] = useState('All');
+      const [viewMode, setViewMode] = useState('executive'); 
+      const [activeTab, setActiveTab] = useState(1); 
+      
+      const [selectedYear, setSelectedYear] = useState('All');
+      const [selectedMonth, setSelectedMonth] = useState('All');
       const [searchQuery, setSearchQuery] = useState('');
-      const [selectedRiskKey, setSelectedRiskKey] = useState('weak VA skill alignment');
-      const [trendsMetric, setTrendsMetric] = useState('rate');
+      
+      const [cxlYearFocus, setCxlYearFocus] = useState(null);
+      const [spartanMonth, setSpartanMonth] = useState(null);
 
-      const [hoveredNode, setHoveredNode] = useState(null);
-      const [hoveredFlow, setHoveredFlow] = useState(null);
-      const [activeHoveredMonth, setActiveHoveredMonth] = useState(null);
-      const [activeHoveredSpecialist, setActiveHoveredSpecialist] = useState(null);
-      const [hoveredAllYears, setHoveredAllYears] = useState(null);
+      const [focusResolution, setFocusResolution] = useState('Cancelled');
+      const [focusReason, setFocusReason] = useState('VA Issues');
 
-      const [feedSortConfig, setFeedSortConfig] = useState({ key: 'client', direction: 'asc' });
-      const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'client', direction: 'asc' });
-
-      const handleResetFilters = () => {
-        setSelectedYear('2025');
-        setSelectedDept('All');
-        setSelectedControllability('All');
-        setSelectedOS('All');
-        setSelectedResolution('All');
-        setSearchQuery('');
-      };
+      const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
       const filteredCancellations = useMemo(() => {
         return RAW_CANCELLATIONS.filter(item => {
           if (selectedYear !== 'All' && item.year !== selectedYear) return false;
-          if (selectedDept !== 'All' && item.dept !== selectedDept) return false;
-          if (selectedControllability !== 'All' && item.controllability !== selectedControllability) return false;
-          if (selectedOS !== 'All' && item.specialist !== selectedOS) return false;
-          if (selectedResolution !== 'All' && item.resolution !== selectedResolution) return false;
+          if (selectedMonth !== 'All' && item.month !== selectedMonth) return false;
           if (searchQuery.trim() !== '') {
-            const query = searchQuery.toLowerCase();
-            return item.client.toLowerCase().includes(query) || 
-                   item.summary.toLowerCase().includes(query) || 
-                   (item.vaName && item.vaName.toLowerCase().includes(query)) || 
-                   item.risk.toLowerCase().includes(query);
+            const q = searchQuery.toLowerCase();
+            return item.client.toLowerCase().includes(q) || item.vaName.toLowerCase().includes(q) || item.reason.toLowerCase().includes(q) || item.specificIssue.toLowerCase().includes(q);
           }
           return true;
         });
-      }, [selectedYear, selectedDept, selectedControllability, selectedOS, selectedResolution, searchQuery]);
+      }, [selectedYear, selectedMonth, searchQuery]);
 
-      const getSortedData = (data, config) => {
-        if (!config.key) return data;
-        return [...data].sort((a, b) => {
-          let aVal = a[config.key];
-          let bVal = b[config.key];
-          if (typeof aVal === 'number' && typeof bVal === 'number') {
-            return config.direction === 'asc' ? aVal - bVal : bVal - aVal;
-          }
-          aVal = aVal ? aVal.toString().toLowerCase() : '';
-          bVal = bVal ? bVal.toString().toLowerCase() : '';
-          if (aVal < bVal) return config.direction === 'asc' ? -1 : 1;
-          if (aVal > bVal) return config.direction === 'asc' ? 1 : -1;
+      const sortedLedger = useMemo(() => {
+        let sortable = [...filteredCancellations];
+        sortable.sort((a, b) => {
+          let aVal = a[ledgerSortConfig.key] || ''; let bVal = b[ledgerSortConfig.key] || '';
+          if (typeof aVal === 'number' && typeof bVal === 'number') return ledgerSortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+          aVal = aVal.toString().toLowerCase(); bVal = bVal.toString().toLowerCase();
+          if (aVal < bVal) return ledgerSortConfig.direction === 'asc' ? -1 : 1;
+          if (aVal > bVal) return ledgerSortConfig.direction === 'asc' ? 1 : -1;
           return 0;
         });
-      };
-
-      const sortedFeedCancellations = useMemo(() => {
-        return getSortedData(filteredCancellations, feedSortConfig);
-      }, [filteredCancellations, feedSortConfig]);
-
-      const sortedLedgerCancellations = useMemo(() => {
-        return getSortedData(filteredCancellations, ledgerSortConfig);
+        return sortable;
       }, [filteredCancellations, ledgerSortConfig]);
 
-      const requestSort = (table, key) => {
-        const config = table === 'feed' ? feedSortConfig : ledgerSortConfig;
-        const setConfig = table === 'feed' ? setFeedSortConfig : setLedgerSortConfig;
-        let direction = 'asc';
-        if (config.key === key && config.direction === 'asc') {
-          direction = 'desc';
-        }
-        setConfig({ key, direction });
-      };
+      const requestSort = key => setLedgerSortConfig({ key, direction: ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc' ? 'desc' : 'asc' });
+      const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>;
 
-      const renderSortIndicator = (config, key) => {
-        if (config.key !== key) return <span className="text-slate-300 ml-1">⇅</span>;
-        return config.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>;
-      };
+      const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear]);
+
+      const monthlyBreakdown = useMemo(() => {
+        const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return monthsList.map(mName => {
+          const monthCases = baseForMonths.filter(c => c.month === mName);
+          const reasonCounts = {};
+          monthCases.forEach(c => reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1);
+          return { month: mName, count: monthCases.length, reasons: reasonCounts, cases: monthCases };
+        });
+      }, [baseForMonths]);
 
       const dynamicKPIs = useMemo(() => {
         const totalCxls = filteredCancellations.length;
-        const controllableCount = filteredCancellations.filter(c => c.controllability === 'Controllable' || c.controllability === 'Partially controllable').length;
-        const controllabilityRate = totalCxls > 0 ? (controllableCount / totalCxls) * 100 : 0;
-
-        const preOnboardingCount = filteredCancellations.filter(c => 
-          c.dept === 'Placements / VA Matching' || c.dept === 'Sales Qualification / Client Readiness'
-        ).length;
-        const preOnboardingRate = totalCxls > 0 ? (preOnboardingCount / totalCxls) * 100 : 0;
-
-        let dynamicCxlRate = 0;
-        let startsCount = 100;
+        let startsCount = 100, dynamicCxlRate = 0;
         if (selectedYear !== 'All') {
           startsCount = HISTORICAL_SUMMARY[selectedYear]?.starts || 100;
           dynamicCxlRate = (totalCxls / startsCount) * 100;
         } else {
-          const totalStartsAllYears = Object.values(HISTORICAL_SUMMARY).reduce((sum, item) => sum + item.starts, 0);
-          const totalCxlsAllYears = RAW_CANCELLATIONS.length;
-          dynamicCxlRate = (totalCxlsAllYears / totalStartsAllYears) * 100;
-          startsCount = totalStartsAllYears;
+          startsCount = Object.values(HISTORICAL_SUMMARY).reduce((sum, item) => sum + item.starts, 0);
+          dynamicCxlRate = (RAW_CANCELLATIONS.length / startsCount) * 100;
         }
+        const reasonCounts = {};
+        filteredCancellations.forEach(c => reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1);
+        let topTrigger = 'N/A', topCount = 0;
+        Object.entries(reasonCounts).forEach(([r, count]) => { if (count > topCount) { topTrigger = r; topCount = count; } });
 
-        const deptCounts = {};
-        filteredCancellations.forEach(c => {
-          deptCounts[c.dept] = (deptCounts[c.dept] || 0) + 1;
+        return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1), topTrigger };
+      }, [filteredCancellations, selectedYear]);
+
+      // Hierarchical Drill-down Logic
+      const drillDownData = useMemo(() => {
+        if (!cxlYearFocus) return null;
+        const focusData = RAW_CANCELLATIONS.filter(c => c.year === cxlYearFocus);
+        
+        const resMap = {};
+        focusData.forEach(c => {
+          resMap[c.resolution] = resMap[c.resolution] || { count: 0, days: 0 };
+          resMap[c.resolution].count++; resMap[c.resolution].days += c.daysBeforeCxl;
         });
-        let topTrigger = 'N/A';
-        let topTriggerCount = 0;
-        Object.entries(deptCounts).forEach(([dept, count]) => {
-          if (count > topTriggerCount) {
-            topTrigger = dept;
-            topTriggerCount = count;
-          }
+        const resList = Object.entries(resMap).map(([k, v]) => ({ name: k, count: v.count, avgDays: Math.round(v.days/v.count) })).sort((a,b)=>b.count-a.count);
+
+        let currentRes = focusResolution;
+        if (!resMap[currentRes] && resList.length > 0) { currentRes = resList[0].name; setTimeout(() => setFocusResolution(currentRes), 0); }
+
+        const reasonMap = {};
+        focusData.filter(c => c.resolution === currentRes).forEach(c => {
+          reasonMap[c.reason] = reasonMap[c.reason] || { count: 0, days: 0 };
+          reasonMap[c.reason].count++; reasonMap[c.reason].days += c.daysBeforeCxl;
         });
+        const reasonList = Object.entries(reasonMap).map(([k, v]) => ({ name: k, count: v.count, avgDays: Math.round(v.days/v.count) })).sort((a,b)=>b.count-a.count);
 
-        let avgCSat = 4.83;
-        if (selectedOS !== 'All') {
-          const specObj = SURVEY_DATA.specialists.find(s => s.name === selectedOS);
-          if (specObj) avgCSat = specObj.avgRating;
-        }
+        let currentReas = focusReason;
+        if (!reasonMap[currentReas] && reasonList.length > 0) { currentReas = reasonList[0].name; setTimeout(() => setFocusReason(currentReas), 0); }
 
-        let yoyImprovement = "N/A";
-        if (selectedYear === '2025') yoyImprovement = "+15.8% YoY";
-        else if (selectedYear === '2024') yoyImprovement = "+30.9% YoY";
-        else if (selectedYear === '2026') yoyImprovement = "-1.3% YTD Adjustment";
-
-        return {
-          totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1),
-          controllabilityRate: controllabilityRate.toFixed(1),
-          preOnboardingRate: preOnboardingRate.toFixed(1),
-          topTrigger, avgCSat, yoyImprovement
-        };
-      }, [filteredCancellations, selectedYear, selectedOS]);
-
-      const monthlyAttritionBreakdown = useMemo(() => {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return months.map(mName => {
-          const monthCases = filteredCancellations.filter(c => c.month === mName);
-          const deptCounts = {};
-          monthCases.forEach(c => {
-            deptCounts[c.dept] = (deptCounts[c.dept] || 0) + 1;
-          });
-          return { month: mName, count: monthCases.length, depts: deptCounts, cases: monthCases };
+        const specMap = {};
+        focusData.filter(c => c.resolution === currentRes && c.reason === currentReas).forEach(c => {
+          specMap[c.specificIssue] = specMap[c.specificIssue] || { count: 0, days: 0 };
+          specMap[c.specificIssue].count++; specMap[c.specificIssue].days += c.daysBeforeCxl;
         });
-      }, [filteredCancellations]);
+        const specList = Object.entries(specMap).map(([k, v]) => ({ name: k, count: v.count, avgDays: Math.round(v.days/v.count) })).sort((a,b)=>b.count-a.count);
 
-      const specialistStabilizationAudit = useMemo(() => {
-        const specialists = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
-        return specialists.map(name => {
-          const specCases = filteredCancellations.filter(c => c.specialist === name);
-          const totalCxls = specCases.length;
-          const avgDaysContained = totalCxls > 0 
-            ? Math.round(specCases.reduce((sum, c) => sum + Math.max(0, c.daysBeforeCxl), 0) / totalCxls)
-            : 0;
-          const cancelledCount = specCases.filter(c => c.resolution === 'Cancelled').length;
-          const reducedCount = specCases.filter(c => c.resolution === 'Reduced VAs').length;
-          const replacementCount = specCases.filter(c => c.resolution === 'For Replacement').length;
-          const surveyRef = SURVEY_DATA.specialists.find(s => s.name === name) || {};
-          return {
-            name, cxlsControlled: totalCxls, avgDaysContained,
-            cancelledCount, reducedCount, replacementCount,
-            rating: surveyRef.avgRating || 4.80, volume: surveyRef.responses || 0
-          };
-        });
-      }, [filteredCancellations]);
+        return { resList, reasonList, specList, totalFocus: focusData.length };
+      }, [cxlYearFocus, focusResolution, focusReason]);
 
-      // Sankey Data Memo
-      const sankeyData = useMemo(() => {
-        const total = filteredCancellations.length;
-        if (total === 0) return { nodes: [], links: [] };
+      // Render Modules
+      function renderExecutiveVerdict() {
+        return (
+          <div className="bg-slate-900 border-l-4 border-[#00AFC0] rounded-r-xl p-8 shadow-md animate-fadeIn mb-8 text-white relative overflow-hidden">
+            <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
+              <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 22h20L12 2z"/></svg>
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest mb-2">The Spartan Verdict</h3>
+              <h2 className="text-2xl font-black tracking-tight mb-6">Are Onboarding Specialists Moving The Needle?</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Data</p>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-3xl font-black text-rose-400">31.7%</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Pre-OS (23-24)</span>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-[#00AFC0]">21.9%</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Post-OS (Apr '25+)</span>
+                  </div>
+                </div>
+                
+                <div>
+                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Reality</p>
+                  <p className="text-sm font-medium leading-relaxed text-slate-300">
+                    Yes. Following the Q1 2025 ROCK implementation, OS teams stabilized the pipeline, hitting the 40% reduction target for Client Setup-driven early cancellations. The standardization of pre-contract readiness calls (INTERDEPT: 017) effectively sanitized the intake flow. However, OS currently functions as a defensive "containment layer"—catching upstream mismatches.
+                  </p>
+                </div>
+                
+                <div>
+                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Action</p>
+                  <p className="text-sm font-bold text-[#00AFC0] leading-relaxed">
+                    To crush the 22% attrition floor, OS must transition from containment to gatekeepers. The primary driver has shifted from Readiness to Placements (VA Quality, HTP Mismatch). Grant OS absolute veto power to halt client kickoffs if Pre-Onboarding Readiness is unmet.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
 
-        const cols = [
-          { key: 'dept', label: 'Department Trigger', x: 40, width: 140 },
-          { key: 'risk', label: 'Operational Risk (Failure)', x: 340, width: 160 },
-          { key: 'resolution', label: 'Final Outcome', x: 640, width: 120 }
-        ];
+      function renderMacroPipeline() {
+        const years = ['2023', '2024', '2025', '2026'];
+        const linePoints = years.map((y, i) => `${150 + (i * 170)},${200 - (HISTORICAL_SUMMARY[y].rate / 50) * 160}`);
+        
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+            <div className="border-b border-slate-100 pb-4 mb-6">
+              <span className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest">Section 1: Macro Pipeline</span>
+              <h2 className="text-lg font-bold text-[#025863] mt-1">Starts vs. Cancellations Timeline</h2>
+              <div className="bg-slate-50 border-l-4 border-[#025863] p-2 mt-2">
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Compares new starts vs. early drops to reveal systemic health. <br/><strong className="text-[#025863]">ACTION:</strong> Click an orange cancellation bar to launch Hierarchical Causal Drill-Down.</p>
+              </div>
+            </div>
+            
+            <div className="w-full h-72 relative">
+              <svg className="w-full h-full" viewBox="0 0 750 250">
+                <line x1="40" y1="40" x2="700" y2="40" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="40" y1="120" x2="700" y2="120" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="40" y1="200" x2="700" y2="200" stroke="#e2e8f0" strokeWidth="1.5" />
+                
+                <g className="fill-slate-400 text-[9px] font-mono"><text x="15" y="44">300</text><text x="15" y="124">150</text><text x="15" y="204">0</text></g>
+                <g className="fill-[#F59E0B] text-[9px] font-mono font-bold"><text x="710" y="44">50%</text><text x="710" y="124">25%</text><text x="710" y="204">0%</text></g>
 
-        const stageNodes = { dept: {}, risk: {}, resolution: {} };
-        filteredCancellations.forEach(item => {
-          stageNodes.dept[item.dept] = (stageNodes.dept[item.dept] || 0) + 1;
-          stageNodes.risk[item.risk] = (stageNodes.risk[item.risk] || 0) + 1;
-          stageNodes.resolution[item.resolution || 'Resolved'] = (stageNodes.resolution[item.resolution || 'Resolved'] || 0) + 1;
-        });
+                {years.map((y, idx) => {
+                  const cx = 150 + (idx * 170);
+                  const sH = (HISTORICAL_SUMMARY[y].starts / 300) * 160;
+                  const cH = (HISTORICAL_SUMMARY[y].cxls / 300) * 160;
+                  const isFocused = cxlYearFocus === y;
 
-        const nodes = [];
-        const nodeIndexMap = {};
-        let nodeGlobalIdx = 0;
+                  return (
+                    <g key={y}>
+                      <text x={cx} y="220" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{y}</text>
+                      <rect x={cx - 20} y={200 - sH} width="18" height={sH} fill="#025863" rx="2" opacity="0.9" />
+                      <text x={cx - 11} y={195 - sH} className="text-[9px] font-bold fill-[#025863]" textAnchor="middle">{HISTORICAL_SUMMARY[y].starts}</text>
+                      
+                      <rect 
+                        x={cx + 2} y={200 - cH} width="18" height={cH} 
+                        fill={isFocused ? "#E11D48" : "#FF6334"} rx="2" 
+                        className="cursor-pointer transition-all duration-200 hover:brightness-110 hover:stroke-2 hover:stroke-rose-900" 
+                        onClick={() => setCxlYearFocus(isFocused ? null : y)} 
+                      />
+                      <text x={cx + 11} y={195 - cH} className="text-[9px] font-bold fill-[#FF6334]" textAnchor="middle">{HISTORICAL_SUMMARY[y].cxls}</text>
+                    </g>
+                  );
+                })}
 
-        cols.forEach((col, colIdx) => {
-          const keys = Object.keys(stageNodes[col.key]).sort((a, b) => stageNodes[col.key][b] - stageNodes[col.key][a]);
-          const colTotalCount = keys.reduce((sum, k) => sum + stageNodes[col.key][k], 0);
+                <path d={`M ${linePoints.join(" L ")}`} fill="none" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
+                {years.map((y, i) => (
+                  <g key={`line-${y}`}>
+                    <circle cx={150 + (i * 170)} cy={200 - (HISTORICAL_SUMMARY[y].rate / 50) * 160} r="6" fill="#fff" stroke="#F59E0B" strokeWidth="3" />
+                    <text x={150 + (i * 170)} y={200 - (HISTORICAL_SUMMARY[y].rate / 50) * 160 - 12} className="text-[10px] font-bold fill-[#F59E0B]" textAnchor="middle">{HISTORICAL_SUMMARY[y].rate}%</text>
+                  </g>
+                ))}
+              </svg>
 
-          let currentY = 20;
-          const heightMultiplier = 280 / colTotalCount;
-          const spacing = 10;
+              <div className="absolute top-0 right-0 bg-slate-50 border border-slate-200 p-3 rounded text-xs shadow-sm">
+                <div className="flex items-center gap-2 mb-1"><span className="w-3 h-3 bg-[#025863] rounded-sm"></span> Starts</div>
+                <div className="flex items-center gap-2 mb-1"><span className="w-3 h-3 bg-[#FF6334] rounded-sm"></span> Cancellations</div>
+                <div className="flex items-center gap-2"><span className="w-3 h-1 bg-[#F59E0B] rounded-sm"></span> Rate (%)</div>
+              </div>
+            </div>
 
-          keys.forEach((key) => {
-            const count = stageNodes[col.key][key];
-            const h = Math.max(count * heightMultiplier - spacing, 14);
-            const node = {
-              id: `${col.key}:${key}`, globalIdx: nodeGlobalIdx, label: key,
-              stage: col.key, colIdx, count, x: col.x, width: col.width,
-              y: currentY, height: h, sourceOffset: 0, targetOffset: 0
-            };
-            nodes.push(node);
-            nodeIndexMap[node.id] = node;
-            nodeGlobalIdx++;
-            currentY += h + spacing;
-          });
-        });
+            {/* HIERARCHICAL DRILL-DOWN */}
+            {cxlYearFocus && drillDownData && (
+              <div className="mt-8 pt-8 border-t border-slate-200 animate-fadeIn relative">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-[#025863]">Hierarchical Causal Drill-Down: {cxlYearFocus}</h3>
+                    <div className="bg-amber-50 border-l-4 border-amber-500 p-2 mt-2 max-w-4xl">
+                      <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Accurately maps the anatomy of failure. Select a Resolution to reveal its Reasons. Select a Reason to expose specific Sub-Issues. <br/><strong className="text-amber-700">ACTION: Target root defects with highest volume & lowest tenure.</strong></p>
+                    </div>
+                  </div>
+                  <button onClick={() => setCxlYearFocus(null)} className="text-[10px] font-bold text-slate-500 hover:text-rose-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 transition shrink-0">CLOSE</button>
+                </div>
 
-        const links = [];
-        const s01Flows = {};
-        const s12Flows = {};
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Column 1: Resolutions */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">1. Resolution Outcomes</h4>
+                    <div className="space-y-2">
+                      {drillDownData.resList.map(item => {
+                        const isSel = focusResolution === item.name;
+                        const pct = Math.round((item.count / drillDownData.totalFocus) * 100);
+                        return (
+                          <div key={item.name} onClick={() => {setFocusResolution(item.name);}} className={`p-2 rounded border cursor-pointer transition-colors relative overflow-hidden ${isSel ? 'bg-white border-[#025863] shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-100'}`}>
+                            <div className="absolute left-0 top-0 bottom-0 bg-[#025863]/10 bar-fill" style={{width: `${pct}%`}}></div>
+                            <div className="relative z-10 flex justify-between items-center">
+                              <div>
+                                <span className={`text-xs font-bold ${isSel ? 'text-[#025863]' : 'text-slate-600'}`}>{item.name}</span>
+                                <div className="text-[9px] text-slate-400 mt-0.5">Avg Tenure: {item.avgDays} days</div>
+                              </div>
+                              <span className="font-black text-sm text-[#025863]">{item.count}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
 
-        filteredCancellations.forEach(item => {
-          const id0 = `dept:${item.dept}`;
-          const id1 = `risk:${item.risk}`;
-          const id2 = `resolution:${item.resolution || 'Resolved'}`;
-          const key01 = `${id0}->${id1}`;
-          const key12 = `${id1}->${id2}`;
-          s01Flows[key01] = (s01Flows[key01] || 0) + 1;
-          s12Flows[key12] = (s12Flows[key12] || 0) + 1;
-        });
+                  {/* Column 2: Reasons */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 relative">
+                    <div className="hidden md:block absolute -left-3 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-300"></div>
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">2. Reasons for '{focusResolution}'</h4>
+                    <div className="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scroll-x">
+                      {drillDownData.reasonList.map(item => {
+                        const isSel = focusReason === item.name;
+                        const parentCount = drillDownData.resList.find(r=>r.name===focusResolution)?.count || 1;
+                        const pct = Math.round((item.count / parentCount) * 100);
+                        return (
+                          <div key={item.name} onClick={() => setFocusReason(item.name)} className={`p-2 rounded border cursor-pointer transition-colors relative overflow-hidden ${isSel ? 'bg-white border-[#00AFC0] shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-100'}`}>
+                            <div className="absolute left-0 top-0 bottom-0 bg-[#00AFC0]/10 bar-fill" style={{width: `${pct}%`}}></div>
+                            <div className="relative z-10 flex justify-between items-center">
+                              <div>
+                                <span className={`text-xs font-bold ${isSel ? 'text-[#00AFC0]' : 'text-slate-600'}`}>{item.name}</span>
+                                <div className="text-[9px] text-slate-400 mt-0.5">Avg Tenure: {item.avgDays} days</div>
+                              </div>
+                              <span className="font-black text-sm text-[#00AFC0]">{item.count}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
 
-        const buildLink = (sourceId, targetId, count) => {
-          const sNode = nodeIndexMap[sourceId];
-          const tNode = nodeIndexMap[targetId];
-          if (!sNode || !tNode) return;
-          const scaleSource = sNode.height / sNode.count;
-          const scaleTarget = tNode.height / tNode.count;
+                  {/* Column 3: Sub Issues */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 relative">
+                    <div className="hidden md:block absolute -left-3 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-300"></div>
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">3. Sub-Issues for '{focusReason}'</h4>
+                    <div className="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scroll-x">
+                      {drillDownData.specList.map(item => {
+                        const parentCount = drillDownData.reasonList.find(r=>r.name===focusReason)?.count || 1;
+                        const pct = Math.round((item.count / parentCount) * 100);
+                        return (
+                          <div key={item.name} className="p-2 rounded border border-transparent bg-white shadow-xs relative overflow-hidden">
+                            <div className="absolute left-0 top-0 bottom-0 bg-[#FF6334]/10 bar-fill" style={{width: `${pct}%`}}></div>
+                            <div className="relative z-10 flex justify-between items-center">
+                              <div>
+                                <span className="text-xs font-bold text-slate-700">{item.name}</span>
+                                <div className="text-[9px] text-slate-400 mt-0.5">Avg Tenure: <strong className="text-[#FF6334]">{item.avgDays}d</strong></div>
+                              </div>
+                              <span className="font-black text-sm text-[#FF6334]">{item.count}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                      {drillDownData.specList.length === 0 && <div className="text-xs text-slate-400 italic">Select a reason...</div>}
+                    </div>
+                  </div>
 
-          const link = {
-            id: `${sourceId}->${targetId}`, source: sNode, target: tNode, count,
-            thickness: Math.max(count * scaleSource, 3),
-            sourceY: sNode.y + sNode.sourceOffset + (count * scaleSource) / 2,
-            targetY: tNode.y + tNode.targetOffset + (count * scaleTarget) / 2
-          };
-          sNode.sourceOffset += count * scaleSource;
-          tNode.targetOffset += count * scaleTarget;
-          links.push(link);
-        };
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      }
 
-        Object.entries(s01Flows).forEach(([flowKey, count]) => {
-          const [sourceId, targetId] = flowKey.split('->');
-          buildLink(sourceId, targetId, count);
-        });
+      function renderMonthLedger() {
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mt-6">
+            <div className="border-b border-slate-100 pb-3 mb-5 flex justify-between items-start">
+              <div>
+                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 2: Timeline Distribution</span>
+                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Interactive Month Ledger</h3>
+                <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
+                  <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Distributes cancellations by calendar month. Shows the volume of each <strong>Reason for Cancellation</strong> per month. <br/><strong className="text-mmmTeal">ACTION:</strong> Click any month to filter the dashboard, or click again to clear.</p>
+                </div>
+              </div>
+              {selectedMonth !== 'All' && (
+                <button onClick={() => setSelectedMonth('All')} className="text-[10px] font-bold bg-rose-50 text-rose-600 px-3 py-1.5 rounded-full border border-rose-200">
+                  Clear Month Filter ({selectedMonth})
+                </button>
+              )}
+            </div>
 
-        Object.entries(s12Flows).forEach(([flowKey, count]) => {
-          const [sourceId, targetId] = flowKey.split('->');
-          buildLink(sourceId, targetId, count);
-        });
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {monthlyBreakdown.map((m, idx) => {
+                const isActive = selectedMonth === m.month;
+                const isFaded = selectedMonth !== 'All' && !isActive;
+                return (
+                  <div 
+                    key={idx} onClick={() => { if(m.count > 0) setSpartanMonth(m); setSelectedMonth(isActive ? 'All' : m.month); }}
+                    className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all duration-200 ${m.count > 0 ? 'cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'} ${isActive ? 'bg-[#025863] border-[#025863] shadow-md transform scale-105' : 'bg-slate-50 border-slate-200 hover:border-[#00AFC0]'} ${isFaded ? 'opacity-40' : 'opacity-100'}`}
+                  >
+                    <div className={`font-bold flex items-center justify-between ${isActive ? 'text-white' : 'text-[#025863]'}`}>
+                      <span>{m.month}</span>
+                      <span className={`${isActive ? 'bg-white/20 text-white' : 'bg-[#D1EBEF] text-[#025863]'} px-1.5 py-0.5 rounded text-[10px] font-mono`}>{m.count} cxls</span>
+                    </div>
+                    <div className="space-y-1 mt-3">
+                      {Object.entries(m.reasons).sort((a,b)=>b[1]-a[1]).map(([r, c], dIdx) => (
+                        <div key={dIdx} className={`text-[10px] flex justify-between ${isActive ? 'text-slate-200' : 'text-slate-500'}`}>
+                          <span className="truncate max-w-[80px]">{r}</span><span className="font-bold">{c}</span>
+                        </div>
+                      ))}
+                      {m.count === 0 && <span className={`text-[10px] italic ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>No activity</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
 
-        return { nodes, links };
-      }, [filteredCancellations]);
+      function renderDataTable() {
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm pb-12 mt-6">
+            <div className="border-b border-slate-100 pb-3 mb-4 flex justify-between items-end">
+              <div>
+                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: Record Forensics</span>
+                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Detailed Cancellation Ledger</h3>
+                <div className="bg-slate-50 border-l-4 border-slate-400 p-2 mt-2">
+                  <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Raw, unfiltered log of all matching cancellations. <br/><strong className="text-slate-700">ACTION:</strong> Hover over any row to view specific pre-onboarding defects and AM response logs.</p>
+                </div>
+              </div>
+              <div className="text-[10px] bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full font-bold">Showing {sortedLedger.length} Records</div>
+            </div>
+
+            <div className="overflow-x-auto pb-32">
+              <table className="w-full text-left text-xs whitespace-nowrap">
+                <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[9px] border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('date')}>Date <Arrow k="date"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('client')}>Client <Arrow k="client"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('vaName')}>VA Name <Arrow k="vaName"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('specialist')}>OS Owner <Arrow k="specialist"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 text-center" onClick={() => requestSort('daysBeforeCxl')}>Tenure <Arrow k="daysBeforeCxl"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('reason')}>Reason Trigger <Arrow k="reason"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('resolution')}>Resolution <Arrow k="resolution"/></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {sortedLedger.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50 cursor-help group relative transition-colors">
+                      <td className="py-3 px-3 font-medium text-slate-600">{formatDateDisplay(item.date)}</td>
+                      <td className="py-3 px-3 font-bold text-[#025863]">{item.client}</td>
+                      <td className="py-3 px-3 text-slate-700">{item.vaName}</td>
+                      <td className="py-3 px-3 text-slate-500">{item.specialist === 'Unassigned / Pre-System' ? <span className="italic opacity-60">Pre-Apr 2025</span> : item.specialist}</td>
+                      <td className="py-3 px-3 font-bold text-slate-800 text-center">{item.daysBeforeCxl}</td>
+                      <td className="py-3 px-3 text-[#00AFC0] font-semibold">{item.reason}</td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider ${item.resolution === 'Cancelled' ? 'bg-rose-50 text-rose-600' : (item.resolution === 'Reduced VAs' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600')}`}>
+                          {item.resolution}
+                        </span>
+                      </td>
+
+                      <td className="absolute left-6 right-6 top-full mt-2 bg-slate-900 text-white p-5 rounded-lg shadow-2xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-[100] border border-slate-700">
+                        <div className="grid grid-cols-2 gap-6 whitespace-normal">
+                          <div><p className="font-bold text-[#00AFC0] text-[10px] uppercase tracking-widest mb-1.5 border-b border-slate-700 pb-1">Context Summary</p><p className="text-[11px] text-slate-300 leading-relaxed">{item.summary}</p><p className="text-[10px] text-amber-400 mt-2 font-semibold bg-amber-400/10 inline-block px-2 py-1 rounded">Pre-Onboarding Defect: {item.preOnboardingIssue} | Sub-Issue: {item.specificIssue}</p></div>
+                          <div><p className="font-bold text-[#00AFC0] text-[10px] uppercase tracking-widest mb-1.5 border-b border-slate-700 pb-1">AM / OS Response Log</p><p className="text-[11px] text-slate-300 leading-relaxed">{item.amResponse}</p><p className="text-[10px] text-emerald-400 mt-2 font-semibold bg-emerald-400/10 inline-block px-2 py-1 rounded">Required SOP Action: {item.intervention}</p></div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {sortedLedger.length === 0 && <tr><td colSpan="7" className="py-12 text-center text-slate-400 font-medium">No records match the current filter configuration.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      }
 
       return (
-        <div className="min-h-screen bg-[#F8F8F8] text-[#025863] font-sans pb-12">
-          
-          {/* Header */}
-          <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm px-6 py-4">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col min-h-screen">
+          <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm px-6 py-4">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="bg-[#025863] text-white text-xs font-bold uppercase tracking-widest px-2.5 py-1 rounded">
-                    My Mountain Mover
-                  </span>
-                  <span className="text-xs text-[#008BA3] font-medium tracking-wide">
-                    Onboarding & Retention Forensics Portal
-                  </span>
+                  <span className="bg-[#025863] text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded">My Mountain Mover</span>
+                  <span className="text-[10px] text-[#008BA3] font-bold uppercase tracking-wider">Operations & Retention Forensics</span>
                 </div>
-                <h1 className="text-2xl font-bold tracking-tight text-[#025863] mt-1">
-                  Onboarding & Early Attrition Diagnostics Dashboard
-                </h1>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  The Pinnacle of Outsourced Virtual Talent — Only the top 2% of candidates get endorsed to clients.
-                </p>
+                <h1 className="text-xl font-black tracking-tight text-[#025863] mt-1">Onboarding Attrition Analytics</h1>
               </div>
-              <div className="flex items-center gap-2 self-start md:self-center">
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00AFC0] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00AFC0]"></span>
-                </span>
-                <span className="text-xs text-[#025863] font-semibold bg-[#D1EBEF] px-3 py-1.5 rounded-full border border-[#008BA3]/30">
-                  Live Salesforce Database
-                </span>
+              <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-200">
+                <button onClick={() => setViewMode('executive')} className={`px-4 py-2 text-xs font-bold rounded transition-all ${viewMode === 'executive' ? 'bg-[#025863] text-white shadow-sm' : 'text-slate-500 hover:text-[#025863]'}`}><Icon name="BarChart3" size={13} /><span>📊 Executive Dashboard</span></button>
+                <button onClick={() => setViewMode('classic')} className={`px-4 py-2 text-xs font-bold rounded transition-all ${viewMode === 'classic' ? 'bg-[#025863] text-white shadow-sm' : 'text-slate-500 hover:text-[#025863]'}`}><Icon name="Layers" size={13} /><span>🗂️ Classic Tabs</span></button>
               </div>
             </div>
           </header>
 
-          {/* Filters Bar */}
           <section className="bg-white border-b border-slate-200 py-3 px-6 shadow-sm">
             <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-[#025863] uppercase tracking-wider mr-2">
-                  <Icon name="Filter" size={14} className="text-[#00AFC0]" />
-                  <span>Interactive Filters:</span>
-                </div>
-
+              <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-1 bg-[#F8F8F8] border border-slate-200 rounded px-2.5 py-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase">Year</label>
-                  <select 
-                    value={selectedYear} 
-                    onChange={(e) => setSelectedYear(e.target.value)}
-                    className="bg-transparent text-xs font-semibold text-[#025863] focus:outline-none cursor-pointer pl-1"
-                  >
-                    <option value="All">All Years</option>
-                    <option value="2023">2023 Baseline</option>
-                    <option value="2024">2024</option>
-                    <option value="2025">2025</option>
-                    <option value="2026">2026 YTD</option>
+                  <select value={selectedYear} onChange={(e) => {setSelectedYear(e.target.value); setCxlYearFocus(null);}} className="bg-transparent text-xs font-semibold text-[#025863] outline-none cursor-pointer pl-1">
+                    <option value="All">All Years</option><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026 YTD</option>
                   </select>
                 </div>
-
-                <div className="flex items-center gap-1 bg-[#F8F8F8] border border-slate-200 rounded px-2.5 py-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase">Trigger Department</label>
-                  <select 
-                    value={selectedDept} 
-                    onChange={(e) => setSelectedDept(e.target.value)}
-                    className="bg-transparent text-xs font-semibold text-[#025863] focus:outline-none cursor-pointer pl-1 max-w-[150px]"
-                  >
-                    <option value="All">All Departments</option>
-                    <option value="Placements / VA Matching">Placements / VA Matching</option>
-                    <option value="Sales Qualification / Client Readiness">Sales Qualification / Client Readiness</option>
-                    <option value="VA-side issue">VA-Side Issue</option>
-                    <option value="OS / onboarding stabilization">OS / Onboarding Stabilization</option>
-                    <option value="Client business change">Client Business Change</option>
-                    <option value="Admin/reporting noise">Admin/Reporting Noise</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-1 bg-[#F8F8F8] border border-slate-200 rounded px-2.5 py-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase">Controllability</label>
-                  <select 
-                    value={selectedControllability} 
-                    onChange={(e) => setSelectedControllability(e.target.value)}
-                    className="bg-transparent text-xs font-semibold text-[#025863] focus:outline-none cursor-pointer pl-1"
-                  >
-                    <option value="All">All Categories</option>
-                    <option value="Controllable">Controllable</option>
-                    <option value="Partially controllable">Partially Controllable</option>
-                    <option value="Mostly uncontrollable">Mostly Uncontrollable</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-1 bg-[#F8F8F8] border border-slate-200 rounded px-2.5 py-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase">OS Owner</label>
-                  <select 
-                    value={selectedOS} 
-                    onChange={(e) => setSelectedOS(e.target.value)}
-                    className="bg-transparent text-xs font-semibold text-[#025863] focus:outline-none cursor-pointer pl-1"
-                  >
-                    <option value="All">All Specialists</option>
-                    <option value="Jason Valeros">Jason Valeros</option>
-                    <option value="Aiza Abing">Aiza Abing</option>
-                    <option value="Hawk">Hawk</option>
-                    <option value="Marno">Marno</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-1 bg-[#F8F8F8] border border-slate-200 rounded px-2.5 py-1">
-                  <label className="text-[10px] font-bold text-slate-400 uppercase">Resolution</label>
-                  <select 
-                    value={selectedResolution} 
-                    onChange={(e) => setSelectedResolution(e.target.value)}
-                    className="bg-transparent text-xs font-semibold text-[#025863] focus:outline-none cursor-pointer pl-1"
-                  >
-                    <option value="All">All Resolutions</option>
-                    <option value="Cancelled">Cancelled</option>
-                    <option value="Reduced VAs">Reduced VAs</option>
-                    <option value="For Replacement">For Replacement</option>
-                  </select>
-                </div>
-
                 <div className="relative flex items-center bg-[#F8F8F8] border border-slate-200 rounded px-2 py-1 max-w-xs">
                   <Icon name="Search" size={14} className="text-slate-400 absolute left-2.5" />
-                  <input 
-                    type="text" 
-                    placeholder="Search Client, VA, or Summary..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="bg-transparent text-xs focus:outline-none text-[#025863] pl-6 w-48"
-                  />
+                  <input type="text" placeholder="Search Client, VA..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-transparent text-xs focus:outline-none text-[#025863] pl-6 w-48" />
                 </div>
               </div>
-
-              <button 
-                onClick={handleResetFilters}
-                className="flex items-center gap-1 text-xs text-[#00AFC0] hover:text-[#008BA3] font-bold py-1.5 px-3 rounded hover:bg-[#D1EBEF]/30 transition border border-dashed border-[#00AFC0]/40"
-              >
-                <Icon name="RefreshCw" size={12} />
-                <span>Reset Active Filters</span>
-              </button>
+              <button onClick={() => { setSelectedYear('All'); setSelectedMonth('All'); setSearchQuery(''); setCxlYearFocus(null); }} className="text-xs text-[#00AFC0] font-bold py-1.5 px-3 rounded hover:bg-[#D1EBEF]/30 transition border border-dashed border-[#00AFC0]/40">Reset Filters</button>
             </div>
           </section>
 
-          {/* Interactive Header KPI Tiles */}
-          <section className="max-w-7xl mx-auto px-6 pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              
-              {/* KPI 1: Early Cancellation Rate */}
-              <div className="bg-white border border-slate-200 rounded p-4 relative group hover:border-[#00AFC0] transition shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
-                  <div className="flex items-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#025863]">Early Cxl Rate</span>
-                    <InfoTooltip text="Total under-91-day cancellations divided by total starts in this period. Indicates account stability." />
-                  </div>
-                  <Icon name="TrendingDown" size={16} className="text-[#FF6334]" />
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold tracking-tight text-[#025863]">
-                    {dynamicKPIs.dynamicCxlRate}%
-                  </span>
-                  <span className="text-[10px] text-emerald-600 font-bold">
-                    {dynamicKPIs.yoyImprovement}
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Cxls within 90 days / starts
-                </p>
-              </div>
-
-              {/* KPI 2: Controllability Index */}
-              <div className="bg-white border border-slate-200 rounded p-4 relative group hover:border-[#00AFC0] transition shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
-                  <div className="flex items-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#025863]">% Controllable</span>
-                    <InfoTooltip text="Cancellations classified as Controllable or Partially Controllable. Represents issues our internal teams (Sales, Placements, OS) had realistic opportunities to intercept." />
-                  </div>
-                  <Icon name="ShieldAlert" size={16} className="text-[#00AFC0]" />
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold tracking-tight text-[#025863]">
-                    {dynamicKPIs.controllabilityRate}%
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-bold">
-                    (Controllable + Partial)
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Operational save opportunities
-                </p>
-              </div>
-
-              {/* KPI 3: Pre-Onboarding Origin */}
-              <div className="bg-white border border-slate-200 rounded p-4 relative group hover:border-[#00AFC0] transition shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
-                  <div className="flex items-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#025863]">Pre-OS Origination</span>
-                    <InfoTooltip text="Cancellations with root-causes occurring in Sales expectation settings or initial Placements screening. These are failures inherited by Onboarding Specialists." />
-                  </div>
-                  <Icon name="Sliders" size={16} className="text-[#008BA3]" />
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold tracking-tight text-[#025863]">
-                    {dynamicKPIs.preOnboardingRate}%
-                  </span>
-                  <span className="text-[10px] text-[#FF6334] font-bold">
-                    Upstream Triggers
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Originated before onboarding start
-                </p>
-              </div>
-
-              {/* KPI 4: Client Onboarding Experience */}
-              <div className="bg-white border border-slate-200 rounded p-4 relative group hover:border-[#00AFC0] transition shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
-                  <div className="flex items-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#025863]">Client Onboarding CSAT</span>
-                    <InfoTooltip text="Calculated average across the 94 comprehensive 30-day client feedback survey dimensions. Highlight of Onboarding operational quality." />
-                  </div>
-                  <Icon name="Star" size={16} className="text-amber-400 fill-amber-400" />
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold tracking-tight text-[#025863]">
-                    {dynamicKPIs.avgCSat.toFixed(2)} / 5.0
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-bold">
-                    (94 Survey N)
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Consistent onboarding experience
-                </p>
-              </div>
-
-              {/* KPI 5: Top Operational Trigger */}
-              <div className="bg-white border border-slate-200 rounded p-4 relative group hover:border-[#00AFC0] transition shadow-sm">
-                <div className="flex items-center justify-between text-slate-400 mb-1">
-                  <div className="flex items-center">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#025863]">Top Failure Node</span>
-                    <InfoTooltip text="The single department currently responsible for the highest proportion of early account cancellations." />
-                  </div>
-                  <Icon name="Zap" size={16} className="text-[#FF6334]" />
-                </div>
-                <div className="flex items-baseline">
-                  <span className="text-xs font-bold tracking-tight text-[#025863] truncate block max-w-[150px]">
-                    {dynamicKPIs.topTrigger}
-                  </span>
-                </div>
-                <p className="text-[10px] text-slate-500 mt-1">
-                  Primary operational breakdown point
-                </p>
-              </div>
-
-            </div>
-          </section>
-
-          {/* Interactive Tab Navigation */}
-          <section className="max-w-7xl mx-auto px-6 mt-6">
-            <div className="flex flex-wrap border-b border-slate-200 gap-1 overflow-x-auto bg-white p-1 rounded-t shadow-sm">
-              {tabsList.map((tab, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveTab(idx)}
-                  className={`flex items-center gap-1.5 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-all rounded ${
-                    activeTab === idx 
-                      ? 'bg-[#025863] text-white shadow-sm' 
-                      : 'text-[#025863] hover:text-[#00AFC0] hover:bg-slate-100'
-                  }`}
-                >
-                  <Icon name={tab.icon} size={16} />
-                  <span>{tab.label}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {/* Tab Pages */}
-          <main className="max-w-7xl mx-auto px-6 mt-4">
+          <main className="max-w-7xl mx-auto px-6 mt-6 w-full animate-fadeIn pb-12">
             
-            {/* Tab 1: Executive Summary */}
-            {activeTab === 0 && (
-              <div className="space-y-6">
-                <div className="bg-white border border-slate-200 rounded p-6 shadow-sm">
-                  <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest mb-1">
-                    Strategic Briefing
-                  </h3>
-                  <h2 className="text-xl font-bold text-[#025863] tracking-tight mb-4">
-                    Executive Diagnostics & Structural Assessment
-                  </h2>
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-sm text-[#025863]/90 leading-relaxed">
-                    <div>
-                      <h4 className="font-bold text-[#025863] mb-1 border-l-2 border-[#00AFC0] pl-2">
-                        Operational Diagnosis
-                      </h4>
-                      <p className="text-xs mt-1">
-                        Analysis of the early cancellation dataset yields a critical diagnosis: early-stage attrition is **not** a customer service or onboarding execution failure. Instead, **over 67% of early-stage cancellations are triggered upstream**—specifically in Sales Expectation Alignment and Placements Candidate Matching.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-[#025863] mb-1 border-l-2 border-[#00AFC0] pl-2">
-                        Evidence of Containment Success
-                      </h4>
-                      <p className="text-xs mt-1 font-medium text-[#025863]">
-                        Despite structural pre-onboarding challenges, early-stage cancellation rates have shown significant, steady improvement over the years. Under-91-day cancellations fell from a historical high of **37.5% in 2023** to **21.8% in 2025** and have stabilized at **22.1% in 2026 YTD**.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-[#025863] mb-1 border-l-2 border-[#00AFC0] pl-2">
-                        The Path Forward
-                      </h4>
-                      <p className="text-xs mt-1">
-                        An analysis of controllability reveals that **67.4% of cancellations are controllable** and another **16.3% are partially controllable**. This confirms that early attrition can be structurally prevented.
-                      </p>
-                    </div>
-                  </div>
-                </div>
+            {renderExecutiveVerdict()}
 
-                {/* Strategy Pillars */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-[#025863] text-white rounded p-5 shadow-sm">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-[#D1EBEF]">Pillar 1</span>
-                    <h4 className="font-bold text-sm mt-1 mb-2">Upstream Placement Gates</h4>
-                    <p className="text-[11px] text-[#D1EBEF] leading-relaxed">
-                      Implement mandatory live technical trials (EHR dictation, dental-billing tests) for candidates at least 3 business days prior to kickoff. No resume-only hires.
-                    </p>
-                  </div>
-                  <div className="bg-slate-950 text-white rounded p-5 shadow-sm">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Pillar 2</span>
-                    <h4 className="font-bold text-sm mt-1 mb-2">OS Escalation Authority</h4>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
-                      Empower Onboarding Specialists to delay starts if a client has not completed process discovery or holds unrealistic operational expectations.
-                    </p>
-                  </div>
-                  <div className="bg-[#008BA3] text-white rounded p-5 shadow-sm">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-[#D1EBEF]">Pillar 3</span>
-                    <h4 className="font-bold text-sm mt-1 mb-2">Automated Risk Alerts</h4>
-                    <p className="text-[11px] text-[#D1EBEF] leading-relaxed">
-                      Deploy structured checklist checkpoints on Day 7 and Day 14 measuring workflow clarity and VA productivity to surface risks before they evolve into exits.
-                    </p>
-                  </div>
-                  <div className="bg-[#FF6334] text-white rounded p-5 shadow-sm">
-                    <span className="text-[9px] font-bold uppercase tracking-widest text-orange-200">Pillar 4</span>
-                    <h4 className="font-bold text-sm mt-1 mb-2">Commercial Retention Tier</h4>
-                    <p className="text-[11px] text-orange-100 leading-relaxed">
-                      Develop a flexible hibernation program to retain accounts facing temporary billing issues or administrative reorganization without outright cancellation.
-                    </p>
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-8">
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Early Cxl Rate <Icon name="TrendingDown" size={14} className="text-[#FF6334]"/></div>
+                <div className="text-3xl font-black text-[#025863]">{dynamicKPIs.dynamicCxlRate}%</div>
+                <div className="text-[10px] text-slate-500 mt-1">{dynamicKPIs.totalCxls} Cxls / {dynamicKPIs.startsCount} Starts</div>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">VA Performance Issues <Icon name="AlertTriangle" size={14} className="text-[#00AFC0]"/></div>
+                <div className="text-3xl font-black text-[#025863]">{filteredCancellations.filter(c => c.reason === 'VA Issues').length}</div>
+                <div className="text-[10px] text-slate-500 mt-1">Total Impacted Accounts</div>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Client Setup Issues <Icon name="Sliders" size={14} className="text-[#008BA3]"/></div>
+                <div className="text-3xl font-black text-[#025863]">{filteredCancellations.filter(c => c.reason === 'Client Setup Issues').length}</div>
+                <div className="text-[10px] text-slate-500 mt-1">Accounts Lacking Proper Workflow</div>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Failed Placements <Icon name="Zap" size={14} className="text-[#FF6334]"/></div>
+                <div className="text-3xl font-black text-[#025863]">{filteredCancellations.filter(c => c.reason === 'Failed Placement').length}</div>
+                <div className="text-[10px] text-slate-500 mt-1">Mismatch before Day 1</div>
+              </div>
+            </div>
+
+            {viewMode === 'classic' && (
+              <div className="flex flex-wrap border-b border-slate-200 gap-1 overflow-x-auto bg-white p-1 rounded-t shadow-sm mb-6">
+                {[
+                  { label: 'Macro Pipeline & Causality', icon: 'BarChart3' },
+                  { label: 'Timeline Distribution', icon: 'Layers' },
+                  { label: 'Record Forensics', icon: 'Search' }
+                ].map((tab, idx) => (
+                  <button key={idx} onClick={() => setActiveTab(idx+1)} className={`flex items-center gap-1.5 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-all rounded ${activeTab === idx+1 ? 'bg-[#025863] text-white shadow-sm' : 'text-[#025863] hover:text-[#00AFC0] hover:bg-slate-100'}`}>
+                    <Icon name={tab.icon} size={16} /><span>{tab.label}</span>
+                  </button>
+                ))}
               </div>
             )}
 
-            {/* Tab 2: Trends & KPI Dashboard */}
-            {activeTab === 1 && (
-              <div className="space-y-6">
-                
-                {/* Dynamic Main Chart */}
-                <div className="bg-white border border-slate-200 rounded p-6 shadow-sm">
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="bg-[#D1EBEF] text-[#025863] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-[#008BA3]/30">
-                          {selectedYear === 'All' ? 'Multi-Year Macro View' : `Specific Audit: Year ${selectedYear}`}
-                        </span>
-                        <h3 className="text-xs font-bold text-[#008BA3] uppercase tracking-widest">Year-Over-Year Health</h3>
-                      </div>
-                      <h2 className="text-lg font-bold text-[#025863] mt-1">Starts vs. Cancellations Pipeline</h2>
-                    </div>
-                    <div className="flex bg-slate-100 p-1 rounded border border-slate-200">
-                      <button 
-                        onClick={() => setTrendsMetric('rate')}
-                        className={`px-3 py-1 text-xs font-semibold rounded ${trendsMetric === 'rate' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-                      >
-                        Cancellation Rate (%)
-                      </button>
-                      <button 
-                        onClick={() => setTrendsMetric('counts')}
-                        className={`px-3 py-1 text-xs font-semibold rounded ${trendsMetric === 'counts' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-                      >
-                        Volume Counts
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* SVG Rendering Container */}
-                  <div className="w-full h-80 relative flex items-center justify-center">
-                    {selectedYear === 'All' ? (
-                      <svg className="w-full h-full" viewBox="0 0 800 300">
-                        <line x1="80" y1="50" x2="720" y2="50" stroke="#f1f5f9" strokeWidth="1" />
-                        <line x1="80" y1="120" x2="720" y2="120" stroke="#f1f5f9" strokeWidth="1" />
-                        <line x1="80" y1="190" x2="720" y2="190" stroke="#f1f5f9" strokeWidth="1" />
-                        <line x1="80" y1="260" x2="720" y2="260" stroke="#e2e8f0" strokeWidth="1.5" />
-
-                        <g className={`${trendsMetric === 'counts' ? 'fill-[#025863] font-extrabold text-[10px] font-mono' : 'fill-slate-400 text-[10px] font-mono'}`}>
-                          <text x="40" y="55">300</text>
-                          <text x="40" y="125">150</text>
-                          <text x="40" y="195">75</text>
-                          <text x="40" y="265">0</text>
-                        </g>
-
-                        <g className={`${trendsMetric === 'rate' ? 'fill-[#00AFC0] font-extrabold text-[10px] font-mono' : 'fill-slate-400 text-[10px] font-mono'}`}>
-                          <text x="740" y="55">50%</text>
-                          <text x="740" y="125">25%</text>
-                          <text x="740" y="195">12%</text>
-                          <text x="740" y="265">0%</text>
-                        </g>
-
-                        <text x="160" y="280" className="text-[11px] font-bold fill-slate-600">2023</text>
-                        <text x="320" y="280" className="text-[11px] font-bold fill-slate-600">2024</text>
-                        <text x="480" y="280" className="text-[11px] font-bold fill-slate-800">2025</text>
-                        <text x="635" y="280" className="text-[11px] font-bold fill-slate-600">2026 YTD</text>
-
-                        {/* 2023 */}
-                        <rect 
-                          x="150" y={260 - 200 * 0.7} width="25" height={200 * 0.7} fill="#025863" 
-                          opacity={trendsMetric === 'counts' ? 1.0 : 0.4} className="transition-all hover:opacity-80 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2023', type: 'New Account Starts', value: '200 Starts' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-                        <rect 
-                          x="178" y={260 - 75 * 0.7} width="25" height={75 * 0.7} fill="#FF6334" 
-                          opacity={trendsMetric === 'counts' ? 1.0 : 0.4} className="transition-all hover:opacity-80 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2023', type: 'Early Cancellations', value: '75 Cancellations' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-
-                        {/* 2024 */}
-                        <rect 
-                          x="310" y={260 - 259 * 0.7} width="25" height={259 * 0.7} fill="#025863" 
-                          opacity={trendsMetric === 'counts' ? 1.0 : 0.4} className="transition-all hover:opacity-80 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2024', type: 'New Account Starts', value: '259 Starts' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-                        <rect 
-                          x="338" y={260 - 67 * 0.7} width="25" height={67 * 0.7} fill="#FF6334" 
-                          opacity={trendsMetric === 'counts' ? 1.0 : 0.4} className="transition-all hover:opacity-80 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2024', type: 'Early Cancellations', value: '67 Cancellations' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-
-                        {/* 2025 */}
-                        <rect 
-                          x="470" y={260 - 197 * 0.7} width="25" height={197 * 0.7} fill="#00AFC0" 
-                          opacity={trendsMetric === 'counts' ? 1.0 : 0.4} className="transition-all hover:opacity-80 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2025', type: 'New Account Starts', value: '197 Starts' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-                        <rect 
-                          x="498" y={260 - 43 * 0.7} width="25" height={43 * 0.7} fill="#FF6334" 
-                          opacity={trendsMetric === 'counts' ? 1.0 : 0.4} className="transition-all hover:opacity-80 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2025', type: 'Early Cancellations', value: '43 Cancellations' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-
-                        {/* 2026 */}
-                        <rect 
-                          x="630" y={260 - 77 * 0.7} width="25" height={77 * 0.7} fill="#025863" 
-                          opacity={trendsMetric === 'counts' ? 1.0 : 0.4} className="transition-all hover:opacity-80 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2026 YTD', type: 'New Account Starts', value: '77 Starts' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-                        <rect 
-                          x="658" y={260 - 17 * 0.7} width="25" height={17 * 0.7} fill="#FF6334" 
-                          opacity={trendsMetric === 'counts' ? 1.0 : 0.4} className="transition-all hover:opacity-80 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2026 YTD', type: 'Early Cancellations', value: '17 Cancellations' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-
-                        <path 
-                          d="M 176 102.5 L 336 151.2 L 496 168.4 L 656 167.1" 
-                          fill="none" stroke="#d97706" strokeWidth="3.5" strokeLinecap="round"
-                          opacity={trendsMetric === 'rate' ? 1.0 : 0.4}
-                        />
-
-                        <circle 
-                          cx="176" cy="102.5" r="7" fill="#fff" stroke="#d97706" strokeWidth="3.5"
-                          className="hover:scale-125 transition-all duration-150 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2023', type: 'Early Cancellation Rate', value: '37.5%' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-                        <circle 
-                          cx="336" cy="151.2" r="7" fill="#fff" stroke="#d97706" strokeWidth="3.5"
-                          className="hover:scale-125 transition-all duration-150 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2024', type: 'Early Cancellation Rate', value: '25.9%' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-                        <circle 
-                          cx="496" cy="168.4" r="7" fill="#fff" stroke="#00AFC0" strokeWidth="3.5"
-                          className="hover:scale-125 transition-all duration-150 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2025', type: 'Early Cancellation Rate (SOP Target Achieved)', value: '21.8%' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-                        <circle 
-                          cx="656" cy="167.1" r="7" fill="#fff" stroke="#d97706" strokeWidth="3.5"
-                          className="hover:scale-125 transition-all duration-150 cursor-pointer"
-                          onMouseEnter={() => setHoveredAllYears({ year: '2026 YTD', type: 'Early Cancellation Rate', value: '22.1%' })}
-                          onMouseLeave={() => setHoveredAllYears(null)}
-                        />
-                      </svg>
-                    ) : (
-                      <svg className="w-full h-full" viewBox="0 0 800 300">
-                        <line x1="60" y1="50" x2="740" y2="50" stroke="#f1f5f9" strokeWidth="1" />
-                        <line x1="60" y1="110" x2="740" y2="110" stroke="#f1f5f9" strokeWidth="1" />
-                        <line x1="60" y1="170" x2="740" y2="170" stroke="#f1f5f9" strokeWidth="1" />
-                        <line x1="60" y1="230" x2="740" y2="230" stroke="#f1f5f9" strokeWidth="1" />
-                        <line x1="60" y1="260" x2="740" y2="260" stroke="#e2e8f0" strokeWidth="1.5" />
-
-                        <text x="30" y="55" className="text-[10px] fill-slate-400 font-bold font-mono">15</text>
-                        <text x="30" y="115" className="text-[10px] fill-slate-400 font-bold font-mono">10</text>
-                        <text x="30" y="175" className="text-[10px] fill-slate-400 font-bold font-mono">5</text>
-                        <text x="30" y="265" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
-
-                        {monthlyAttritionBreakdown.map((m, monthIdx) => {
-                          const colWidth = 32;
-                          const startX = 75 + monthIdx * 56;
-                          let currentHeightSum = 0;
-                          const scale = 14;
-
-                          const segments = Object.entries(m.depts).map(([deptName, count]) => {
-                            const h = count * scale;
-                            const y = 260 - currentHeightSum - h;
-                            currentHeightSum += h;
-
-                            let color = "#94a3b8";
-                            if (deptName.includes("Placements")) color = "#025863";
-                            else if (deptName.includes("Sales")) color = "#00AFC0";
-                            else if (deptName.includes("VA-side")) color = "#D1EBEF";
-                            else if (deptName.includes("OS")) color = "#008BA3";
-                            else if (deptName.includes("Admin")) color = "#FF6334";
-
-                            return { deptName, count, h, y, color };
-                          });
-
-                          return (
-                            <g key={monthIdx}>
-                              <text x={startX + 6} y="280" className="text-[10px] font-bold fill-slate-600 text-center">{m.month}</text>
-                              {segments.map((seg, sIdx) => (
-                                <rect
-                                  key={sIdx} x={startX} y={seg.y} width={colWidth} height={seg.h} fill={seg.color} stroke="#fff" strokeWidth="1"
-                                  className="transition-all duration-150 cursor-pointer hover:brightness-95"
-                                  onMouseEnter={() => setActiveHoveredMonth({ month: m.month, dept: seg.deptName, count: seg.count })}
-                                  onMouseLeave={() => setActiveHoveredMonth(null)}
-                                />
-                              ))}
-                              {m.count === 0 && (
-                                <rect x={startX} y="220" width={colWidth} height="40" fill="transparent" />
-                              )}
-                            </g>
-                          );
-                        })}
-                      </svg>
-                    )}
-
-                    {/* Tooltip Overlay */}
-                    {hoveredAllYears && (
-                      <div className="absolute top-2 left-4 bg-slate-950 text-white p-3.5 rounded border border-[#00AFC0]/30 shadow-2xl z-50 w-60">
-                        <p className="text-xs font-bold text-[#00AFC0]">{hoveredAllYears.year} Performance</p>
-                        <p className="text-[11px] text-slate-300 mt-1">{hoveredAllYears.type}: <strong className="text-white">{hoveredAllYears.value}</strong></p>
-                      </div>
-                    )}
-
-                    {activeHoveredMonth && (
-                      <div className="absolute top-2 right-4 bg-slate-950 text-white p-4 rounded-md shadow-2xl border border-slate-800 z-50 w-64 text-xs">
-                        <p className="font-extrabold text-[#00AFC0]">{activeHoveredMonth.month} Diagnostics</p>
-                        <p className="mt-1">Department: <span className="font-semibold text-white">{activeHoveredMonth.dept}</span></p>
-                        <p className="mt-0.5">Attrition Count: <strong className="text-indigo-300">{activeHoveredMonth.count} Case(s)</strong></p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* OS Specialist Retention Lifespan Graph (Shown only for 2025/2026 onwards) */}
-                {selectedYear !== 'All' && (selectedYear === '2025' || selectedYear === '2026') && (
-                  <div className="bg-white border border-slate-200 rounded p-6 shadow-sm space-y-6">
-                    <div className="border-b border-slate-100 pb-3">
-                      <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">OS Performance Map</h3>
-                      <h2 className="text-lg font-bold text-[#025863] mt-1">Specialist Onboarding Retention Map</h2>
-                    </div>
-
-                    <div className="w-full relative bg-slate-50 border border-slate-200 rounded p-6 flex items-center justify-center">
-                      <svg className="w-full min-w-[700px] h-[280px]" viewBox="0 0 800 280">
-                        <line x1="160" y1="20" x2="160" y2="240" stroke="#cbd5e1" strokeWidth="2" />
-                        <line x1="160" y1="240" x2="740" y2="240" stroke="#cbd5e1" strokeWidth="2" />
-
-                        <text x="160" y="255" className="text-[9px] fill-slate-400 font-bold font-mono">0 Days</text>
-                        <text x="305" y="255" className="text-[9px] fill-slate-400 font-bold font-mono">25 Days</text>
-                        <text x="450" y="255" className="text-[9px] fill-slate-400 font-bold font-mono">50 Days</text>
-                        <text x="595" y="255" className="text-[9px] fill-slate-400 font-bold font-mono">75 Days</text>
-                        <text x="740" y="255" className="text-[9px] fill-slate-400 font-bold font-mono">100 Days</text>
-
-                        {specialistStabilizationAudit.map((spec, sIdx) => {
-                          const rowY = 30 + sIdx * 54;
-                          const barWidth = Math.max(20, (spec.avgDaysContained / 100) * 580);
-                          return (
-                            <g 
-                              key={sIdx} className="cursor-help"
-                              onMouseEnter={() => setActiveHoveredSpecialist(spec)}
-                              onMouseLeave={() => setActiveHoveredSpecialist(null)}
-                            >
-                              <text x="20" y={rowY + 14} className="text-xs font-bold fill-[#025863]">{spec.name}</text>
-                              <text x="20" y={rowY + 26} className="text-[9px] fill-slate-400 font-medium">({spec.cxlsControlled} managed cxls)</text>
-
-                              <rect x="160" y={rowY + 5} width="580" height="20" fill="#f1f5f9" rx="3" />
-                              <rect x="160" y={rowY + 5} width={barWidth} height="20" fill="#008BA3" rx="3" className="transition-all duration-300" />
-                              
-                              {spec.replacementCount > 0 && (
-                                <rect 
-                                  x="160" y={rowY + 5} 
-                                  width={(spec.replacementCount / (spec.cxlsControlled || 1)) * barWidth} 
-                                  height="20" fill="#10b981" rx="2"
-                                />
-                              )}
-
-                              <text x={160 + barWidth + 8} y={rowY + 18} className="text-[10px] font-extrabold fill-[#025863] font-mono">
-                                {spec.avgDaysContained} Onboarding Retention Days
-                              </text>
-                            </g>
-                          );
-                        })}
-                      </svg>
-
-                      {/* Specialist Dynamic Hover Tooltip */}
-                      {activeHoveredSpecialist && (
-                        <div className="absolute top-2 right-4 bg-slate-950 text-white p-4 rounded-md shadow-2xl border border-slate-800 z-50 w-72 text-xs">
-                          <p className="font-extrabold text-[#00AFC0] uppercase tracking-wider text-[10px] mb-1.5 border-b border-slate-800 pb-1">{activeHoveredSpecialist.name} diagnostic</p>
-                          <p>Managed Early Cancellations: <strong className="text-white">{activeHoveredSpecialist.cxlsControlled} cases</strong></p>
-                          <p>Average Onboarding Retention: <strong className="text-white">{activeHoveredSpecialist.avgDaysContained} Days</strong></p>
-                          <p className="mt-1.5 pt-1.5 border-t border-slate-800 text-rose-400">Cancelled Subscriptions: <span className="font-semibold">{activeHoveredSpecialist.cancelledCount}</span></p>
-                          <p className="text-amber-400">Reduced VAs (Downsizes): <span className="font-semibold">{activeHoveredSpecialist.reducedCount}</span></p>
-                          <p className="text-emerald-400">Value Saved (For Replacement): <span className="font-semibold">{activeHoveredSpecialist.replacementCount}</span></p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Ledger of Active Cancellations (Fully Sortable) */}
-                <div className="bg-white border border-slate-200 rounded p-6 shadow-sm">
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
-                    <div>
-                      <h3 className="text-sm font-bold text-[#025863]">
-                        Historical Cancellation Ledger <span className="text-[10px] font-normal text-slate-400">(Click column headers to sort)</span>
-                      </h3>
-                      <p className="text-xs text-slate-500">
-                        Comprehensive ledger of the {filteredCancellations.length} cancellations currently matching your active filters.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] border-b border-slate-200">
-                        <tr>
-                          <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'client')}>
-                            Client {renderSortIndicator(ledgerSortConfig, 'client')}
-                          </th>
-                          <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'vaName')}>
-                            VA Name {renderSortIndicator(ledgerSortConfig, 'vaName')}
-                          </th>
-                          <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'year')}>
-                            Year {renderSortIndicator(ledgerSortConfig, 'year')}
-                          </th>
-                          <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'daysBeforeCxl')}>
-                            Days {renderSortIndicator(ledgerSortConfig, 'daysBeforeCxl')}
-                          </th>
-                          <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'dept')}>
-                            Origin Node {renderSortIndicator(ledgerSortConfig, 'dept')}
-                          </th>
-                          <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'controllability')}>
-                            Controllability {renderSortIndicator(ledgerSortConfig, 'controllability')}
-                          </th>
-                          <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'resolution')}>
-                            Resolution Type {renderSortIndicator(ledgerSortConfig, 'resolution')}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {sortedLedgerCancellations.map((item, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50 cursor-help transition group/row relative">
-                            <td className="py-2.5 px-3 font-semibold text-slate-950">{item.client}</td>
-                            <td className="py-2.5 px-3 text-slate-700">{item.vaName || 'Unassigned'}</td>
-                            <td className="py-2.5 px-3 font-medium text-slate-600">{item.year}</td>
-                            <td className="py-2.5 px-3 font-bold text-slate-800">{item.daysBeforeCxl} Days</td>
-                            <td className="py-2.5 px-3 text-indigo-700 font-medium">{item.dept}</td>
-                            <td className="py-2.5 px-3 font-medium">{item.controllability}</td>
-                            <td className="py-2.5 px-3 font-medium text-slate-600">
-                              <span className={`px-2 py-0.5 rounded font-bold ${
-                                item.resolution === 'Cancelled' ? 'bg-rose-50 text-[#FF6334]' : (item.resolution === 'Reduced VAs' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700')
-                              }`}>
-                                {item.resolution}
-                              </span>
-                            </td>
-                            <td className="absolute left-10 right-10 top-full mt-1 bg-slate-950 text-white p-4 rounded text-xs shadow-xl opacity-0 pointer-events-none group-hover/row:opacity-100 transition-opacity duration-150 z-50 border border-slate-800">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <p className="font-bold text-[#00AFC0]">Case Summary Details</p>
-                                  <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">{item.summary}</p>
-                                </div>
-                                <div>
-                                  <p className="font-bold text-[#00AFC0]">AM Response & Prevention</p>
-                                  <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">{item.amResponse}</p>
-                                  <p className="text-[10px] text-amber-400 mt-1.5 font-semibold">Missed Intervention Opportunity: {item.intervention}</p>
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                        {sortedLedgerCancellations.length === 0 && (
-                          <tr>
-                            <td colSpan="7" className="py-12 text-center text-slate-400 font-semibold">
-                              No historical logs match the active filter configurations.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-              </div>
-            )}
-
-            {/* Tab 3: Root Cause & Triggers */}
-            {activeTab === 2 && (
-              <div className="space-y-6">
-                <div className="bg-white border border-slate-200 rounded p-6 shadow-sm">
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
-                    <div>
-                      <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">Dynamic Root Cause Engine</h3>
-                      <h2 className="text-xl font-bold text-[#025863] tracking-tight">Interactive Operational Sankey Mapping</h2>
-                    </div>
-                  </div>
-
-                  <div className="w-full relative bg-slate-50 border border-slate-200 rounded p-4 flex items-center justify-center select-none overflow-hidden">
-                    {sankeyData.nodes.length === 0 ? (
-                      <div className="h-96 flex items-center justify-center text-slate-400 font-medium">
-                        No matching accounts to generate Sankey mapping. Update filters to display flows.
-                      </div>
-                    ) : (
-                      <div className="w-full overflow-x-auto">
-                        <svg className="w-full min-w-[780px] h-[350px]" viewBox="0 0 800 350">
-                          <g>
-                            {sankeyData.links.map((link) => {
-                              const isFlowSelected = hoveredFlow === link.id || 
-                                hoveredNode === link.source.id || 
-                                hoveredNode === link.target.id;
-                              const x1 = link.source.x + link.source.width;
-                              const x2 = link.target.x;
-                              const y1 = link.sourceY;
-                              const y2 = link.targetY;
-                              
-                              let strokeColor = "rgba(148, 163, 184, 0.15)";
-                              if (isFlowSelected) {
-                                strokeColor = "rgba(0, 175, 192, 0.7)";
-                              } else if (link.source.id.includes('Placements')) {
-                                strokeColor = "rgba(2, 88, 99, 0.18)";
-                              } else if (link.source.id.includes('Sales')) {
-                                strokeColor = "rgba(0, 175, 192, 0.18)";
-                              } else if (link.source.id.includes('VA-side')) {
-                                strokeColor = "rgba(209, 235, 239, 0.4)";
-                              }
-
-                              return (
-                                <path
-                                  key={link.id} d={`M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}`}
-                                  fill="none" stroke={strokeColor} strokeWidth={link.thickness}
-                                  className="transition-all duration-150 cursor-pointer"
-                                  onMouseEnter={() => setHoveredFlow(link.id)}
-                                  onMouseLeave={() => setHoveredFlow(null)}
-                                />
-                              );
-                            })}
-                          </g>
-
-                          <g className="text-[10px] font-bold fill-slate-400 uppercase tracking-widest">
-                            <text x="40" y="15">1. Source Origin</text>
-                            <text x="340" y="15">2. Operational Failure Node</text>
-                            <text x="640" y="15">3. Final Outcome</text>
-                          </g>
-
-                          <g>
-                            {sankeyData.nodes.map((node) => {
-                              const isNodeSelected = hoveredNode === node.id || 
-                                (hoveredFlow && hoveredFlow.includes(node.id));
-                              let fillStyle = "fill-slate-100 stroke-slate-300";
-                              let labelStyle = "fill-slate-700 font-semibold";
-
-                              if (node.stage === 'dept') {
-                                fillStyle = isNodeSelected ? "fill-[#025863] stroke-[#025863]" : "fill-[#D1EBEF]/40 stroke-[#008BA3]/30";
-                                labelStyle = isNodeSelected ? "fill-white font-extrabold" : "fill-[#025863] font-semibold";
-                              } else if (node.stage === 'risk') {
-                                fillStyle = isNodeSelected ? "fill-slate-800 stroke-slate-950" : "fill-slate-100 stroke-slate-300";
-                                labelStyle = isNodeSelected ? "fill-white font-extrabold" : "fill-slate-700 font-semibold";
-                              } else {
-                                fillStyle = isNodeSelected ? "fill-[#FF6334] stroke-[#FF6334]" : "fill-orange-50/90 stroke-orange-200";
-                                labelStyle = isNodeSelected ? "fill-white font-extrabold" : "fill-[#FF6334] font-semibold";
-                              }
-
-                              return (
-                                <g 
-                                  key={node.id} onMouseEnter={() => setHoveredNode(node.id)} onMouseLeave={() => setHoveredNode(null)}
-                                  onClick={() => {
-                                    if (node.stage === 'dept') setSelectedDept(node.label);
-                                    else if (node.stage === 'resolution') setSelectedResolution(node.label);
-                                  }}
-                                  className="cursor-pointer"
-                                >
-                                  <rect
-                                    x={node.x} y={node.y} width={node.width} height={node.height} rx="3"
-                                    className="transition-all duration-150 shadow-sm"
-                                    style={{ fill: fillStyle.split(' ')[0].replace('fill-', ''), stroke: fillStyle.split(' ')[1].replace('stroke-', '') }}
-                                  />
-                                  <text x={node.x + 8} y={node.y + node.height / 2 + 3} className={`text-[9px] pointer-events-none select-none ${labelStyle}`}>
-                                    {node.label.length > 20 ? `${node.label.slice(0, 18)}...` : node.label} ({node.count})
-                                  </text>
-                                </g>
-                              );
-                            })}
-                          </g>
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 4: Forensics & Warnings */}
-            {activeTab === 3 && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 bg-white border border-slate-200 rounded p-6 shadow-sm">
-                  <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">Risk Analysis</h3>
-                  <h2 className="text-lg font-bold text-[#025863] mb-4">Detectable Risk Grid</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {Object.entries(RISK_METRICS_MAP).map(([key, details]) => (
-                      <button
-                        key={key} onClick={() => setSelectedRiskKey(key)}
-                        className={`text-left p-4 rounded border transition duration-150 ${selectedRiskKey === key ? 'bg-[#025863] text-white border-[#025863] shadow-md scale-[1.01]' : 'bg-slate-50 text-slate-800 border-slate-200 hover:bg-slate-100'}`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold tracking-tight uppercase truncate max-w-[180px]">{key}</span>
-                          <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${details.criticality === 'High' ? 'bg-rose-100 text-rose-800' : 'bg-[#D1EBEF] text-[#025863]'}`}>
-                            {details.criticality} Severity
-                          </span>
-                        </div>
-                        <p className={`text-[11px] line-clamp-2 ${selectedRiskKey === key ? 'text-slate-300' : 'text-slate-500'}`}>{details.excerpt}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Sidebar details */}
-                <div className="bg-white border border-slate-200 rounded p-6 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-md font-bold text-[#025863] uppercase mb-4">Risk Forensics: {selectedRiskKey}</h3>
-                    <div className="space-y-4 text-xs">
-                      <p className="bg-slate-50 border p-2.5 rounded text-slate-600 leading-relaxed">"{RISK_METRICS_MAP[selectedRiskKey].excerpt}"</p>
-                      <p><strong>AM Audit Plan:</strong> {RISK_METRICS_MAP[selectedRiskKey].amAudit}</p>
-                      <p className="text-[#FF6334] font-semibold"><strong>Missed Checkpoint:</strong> {RISK_METRICS_MAP[selectedRiskKey].missedOpportunity}</p>
-                    </div>
-                  </div>
-                  <div className="mt-6 pt-4 border-t bg-[#D1EBEF] p-3 rounded border border-[#008BA3]/20">
-                    <span className="text-[10px] font-bold text-[#025863] uppercase block mb-1">Future Prevention Path</span>
-                    <p className="text-[11px] text-[#025863] leading-relaxed font-medium">{RISK_METRICS_MAP[selectedRiskKey].recoveryAction}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 5: OS & Experience */}
-            {activeTab === 4 && (
-              <div className="space-y-6">
-                <div className="bg-white border border-slate-200 rounded p-6 shadow-sm">
-                  <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">Feedback Scorecard</h3>
-                  <h2 className="text-lg font-bold text-[#025863] mb-6">Client Experience Snapshot (94 Responses)</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
-                    {SURVEY_DATA.dimensions.map((dim, index) => (
-                      <div key={index} className="bg-[#F8F8F8] border border-slate-200 rounded p-4 text-center">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">{dim.label}</span>
-                        <span className="text-2xl font-black text-[#025863] block">{dim.rating.toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="border border-slate-200 rounded overflow-hidden">
-                    <div className="bg-[#025863] text-white p-3 text-xs font-bold grid grid-cols-8 gap-4">
-                      <span className="col-span-2">Specialist Name</span>
-                      <span>Volume</span>
-                      <span>Productivity</span>
-                      <span>Confidence</span>
-                      <span>KPI Clear</span>
-                      <span>Tool Nav</span>
-                      <span>Check-In</span>
-                    </div>
-                    <div className="divide-y divide-slate-100">
-                      {SURVEY_DATA.specialists.map((spec, idx) => (
-                        <div key={idx} className="p-3 text-xs grid grid-cols-8 gap-4 items-center hover:bg-slate-50">
-                          <span className="col-span-2 font-bold">{spec.name}</span>
-                          <span className="font-mono">{spec.responses} N</span>
-                          <span>{spec.productivity}</span>
-                          <span>{spec.confidence}</span>
-                          <span>{spec.kpi}</span>
-                          <span>{spec.tool}</span>
-                          <span>{spec.checkIn}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 6: Controllability Playbook */}
-            {activeTab === 5 && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="bg-white border border-slate-200 rounded p-6 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">Prevention Metrics</h3>
-                    <h2 className="text-lg font-bold text-[#025863] mb-4">Controllability Audit</h2>
-                    <p className="text-xs text-slate-500 mb-6">Percentage breakdown of preventable early-stage exits.</p>
-                    
-                    <div className="relative flex items-center justify-center py-6">
-                      <svg className="w-48 h-48" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="33.7" fill="transparent" stroke="#025863" strokeWidth="11" strokeDasharray="142.7 211.7" strokeDashoffset="0" />
-                        <circle cx="50" cy="50" r="33.7" fill="transparent" stroke="#00AFC0" strokeWidth="11" strokeDasharray="34.5 211.7" strokeDashoffset="-142.7" />
-                        <circle cx="50" cy="50" r="33.7" fill="transparent" stroke="#FF6334" strokeWidth="11" strokeDasharray="34.5 211.7" strokeDashoffset="-177.2" />
-                      </svg>
-                      <div className="absolute text-center">
-                        <span className="text-3xl font-extrabold text-[#025863] block">83.7%</span>
-                        <span className="text-[9px] font-bold text-slate-400 uppercase block">Preventable</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="lg:col-span-2 bg-white border border-slate-200 rounded p-6 shadow-sm">
-                  <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">Playbook Strategies</h3>
-                  <h2 className="text-lg font-bold text-[#025863] mb-4">Pre-Emptive Retention Playbook</h2>
-                  <div className="space-y-4">
-                    <div className="p-4 border-l-4 border-l-[#025863] bg-slate-50 border rounded-r">
-                      <h4 className="text-xs font-bold text-slate-950 uppercase">Technical EHR/EMR Integration</h4>
-                      <p className="text-xs text-slate-600 mt-1">Deploy 'Zero-Day Tech Clearance' to verify EMR, CRM, and Dialers pre-arrival (SOP: INTERAM: 14).</p>
-                    </div>
-                    <div className="p-4 border-l-4 border-l-[#00AFC0] bg-slate-50 border rounded-r">
-                      <h4 className="text-xs font-bold text-slate-950 uppercase">Structured Check-In Framework</h4>
-                      <p className="text-xs text-slate-600 mt-1">Standardized Email-Call-Fallback cadences to intercept warning signs before trust erodes (SOP: DEPTAM: 003).</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 7: Process Lifecycle */}
-            {activeTab === 6 && (
-              <div className="bg-white border border-slate-200 rounded p-6 shadow-sm">
-                <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">Process Mapping</h3>
-                <h2 className="text-lg font-bold text-[#025863] mb-6">Account Lifecycle Swimlanes</h2>
-                
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-5 border border-slate-200 rounded overflow-hidden">
-                    <div className="bg-slate-900 text-white p-4 font-bold text-xs flex items-center md:col-span-1">
-                      Sales Intake
-                    </div>
-                    <div className="p-4 md:col-span-4 bg-slate-50 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                      <div className="bg-white p-3 rounded border">
-                        <strong>HTP Generation</strong>
-                        <p className="text-slate-500 text-[11px] mt-1">Establish clear baseline workflows and technical requirements.</p>
-                      </div>
-                      <div className="bg-white p-3 rounded border">
-                        <strong>Expectation Vetting</strong>
-                        <p className="text-slate-500 text-[11px] mt-1">Draft clear onboarding blueprints pre-signature.</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-5 border border-slate-200 rounded overflow-hidden">
-                    <div className="bg-[#025863] text-white p-4 font-bold text-xs flex items-center md:col-span-1">
-                      Onboarding Specialists
-                    </div>
-                    <div className="p-4 md:col-span-4 bg-[#D1EBEF]/10 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                      <div className="bg-white p-3 rounded border">
-                        <strong>Day 1 Kickoff</strong>
-                        <p className="text-slate-500 text-[11px] mt-1">Deploy standard activity logs and verify dual connection speeds.</p>
-                      </div>
-                      <div className="bg-white p-3 rounded border">
-                        <strong>Weekly Cadence</strong>
-                        <p className="text-slate-500 text-[11px] mt-1">Proactively assess stress margins on Day 7, 14, and 21.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Tab 8: Recommendations & KPIs */}
-            {activeTab === 7 && (
-              <div className="space-y-6">
-                <div className="bg-white border border-slate-200 rounded p-6 shadow-sm">
-                  <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">Future Standards</h3>
-                  <h2 className="text-lg font-bold text-[#025863] mb-6">Target Metrics & Operational KPIs</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-slate-50 p-4 border rounded">
-                      <h4 className="font-bold text-xs">90-Day Early Attrition Rate</h4>
-                      <p className="text-2xl font-black text-[#025863] my-1">&lt; 15.0%</p>
-                      <p className="text-[11px] text-slate-500">Target to reduce the current historical 21.8% average.</p>
-                    </div>
-                    <div className="bg-slate-50 p-4 border rounded">
-                      <h4 className="font-bold text-xs">30-Day Stability Rate</h4>
-                      <p className="text-2xl font-black text-[#00AFC0] my-1">&gt; 90.0%</p>
-                      <p className="text-[11px] text-slate-500">Active active accounts at Day 30 / total starts.</p>
-                    </div>
-                    <div className="bg-slate-50 p-4 border rounded">
-                      <h4 className="font-bold text-xs">Replacement Fulfillment</h4>
-                      <p className="text-2xl font-black text-[#FF6334] my-1">&lt; 72 Hours</p>
-                      <p className="text-[11px] text-slate-500">Duration to deploy a validated swap to protect account trust.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
+            <div className="space-y-8">
+              {(viewMode === 'executive' || activeTab === 1) && renderMacroPipeline()}
+              {(viewMode === 'executive' || activeTab === 2) && renderMonthLedger()}
+              {(viewMode === 'executive' || activeTab === 3) && renderDataTable()}
+            </div>
           </main>
 
-          {/* Footer */}
-          <footer className="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 px-6 mt-12">
-            <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-white uppercase tracking-widest text-[10px] bg-[#00AFC0] px-2 py-0.5 rounded">
-                  BI Portfolio
-                </span>
-                <span>My Mountain Mover Operations Analytics Engine</span>
-              </div>
-              <p className="text-[10px]">
-                Designed for executive review and operational planning. Created in May 2026.
-              </p>
+          {/* SPARTAN MODAL FOR MONTH LEDGER */}
+          {spartanMonth && (
+            <SpartanModal month={spartanMonth.month} data={spartanMonth.cases} onClose={() => setSpartanMonth(null)} />
+          )}
+
+          <footer className="mt-auto bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 px-6">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-2"><span className="font-bold text-white uppercase tracking-widest text-[10px] bg-[#00AFC0] px-2 py-0.5 rounded">BI Portfolio</span><span>MMM Analytics Engine</span></div>
+              <p className="text-[10px]">Updated May 2026. Data governed by DEPTAM:012.</p>
             </div>
           </footer>
-
         </div>
       );
     }
 
-    // React DOM Mounting
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
