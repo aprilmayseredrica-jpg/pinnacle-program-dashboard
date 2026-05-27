@@ -73,6 +73,112 @@ function renderTabIcon(iconName) {
 }
 
 // ==========================================
+// DETAILED RISK FORENSICS GLOSSARY (RESTORED)
+// ==========================================
+
+const RISK_METRICS_MAP = {
+  'weak VA skill alignment': {
+    criticality: 'High',
+    frequency: '20 cases in 2025',
+    failureNode: 'Placements matching phase',
+    excerpt: "Medical VA lacks domain-specific background for specialized roles, resulting in immediate training bottlenecks and client frustration.",
+    amAudit: "Defensive. Primarily focused on swapping out the VA rather than feeding back performance metrics to placements.",
+    missedOpportunity: "Failing to deploy custom technical testing on Day -3. A practical skills audit should trigger immediate skills correction.",
+    recoveryAction: "Enforce direct skills-matrix verification before onboarding kickoff."
+  },
+  'unrealistic expectations': {
+    criticality: 'High',
+    frequency: '10 cases in 2025',
+    failureNode: 'Sales handover phase',
+    excerpt: "Client expects high-volume specialty output immediately without allowing transition time or standard system learning.",
+    amAudit: "Reactive. Attempts to negotiate workflow adjustments after client satisfaction has already plummeted.",
+    missedOpportunity: "Failing to set clear performance curves during Sales phase. Day 1 expectations should be explicitly documented.",
+    recoveryAction: "Introduce mandatory client orientation video and pre-onboarding expectation contracts."
+  },
+  'unclear workflow': {
+    criticality: 'Medium',
+    frequency: '8 cases in 2025',
+    failureNode: 'Client operational setup',
+    excerpt: "No daily tasks, instruction templates, or structured schedules provided for the Medical VA, leaving them idle and disengaged.",
+    amAudit: "Neutral. Focuses on encouraging clients to 'be more active,' with minimal concrete templates supplied.",
+    missedOpportunity: "Allowing a VA to start without an approved Day-1-to-14 Task Checklist signed by the client.",
+    recoveryAction: "OS to provide pre-built, industry-specific administrative SOP templates."
+  },
+  'attendance concerns': {
+    criticality: 'High',
+    frequency: '7 cases in 2025',
+    failureNode: 'VA recruitment vetting',
+    excerpt: "Unplanned leaves, internet connectivity dropouts, or communication silence within the critical first month.",
+    amAudit: "Urgent. Rapid replacement processes are initiated, but often without technical or hardware diagnostic checks.",
+    missedOpportunity: "Inadequate infrastructure vetting (lack of generator, dual internet backup check) prior to match selection.",
+    recoveryAction: "Mandate hardware connectivity reports and backup generator audits prior to placement."
+  },
+  'overwhelmed VA': {
+    criticality: 'Medium',
+    frequency: '6 cases in 2025',
+    failureNode: 'Onboarding workload alignment',
+    excerpt: "Medical VA is flooded with high-pressure tasks (like cold calling + billing) with minimal training, leading to burnout and withdrawal.",
+    amAudit: "Late. Standard wellness checkups are done after the VA has already expressed plans to resign.",
+    missedOpportunity: "Day-7 wellness screening missing. No early-warning metric to check workload compatibility.",
+    recoveryAction: "Implement structured Day-7 and Day-14 stress-index survey checks with VAs."
+  },
+  'tech setup gaps': {
+    criticality: 'Low',
+    frequency: '5 cases in 2025',
+    failureNode: 'IT and system onboarding',
+    excerpt: "EHR software restrictions, VPN blocking, or login authorization delays preventing Medical VA from executing daily work.",
+    amAudit: "Highly technical but slow, relying heavily on client-side IT to resolve internal system obstacles.",
+    missedOpportunity: "Technical setup is delayed until Day 1 instead of resolving login/VPN issues 3 business days prior.",
+    recoveryAction: "Launch 'Zero-Day Tech Clearance' protocol requiring verified system login screenshots by Day -2."
+  },
+  'weak KPI definition': {
+    criticality: 'Medium',
+    frequency: '4 cases in 2025',
+    failureNode: 'OS stabilization phase',
+    excerpt: "Performance goals are entirely qualitative. Client complains of speed issues, but Medical VA has no daily metrics to measure success.",
+    amAudit: "Vague performance evaluations that offer little objective insight to the client.",
+    missedOpportunity: "Onboarding Specialist did not implement the standard Daily Activity Log or enforce KPI tracking on Day 1.",
+    recoveryAction: "Require a signed off KPI matrix as part of the Day-3 Onboarding check-in."
+  },
+  'financial hesitation': {
+    criticality: 'Low',
+    frequency: '3 cases in 2025',
+    failureNode: 'Sales pricing qualification',
+    excerpt: "Client experiences immediate budget anxiety or clinic-side cashflow drops, resulting in downscaling contractor spend.",
+    amAudit: "Commercial. Offers financial adjustments or credit waivers rather than solving underlying operational issues.",
+    missedOpportunity: "Failing to qualify the client's financial stability during Sales intake.",
+    recoveryAction: "Implement structured commercial contract pause policies ('Hibernate' tier) rather than immediate contract cancellations."
+  },
+  'low client engagement': {
+    criticality: 'Medium',
+    frequency: '3 cases in 2025',
+    failureNode: 'Onboarding check-in phase',
+    excerpt: "Client skips scheduled check-ins and ignores OS prompts, leaving the Medical VA to run on assumptions and misaligned directives.",
+    amAudit: "Passive. Allows check-ins to slide, resulting in a sudden, unmanaged build-up of operational issues.",
+    missedOpportunity: "Failing to pause onboarding and raise a formal escalation when client misses two consecutive check-ins.",
+    recoveryAction: "Institute mandatory attendance contracts for the 30-day onboarding check-ins."
+  },
+  'hidden workflow complexity': {
+    criticality: 'High',
+    frequency: '2 cases in 2025',
+    failureNode: 'Client process discovery',
+    excerpt: "Simple-sounding admin tasks turn out to be deeply convoluted, paper-reliant, manual workflows that are impossible to execute remotely without complex SOPs.",
+    amAudit: "Ineffective. Attempts to coach Medical VA through broken workflows instead of restructuring the client\'s physical processes.",
+    missedOpportunity: "Process Discovery phase missing during initial Sales qualification.",
+    recoveryAction: "Deploy Onboarding Specialists to document and optimize workflow steps prior to matching."
+  },
+  'HTP mismatch': {
+    criticality: 'High',
+    frequency: '1 case in 2025',
+    failureNode: 'Placements profile vetting',
+    excerpt: "The Medical VA profile selected does not fit the basic operational environment (e.g. placing an introverted administrative profile into an active outbound medical clinic environment).",
+    amAudit: "Defensive. Blames Medical VA adaptability instead of acknowledging systemic profile matching errors.",
+    missedOpportunity: "Lack of situational screening during candidate pool placement interviews.",
+    recoveryAction: "Mandate profile suitability scorecards during placement candidate selection."
+  }
+};
+
+// ==========================================
 // AUTHENTIC SALESFORCE CANCELLATION DATABASE
 // ==========================================
 
@@ -604,109 +710,6 @@ const SURVEY_DATA = {
       rating: 5
     }
   ]
-};
-
-// Detailed risk information mapping (Forensics) - RESTORED TO FIX THE REFERENCEERROR
-const RISK_METRICS_MAP = {
-  'weak VA skill alignment': {
-    criticality: 'High',
-    frequency: '20 cases in 2025',
-    failureNode: 'Placements matching phase',
-    excerpt: "Medical VA lacks domain-specific background for specialized roles, resulting in immediate training bottlenecks and client frustration.",
-    amAudit: "Defensive. Primarily focused on swapping out the VA rather than feeding back performance metrics to placements.",
-    missedOpportunity: "Failing to deploy custom technical testing on Day -3. A practical skills audit should trigger immediate skills correction.",
-    recoveryAction: "Enforce direct skills-matrix verification before onboarding kickoff."
-  },
-  'unrealistic expectations': {
-    criticality: 'High',
-    frequency: '10 cases in 2025',
-    failureNode: 'Sales handover phase',
-    excerpt: "Client expects high-volume specialty output immediately without allowing transition time or standard system learning.",
-    amAudit: "Reactive. Attempts to negotiate workflow adjustments after client satisfaction has already plummeted.",
-    missedOpportunity: "Failing to set clear performance curves during Sales phase. Day 1 expectations should be explicitly documented.",
-    recoveryAction: "Introduce mandatory client orientation video and pre-onboarding expectation contracts."
-  },
-  'unclear workflow': {
-    criticality: 'Medium',
-    frequency: '8 cases in 2025',
-    failureNode: 'Client operational setup',
-    excerpt: "No daily tasks, instruction templates, or structured schedules provided for the Medical VA, leaving them idle and disengaged.",
-    amAudit: "Neutral. Focuses on encouraging clients to 'be more active,' with minimal concrete templates supplied.",
-    missedOpportunity: "Allowing a VA to start without an approved Day-1-to-14 Task Checklist signed by the client.",
-    recoveryAction: "OS to provide pre-built, industry-specific administrative SOP templates."
-  },
-  'attendance concerns': {
-    criticality: 'High',
-    frequency: '7 cases in 2025',
-    failureNode: 'VA recruitment vetting',
-    excerpt: "Unplanned leaves, internet connectivity dropouts, or communication silence within the critical first month.",
-    amAudit: "Urgent. Rapid replacement processes are initiated, but often without technical or hardware diagnostic checks.",
-    missedOpportunity: "Inadequate infrastructure vetting (lack of generator, dual internet backup check) prior to match selection.",
-    recoveryAction: "Mandate hardware connectivity reports and backup generator audits prior to placement."
-  },
-  'overwhelmed VA': {
-    criticality: 'Medium',
-    frequency: '6 cases in 2025',
-    failureNode: 'Onboarding workload alignment',
-    excerpt: "Medical VA is flooded with high-pressure tasks (like cold calling + billing) with minimal training, leading to burnout and withdrawal.",
-    amAudit: "Late. Standard wellness checkups are done after the VA has already expressed plans to resign.",
-    missedOpportunity: "Day-7 wellness screening missing. No early-warning metric to check workload compatibility.",
-    recoveryAction: "Implement structured Day-7 and Day-14 stress-index survey checks with VAs."
-  },
-  'tech setup gaps': {
-    criticality: 'Low',
-    frequency: '5 cases in 2025',
-    failureNode: 'IT and system onboarding',
-    excerpt: "EHR software restrictions, VPN blocking, or login authorization delays preventing Medical VA from executing daily work.",
-    amAudit: "Highly technical but slow, relying heavily on client-side IT to resolve internal system obstacles.",
-    missedOpportunity: "Technical setup is delayed until Day 1 instead of resolving login/VPN issues 3 business days prior.",
-    recoveryAction: "Launch 'Zero-Day Tech Clearance' protocol requiring verified system login screenshots by Day -2."
-  },
-  'weak KPI definition': {
-    criticality: 'Medium',
-    frequency: '4 cases in 2025',
-    failureNode: 'OS stabilization phase',
-    excerpt: "Performance goals are entirely qualitative. Client complains of speed issues, but Medical VA has no daily metrics to measure success.",
-    amAudit: "Vague performance evaluations that offer little objective insight to the client.",
-    missedOpportunity: "Onboarding Specialist did not implement the standard Daily Activity Log or enforce KPI tracking on Day 1.",
-    recoveryAction: "Require a signed off KPI matrix as part of the Day-3 Onboarding check-in."
-  },
-  'financial hesitation': {
-    criticality: 'Low',
-    frequency: '3 cases in 2025',
-    failureNode: 'Sales pricing qualification',
-    excerpt: "Client experiences immediate budget anxiety or clinic-side cashflow drops, resulting in downscaling contractor spend.",
-    amAudit: "Commercial. Offers financial adjustments or credit waivers rather than solving underlying operational issues.",
-    missedOpportunity: "Failing to qualify the client's financial stability during Sales intake.",
-    recoveryAction: "Implement structured commercial contract pause policies ('Hibernate' tier) rather than immediate contract cancellations."
-  },
-  'low client engagement': {
-    criticality: 'Medium',
-    frequency: '3 cases in 2025',
-    failureNode: 'Onboarding check-in phase',
-    excerpt: "Client skips scheduled check-ins and ignores OS prompts, leaving the Medical VA to run on assumptions and misaligned directives.",
-    amAudit: "Passive. Allows check-ins to slide, resulting in a sudden, unmanaged build-up of operational issues.",
-    missedOpportunity: "Failing to pause onboarding and raise a formal escalation when client misses two consecutive check-ins.",
-    recoveryAction: "Institute mandatory attendance contracts for the 30-day onboarding check-ins."
-  },
-  'hidden workflow complexity': {
-    criticality: 'High',
-    frequency: '2 cases in 2025',
-    failureNode: 'Client process discovery',
-    excerpt: "Simple-sounding admin tasks turn out to be deeply convoluted, paper-reliant, manual workflows that are impossible to execute remotely without complex SOPs.",
-    amAudit: "Ineffective. Attempts to coach Medical VA through broken workflows instead of restructuring the client\'s physical processes.",
-    missedOpportunity: "Process Discovery phase missing during initial Sales qualification.",
-    recoveryAction: "Deploy Onboarding Specialists to document and optimize workflow steps prior to matching."
-  },
-  'HTP mismatch': {
-    criticality: 'High',
-    frequency: '1 case in 2025',
-    failureNode: 'Placements profile vetting',
-    excerpt: "The Medical VA profile selected does not fit the basic operational environment (e.g. placing an introverted administrative profile into an active outbound medical clinic environment).",
-    amAudit: "Defensive. Blames Medical VA adaptability instead of acknowledging systemic profile matching errors.",
-    missedOpportunity: "Lack of situational screening during candidate pool placement interviews.",
-    recoveryAction: "Mandate profile suitability scorecards during placement candidate selection."
-  }
 };
 
 // ==========================================
@@ -2905,27 +2908,27 @@ export default function App() {
                         <span className="font-bold text-[#00AFC0]">Current Risk:</span> Speed-matching candidates based on self-reported skills instead of live sandbox evaluation.
                       </div>
                     </div>
-                    <div className="bg-white p-3 rounded border border-slate-200 text-xs hover:border-[#00AFC0] cursor-pointer transition group relative">
-                      <span className="font-semibold text-slate-800 block">Client Selection</span>
-                      <p className="text-slate-500 text-[11px] mt-1">Doctor interviews and approves candidate selection.</p>
-                      <div className="absolute top-full left-0 bg-slate-950 text-white p-3 rounded mt-1 opacity-0 pointer-events-none group-hover:opacity-100 transition z-50 text-[10px] w-64 border border-slate-800">
-                        <span className="font-bold text-[#00AFC0]">Current Risk:</span> Short 15-minute interviews emphasize personality rather than operational competence, leading to HTP mismatches.
+                    <div className="bg-white p-3 rounded border border-[#025863] text-xs hover:border-[#00AFC0] cursor-pointer transition group relative">
+                      <span className="font-semibold text-slate-800 block">Contract Attrition Threat</span>
+                      <p className="text-slate-500 text-[11px] mt-1">Client submits cancellation request following friction.</p>
+                      <div className="absolute top-full left-0 bg-[#025863] text-white p-3 rounded mt-1 opacity-0 pointer-events-none group-hover:opacity-100 transition z-50 text-[10px] w-64 border border-slate-800">
+                        <span className="font-bold text-[#00AFC0]">Failure Mode:</span> AM prioritizes replacement pipeline processing rather than analyzing and diagnosing root-cause mismatch.
                       </div>
                     </div>
-                    <div className="bg-rose-50 p-3 rounded border border-rose-200 text-xs">
+                    <div className="bg-rose-50 p-3 rounded border border-[#00AFC0]/20 text-xs">
                       <span className="font-bold text-rose-850 block flex items-center gap-1">
                         <AlertTriangle size={12} className="text-[#FF6334]" />
-                        Inherited Failure Point
+                        Defensive Escalation
                       </span>
-                      <p className="text-rose-900 text-[11px] mt-1 leading-normal font-medium">
-                        Placing general administrative profiles into complex clinical specialties (like dental billing or surgical scheduling) without task assessments.
+                      <p className="text-rose-900 text-[11px] mt-1 leading-normal">
+                        Lack of a shared feedback loop back to Placements and Sales. AM focuses on client-soothing instead of feeding back matching failures.
                       </p>
                     </div>
                   </div>
                 </div>
 
                 {/* Swimlane row 3: ONBOARDING SPECIALIST */}
-                <div className="grid grid-cols-1 md:grid-cols-5 border border-slate-200 rounded overflow-hidden">
+                <div className="grid grid-cols-1 md:grid-cols-5 border border-[#025863] rounded overflow-hidden">
                   <div className="bg-[#025863] text-white p-4 font-bold text-xs flex items-center gap-1.5 md:col-span-1 border-r border-[#025863]">
                     <Activity size={14} className="text-[#D1EBEF]" />
                     <span>Onboarding Specialist (OS)</span>
@@ -3029,11 +3032,11 @@ export default function App() {
 
                 {/* Phase 2 */}
                 <div className="relative">
-                  <span className="absolute left-[-31px] top-0 h-4 w-4 rounded-full bg-slate-900 border border-white flex items-center justify-center">
+                  <span className="absolute left-[-31px] top-0 h-4 w-4 rounded-full bg-[#00AFC0] border border-white flex items-center justify-center">
                     <span className="h-1.5 w-1.5 rounded-full bg-white"></span>
                   </span>
                   <div className="bg-slate-50 border border-slate-200 rounded p-4">
-                    <span className="text-[9px] font-bold text-[#slate-500] uppercase tracking-widest">Phase 2: Day -2 Clearance</span>
+                    <span className="text-[9px] font-bold text-[#025863] uppercase tracking-widest">Phase 2: Day -2 Clearance</span>
                     <h4 className="font-bold text-slate-950 text-sm mt-0.5">Technical & Login Integration Checkpoints</h4>
                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                       Implement a mandatory system clearance gate. VAs must upload verified login screenshots and connection diagnostic reports at least 48 hours before Day 1.
