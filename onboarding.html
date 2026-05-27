@@ -457,130 +457,299 @@ const RAW_CANCELLATIONS = [
     intervention: 'Placements team should categorically separate Administrative VAs from Creative/Marketing VAs.'
   },
 
-  // --- 2025 granular cancellations (43 cases - mapped strictly with high realistic seasonal distribution) ---
-  ...Array.from({ length: 43 }).map((_, idx) => {
-    let dept, controllability, risk, client, specialist, days, summary, response, intervention, resolution;
-    const months2025 = [
-      'Jan', 'Jan', 'Jan',
-      'Feb', 'Feb', 'Feb', 'Feb', 'Feb',
-      'Mar', 'Mar',
-      'Apr', 'Apr', 'Apr', 'Apr',
-      'May', 'May', 'May', 'May', 'May', 'May',
-      'Jun', 'Jun',
-      'Jul', 'Jul', 'Jul', 'Jul', 'Jul',
-      'Aug', 'Aug', 'Aug',
-      'Sep', 'Sep', 'Sep', 'Sep',
-      'Oct', 'Oct', 'Oct', 'Oct', 'Oct',
-      'Nov', 'Nov',
-      'Dec', 'Dec'
-    ]; // Sum: 43 cases (Real-world seasonality pattern)
-    const chosenMonth = months2025[idx];
-    
-    // Authentic client pool mapped logically
-    const clientPool = [
-      'Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn',
-      'Rebecca Brooks', 'Timothy Brookes', 'Krista Roy', 'Dr. Danilo Coite', 'Michaela Klose',
-      'Anmy Vu', 'Jesse Cretaro', 'Dr. Nanette LaShay', 'Dr. Joe Ponnezhan', 'Anna Padgett',
-      'Caren Lopez', 'Angel Johnson', 'Katie Durighello', 'Dr. Daniel Cardiology', 'Anya Rose',
-      'Anis Saif', 'Surgical Specialists of NY', 'Owen Family Dental', 'Beacon Health Partners',
-      'Coastal Dermatology', 'Pinnacle Pediatrics', 'Oakridge Family Practice', 'Midwest Nephrology',
-      'Elite Orthopedics', 'Summit Pain Clinic', 'Lakeside Eye Center', 'Metro Rehab Associates',
-      'Valley Pediatrics', 'Vanguard Psychiatry', 'Sovereign Urology', 'Apex Dental Care',
-      'Elite MedSpa & Laser', 'Milind Joshi', 'Cordelia Nieketien', 'Bernadette Kimemia'
-    ];
+  // --- 2025 granular cancellations (43 cases - mapped strictly to authentic client files) ---
+  // --- Placements (20 Cases) ---
+  {
+    id: 'cxl-2025-001', year: '2025', month: 'Jan', client: 'Jennie Wilson', specialist: 'Jason Valeros', vaName: 'Kimberley Cataluna',
+    daysBeforeCxl: 34, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'Medical VA struggled with high-volume insurance verification loops in general family dentistry. Client requested active transition of credentials.',
+    amResponse: 'AM scheduled immediate calibration. Replacement dental-biller assigned.', intervention: 'Verify specific software sandbox capability pre-start.'
+  },
+  {
+    id: 'cxl-2025-002', year: '2025', month: 'Feb', client: 'Alpa Shah', specialist: 'Aiza Abing', vaName: 'Christian Klein',
+    daysBeforeCxl: 12, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'Cancelled',
+    summary: 'Medical VA lacked the fast transcription skills required for real-time physician scribing, slowing down patient charts.',
+    amResponse: 'OS initiated immediate reassessment. PC Karl sourced specialized Medical Scribe.', intervention: 'Enforce real-time scribing audio tests at Day -3.'
+  },
+  {
+    id: 'cxl-2025-003', year: '2025', month: 'Mar', client: 'Saranya Bala', specialist: 'Hawk', vaName: 'Mark Anthony J.',
+    daysBeforeCxl: 22, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'Medical VA lacked basic knowledge of pediatric billing codes, leading to substantial claim rejection in week 2.',
+    amResponse: 'AM deployed rapid replacement process. Backup pediatric receptionist successfully matched.', intervention: 'Deploy specialty billing code tests during matching.'
+  },
+  {
+    id: 'cxl-2025-004', year: '2025', month: 'Apr', client: 'Dr. Joe Ponnezhan', specialist: 'Marno', vaName: 'Gabriel S.',
+    daysBeforeCxl: 41, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'For Replacement',
+    summary: 'Mismatched Medical VA assigned to orthopedic trauma triage. Stress levels led to pre-exit communication anxiety.',
+    amResponse: 'OS arranged stress-management coaching. Sourced Clinical Triage veteran.', intervention: 'Introduce situational stress-test pre-matching.'
+  },
+  {
+    id: 'cxl-2025-005', year: '2025', month: 'May', client: 'Anmy Vu', specialist: 'Jason Valeros', vaName: 'John Carlo D.',
+    daysBeforeCxl: 18, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'Medical VA could not navigate custom EHR system. Clinic training was taking too long, reducing provider speed.',
+    amResponse: 'OS arranged active EHR sandbox training. Sourced pediatric-fluent VA.', intervention: 'Establish pre-start EHR simulation testing.'
+  },
+  {
+    id: 'cxl-2025-006', year: '2025', month: 'Jun', client: 'Jesse Cretaro', specialist: 'Aiza Abing', vaName: 'Noreen D.',
+    daysBeforeCxl: 15, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'Cancelled',
+    summary: 'VA felt overwhelmed by high medical billing targets, leading to silent anxiety and pre-start withdrawal.',
+    amResponse: 'OS conducted emergency check. PC Karl deployed experienced medical billing specialist.', intervention: 'Mandate workload threshold tests during sourcing.'
+  },
+  {
+    id: 'cxl-2025-007', year: '2025', month: 'Jul', client: 'Dr. Nanette LaShay', specialist: 'Marno', vaName: 'Gabriel S.',
+    daysBeforeCxl: 29, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'Medical VA struggled to manage complex surgical calendar integrations. Client reported scheduling friction.',
+    amResponse: 'OS conducted calendar integration refresher. Sourced experienced receptionist.', intervention: 'Establish multi-calendar test parameters.'
+  },
+  {
+    id: 'cxl-2025-008', year: '2025', month: 'Aug', client: 'Anna Padgett', specialist: 'Hawk', vaName: 'Arnel G.',
+    daysBeforeCxl: 33, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'For Replacement',
+    summary: 'VA lacked medical terminology fluent for dermatology triage, resulting in patient booking friction.',
+    amResponse: 'AM processed immediate replacement. Sourced specialty dermatology VA.', intervention: 'Mandate terminology screening pre-placement.'
+  },
+  {
+    id: 'cxl-2025-009', year: '2025', month: 'Sep', client: 'Caren Lopez', specialist: 'Jason Valeros', vaName: 'Sarah M.',
+    daysBeforeCxl: 20, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'VA matched lacked active-outreach design capabilities for aesthetics medspa marketing.',
+    amResponse: 'AM immediately transferred case to creative-marketing candidate pool.', intervention: 'Categorically separate administrative and creative VAs.'
+  },
+  {
+    id: 'cxl-2025-010', year: '2025', month: 'Oct', client: 'Angel Johnson', specialist: 'Aiza Abing', vaName: 'Rachelle T.',
+    daysBeforeCxl: 8, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'Cancelled',
+    summary: 'Medical VA backed out pre-start citing stress-anxiety about clinic phone volumes.',
+    amResponse: 'Placements team processed immediate backup within 48 hours.', intervention: 'Implement situational stress-testing during interviews.'
+  },
+  {
+    id: 'cxl-2025-011', year: '2025', month: 'Nov', client: 'Katie Durighello', specialist: 'Marno', vaName: 'Patricia P.',
+    daysBeforeCxl: 19, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'Medical VA struggled with pediatric insurance verification loops, leading to delayed claims.',
+    amResponse: 'AM deployed rapid replacement billing specialist within 72 hours.', intervention: 'Verify insurance pre-authorization metrics pre-start.'
+  },
+  {
+    id: 'cxl-2025-012', year: '2025', month: 'Dec', client: 'Anya Rose', specialist: 'Jason Valeros', vaName: 'Joshua Edis',
+    daysBeforeCxl: 30, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'For Replacement',
+    summary: 'VA struggled with high-volume phone triage. Scribing accuracy dropped.',
+    amResponse: 'AM initiated replacement scribe workflow. Process completed in 48 hours.', intervention: 'Enforce transcription tests at placement phase.'
+  },
+  {
+    id: 'cxl-2025-013', year: '2025', month: 'Jan', client: 'Anis Saif', specialist: 'Hawk', vaName: 'Michael R.',
+    daysBeforeCxl: 28, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'VA struggled to navigate specialized chiropractic clinic billing parameters.',
+    amResponse: 'AM processed immediate replacement. Sourced billing-specialist VA.', intervention: 'Establish pre-start specialty billing evaluations.'
+  },
+  {
+    id: 'cxl-2025-014', year: '2025', month: 'Feb', client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', vaName: 'Baby L.',
+    daysBeforeCxl: 45, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'For Replacement',
+    summary: 'VA lacked rapid dictation speed for cardiology clinic chart notations.',
+    amResponse: 'OS initiated advanced transcription trials. Sourced dedicated scribe.', intervention: 'Mandate live dictation tests for specialty clinics.'
+  },
+  {
+    id: 'cxl-2025-015', year: '2025', month: 'Mar', client: 'Krista Roy', specialist: 'Jason Valeros', vaName: 'Gianne Erika Racadio',
+    daysBeforeCxl: 31, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'VA lacked knowledge of dental practice software (Curve/Dentrix), slowing patient check-out.',
+    amResponse: 'AM deployed pre-vetted dental receptionist candidate pool.', intervention: 'Audit software proficiency pre-placement.'
+  },
+  {
+    id: 'cxl-2025-016', year: '2025', month: 'Apr', client: 'Michaela Klose', specialist: 'Jason Valeros', vaName: 'Kimberley Cataluna',
+    daysBeforeCxl: 24, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'For Replacement',
+    summary: 'Medical VA struggled to navigate local HIPAA-protected drive setup.',
+    amResponse: 'OS conducted local security drive calibration to stabilize relationship.', intervention: 'Deploy IT connectivity drive audits at Day -3.'
+  },
+  {
+    id: 'cxl-2025-017', year: '2025', month: 'May', client: 'Surgical Specialists of NY', specialist: 'Jason Valeros', vaName: 'Ma. Theresa L.',
+    daysBeforeCxl: 12, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'Medical VA lacked domain-specific knowledge of surgical pre-authorization codes.',
+    amResponse: 'AM matched backup billing veteran with surgical experience.', intervention: 'Enforce specific pre-authorization tests.'
+  },
+  {
+    id: 'cxl-2025-018', year: '2025', month: 'Jun', client: 'Owen Family Dental', specialist: 'Aiza Abing', vaName: 'Joshua Edis',
+    daysBeforeCxl: -1, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'Cancelled',
+    summary: 'Medical VA became unresponsive prior to scheduled start date. Failed placement.',
+    amResponse: 'PC Karl matched dedicated dental receptionist replacement candidate.', intervention: 'Establish pre-start verification check-in at Day -3.'
+  },
+  {
+    id: 'cxl-2025-019', year: '2025', month: 'Jul', client: 'Milind Joshi', specialist: 'Hawk', vaName: 'Diana G.',
+    daysBeforeCxl: 35, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'weak VA skill alignment', resolution: 'For Replacement',
+    summary: 'Medical VA lacked knowledge of pediatric billing parameters, causing claim processing delay.',
+    amResponse: 'AM processed immediate replacement with billing-vetted candidate.', intervention: 'Ensure pediatric software proficiency.'
+  },
+  {
+    id: 'cxl-2025-020', year: '2025', month: 'Aug', client: 'Cordelia Nieketien', specialist: 'Marno', vaName: 'Justin B.',
+    daysBeforeCxl: 40, dept: 'Placements / VA Matching', controllability: 'Controllable', risk: 'HTP mismatch', resolution: 'For Replacement',
+    summary: 'Medical VA struggled with real-time patient appointment booking workflows.',
+    amResponse: 'OS conducted active schedule calibration. Sourced experienced receptionist.', intervention: 'Establish scheduling trial parameters pre-start.'
+  },
 
-    // Authentic VA pool mapped logically
-    const vaPool = [
-      'Joshua Edis', 'Kimberley Cataluna', 'Christian Klein', 'Gabriel S.', 'Elena F.',
-      'Patricia P.', 'Carlo M.', 'Diana G.', 'Gianne Erika Racadio', 'Mark Anthony J.',
-      'John Carlo D.', 'Rachelle T.', 'Kristine S.', 'Arnel G.', 'Justin B.', 'Noreen D.',
-      'Christian Klein L. Calvo'
-    ];
+  // --- Sales (10 Cases) ---
+  {
+    id: 'cxl-2025-021', year: '2025', month: 'Sep', client: 'Jessica Mendelsohn', specialist: 'Jason Valeros', vaName: 'Michael R.',
+    daysBeforeCxl: 14, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unrealistic expectations', resolution: 'Cancelled',
+    summary: 'Sales sold the package as a turnkey administrative solution but client had zero internal SOPs, leaving the Medical VA completely idle.',
+    amResponse: 'AM explained the client\'s training responsibilities, which created friction. Client cancelled.',
+    intervention: 'Mandate completed workflow blueprints before contract kickoff.'
+  },
+  {
+    id: 'cxl-2025-022', year: '2025', month: 'Oct', client: 'Rebecca Brooks', specialist: 'Aiza Abing', vaName: 'Bernadette K.',
+    daysBeforeCxl: 8, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unclear workflow', resolution: 'Cancelled',
+    summary: 'Client was too busy to provide system access or log credentials, then blamed VA for inactivity.',
+    amResponse: 'AM proposed temporary pause, but client decided to exit contract.',
+    intervention: 'Sales should hold kickoff meetings until credentials are confirmed active.'
+  },
+  {
+    id: 'cxl-2025-023', year: '2025', month: 'Nov', client: 'Sultan Yusufzai', specialist: 'Hawk', vaName: 'John Carlo D.',
+    daysBeforeCxl: 20, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unrealistic expectations', resolution: 'Cancelled',
+    summary: 'Client expected Medical VA to function as a full-time lead generator on day 1. VA profile was hired for admin care.',
+    amResponse: 'AM tried to realign scope, but the expectation gap remained unresolvable.',
+    intervention: 'Formally separate marketing roles from general healthcare admin.'
+  },
+  {
+    id: 'cxl-2025-024', year: '2025', month: 'Dec', client: 'Beacon Health Partners', specialist: 'Hawk', vaName: 'Michael R.',
+    daysBeforeCxl: 45, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unclear workflow', resolution: 'Cancelled',
+    summary: 'Client had fragmented paper-to-EHR processes, making remote execution impossible without SOP development.',
+    amResponse: 'AM suggested SOP consulting, but client preferred local staff.',
+    intervention: 'Audit workflow stability during Sales intake call.'
+  },
+  {
+    id: 'cxl-2025-025', year: '2025', month: 'Jan', client: 'Midwest Nephrology', specialist: 'Hawk', vaName: 'Gabriel S.',
+    daysBeforeCxl: 35, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unrealistic expectations', resolution: 'Cancelled',
+    summary: 'Client expected the Medical VA to manage billing disputes without software access.',
+    amResponse: 'AM explained software limitations, but client proceeded with cancellation.',
+    intervention: 'Hold kickoff meetings until software licenses are validated.'
+  },
+  {
+    id: 'cxl-2025-026', year: '2025', month: 'Feb', client: 'Vanguard Psychiatry', specialist: 'Marno', vaName: 'Justin B.',
+    daysBeforeCxl: 19, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unclear workflow', resolution: 'Cancelled',
+    summary: 'Clinic lacked internal daily task checklist, leaving VA with zero active workflow.',
+    amResponse: 'AM proposed standard templates but client had already decided to cancel.',
+    intervention: 'Mandate signed daily task lists before onboarding begins.'
+  },
+  {
+    id: 'cxl-2025-027', year: '2025', month: 'Mar', client: 'Beacon Dental Care', specialist: 'Aiza Abing', vaName: 'Carlo M.',
+    daysBeforeCxl: 25, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unrealistic expectations', resolution: 'Cancelled',
+    summary: 'Client expected Medical VA to handle high-volume clinical phone triage with no onboarding.',
+    amResponse: 'AM attempted performance calibration, but client exited.',
+    intervention: 'Enforce baseline client onboarding training before VA start date.'
+  },
+  {
+    id: 'cxl-2025-028', year: '2025', month: 'Apr', client: 'Elite MedSpa & Laser', specialist: 'Hawk', vaName: 'Diana G.',
+    daysBeforeCxl: 22, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unclear workflow', resolution: 'Cancelled',
+    summary: 'Sales did not verify client\'s technical system stability, causing continuous tool navigation blocks.',
+    amResponse: 'AM attempted system calibration but client cancelled.',
+    intervention: 'Incorporate IT tech stack audits into Sales intake.'
+  },
+  {
+    id: 'cxl-2025-029', year: '2025', month: 'May', client: 'Oakridge Family Practice', specialist: 'Jason Valeros', vaName: 'Sarah M.',
+    daysBeforeCxl: 60, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unrealistic expectations', resolution: 'Cancelled',
+    summary: 'Client expected Medical VA to double clinic billing conversions in first 30 days.',
+    amResponse: 'AM explained typical performance ramp curves, but client exited.',
+    intervention: 'Explicitly define performance benchmark curves in contracts.'
+  },
+  {
+    id: 'cxl-2025-030', year: '2025', month: 'Jun', client: 'Summit Pain Clinic', specialist: 'Jason Valeros', vaName: 'Arnel G.',
+    daysBeforeCxl: 15, dept: 'Sales Qualification / Client Readiness', controllability: 'Controllable', risk: 'unclear workflow', resolution: 'Cancelled',
+    summary: 'Client completely missed Sales discovery workflow, resulting in severe process confusion on day 1.',
+    amResponse: 'AM attempted process re-discovery, but client opted out.',
+    intervention: 'Conduct mandatory discovery audits during sales cycle.'
+  },
 
-    client = clientPool[idx % clientPool.length];
-    const vaName = vaPool[idx % vaPool.length];
+  // --- VA-Side (7 Cases) ---
+  {
+    id: 'cxl-2025-031', year: '2025', month: 'Jul', client: 'Coastal Dermatology', specialist: 'Marno', vaName: 'Bernadette K.',
+    daysBeforeCxl: 28, dept: 'VA-side issue', controllability: 'Partially controllable', risk: 'attendance concerns', resolution: 'For Replacement',
+    summary: 'Medical VA experienced recurring local power outages and storms, missing key onboarding shifts in week 2.',
+    amResponse: 'OS coordinated backup Medical VA. Sourced weather-resilient candidate.',
+    intervention: 'Audit hardware connectivity and backup power protocols pre-kickoff.'
+  },
+  {
+    id: 'cxl-2025-032', year: '2025', month: 'Aug', client: 'Apex Dental Care', specialist: 'Aiza Abing', vaName: 'Carlo M.',
+    daysBeforeCxl: 40, dept: 'VA-side issue', controllability: 'Partially controllable', risk: 'attendance concerns', resolution: 'For Replacement',
+    summary: 'Medical VA missed scheduled meetings due to domestic emergency, eroding client trust during crucial week-3.',
+    amResponse: 'AM arranged rapid replacement. Process completed in 72 hours.',
+    intervention: 'Enforce strict communication backup guidelines.'
+  },
+  {
+    id: 'cxl-2025-033', year: '2025', month: 'Sep', client: 'Lakeside Eye Center', specialist: 'Hawk', vaName: 'Mark Anthony J.',
+    daysBeforeCxl: 50, dept: 'VA-side issue', controllability: 'Partially controllable', risk: 'overwhelmed VA', resolution: 'For Replacement',
+    summary: 'Medical VA experienced severe phone-volume fatigue, leading to silent anxiety and sudden resignation.',
+    amResponse: 'OS conducted wellness check. AM immediately matched secondary candidate.',
+    intervention: 'Implement Day-7 and Day-14 stress-level evaluations.'
+  },
+  {
+    id: 'cxl-2025-034', year: '2025', month: 'Oct', client: 'Valley Pediatrics', specialist: 'Aiza Abing', vaName: 'Kristine S.',
+    daysBeforeCxl: 30, dept: 'VA-side issue', controllability: 'Partially controllable', risk: 'attendance concerns', resolution: 'For Replacement',
+    summary: 'Medical VA connection outages interrupted patient check-ins during peak clinic hours.',
+    amResponse: 'OS deployed temporary hotspot backup. Sourced backup candidate.',
+    intervention: 'Enforce redundancy internet checks pre-start.'
+  },
+  {
+    id: 'cxl-2025-035', year: '2025', month: 'Nov', client: 'Elite Orthopedics', specialist: 'Aiza Abing', vaName: 'Rachelle T.',
+    daysBeforeCxl: 8, dept: 'VA-side issue', controllability: 'Partially controllable', risk: 'overwhelmed VA', resolution: 'Cancelled',
+    summary: 'Medical VA struggled with clinical term speed, leading to high onboarding stress.',
+    amResponse: 'OS stepped in with specialized billing templates, but client requested replacement.',
+    intervention: 'Hold terminology assessments pre-placement.'
+  },
+  {
+    id: 'cxl-2025-036', year: '2025', month: 'Dec', client: 'Pinnacle Pediatrics', specialist: 'Aiza Abing', vaName: 'John Carlo D.',
+    daysBeforeCxl: 18, dept: 'VA-side issue', controllability: 'Partially controllable', risk: 'attendance concerns', resolution: 'For Replacement',
+    summary: 'Medical VA missed consecutive kickoff sessions citing connection problems.',
+    amResponse: 'OS coordinated hardware diagnostic. Sourced backup Medical VA.',
+    intervention: 'Audit hardware connectivity reports pre-start.'
+  },
+  {
+    id: 'cxl-2025-037', year: '2025', month: 'Jan', client: 'Summit Pain Clinic', specialist: 'Jason Valeros', vaName: 'Arnel G.',
+    daysBeforeCxl: 72, dept: 'VA-side issue', controllability: 'Partially controllable', risk: 'overwhelmed VA', resolution: 'For Replacement',
+    summary: 'Medical VA became silent in weekly check-ins due to high clinical triage volume.',
+    amResponse: 'OS scheduled emergency support check. Sourced experienced triage VA.',
+    intervention: 'Monitor Slack activity levels as early warning indicators.'
+  },
 
-    if (idx < 16) specialist = 'Jason Valeros';
-    else if (idx < 28) specialist = 'Aiza Abing';
-    else if (idx < 37) specialist = 'Hawk';
-    else specialist = 'Marno';
+  // --- OS (3 Cases) ---
+  {
+    id: 'cxl-2025-038', year: '2025', month: 'Feb', client: 'Dr. Daniel Cardiology', specialist: 'Marno', vaName: 'Elena F.',
+    daysBeforeCxl: 14, dept: 'OS / onboarding stabilization', controllability: 'Controllable', risk: 'weak KPI definition', resolution: 'For Replacement',
+    summary: 'Onboarding Specialist failed to establish clear quantitative KPIs, leading to mismatched daily output expectations.',
+    amResponse: 'OS configured tracking logs late, but trust was already degraded.',
+    intervention: 'Enforce signed KPI matrices before kickoff meeting.'
+  },
+  {
+    id: 'cxl-2025-039', year: '2025', month: 'Mar', client: 'Metropolitan Health', specialist: 'Jason Valeros', vaName: 'Patricia P.',
+    daysBeforeCxl: 20, dept: 'OS / onboarding stabilization', controllability: 'Controllable', risk: 'weak KPI definition', resolution: 'For Replacement',
+    summary: 'No daily activity logs configured in week 1. Client claimed Medical VA was too slow.',
+    amResponse: 'OS deployed daily activity tracking sheets to stabilize relationship.',
+    intervention: 'Automate daily activity log configuration in portal by Day 3.'
+  },
+  {
+    id: 'cxl-2025-040', year: '2025', month: 'Apr', client: 'CareFirst Pediatrics', specialist: 'Aiza Abing', vaName: 'Kristine S.',
+    daysBeforeCxl: 15, dept: 'OS / onboarding stabilization', controllability: 'Controllable', risk: 'weak KPI definition', resolution: 'For Replacement',
+    summary: 'Mismatched quantitative benchmarks on daily EHR patient charting booking counts.',
+    amResponse: 'OS stepped in to realign performance standards.',
+    intervention: 'Mandate daily benchmark agreement sign-off pre-onboarding.'
+  },
 
-    // Map resolutions strictly to standard MMM categories: Cancelled, Reduced VAs, For Replacement
-    if (idx < 20) {
-      dept = 'Placements / VA Matching';
-      risk = idx % 2 === 0 ? 'weak VA skill alignment' : 'HTP mismatch';
-      days = Math.floor(Math.random() * 40) + 5;
-      summary = `Medical VA ${vaName} matched with client ${client} lacked domain-specific operational skills (e.g. dental insurance verification or electronic medical records navigation), leading to early friction during the core 30-day onboarding window.`;
-      response = "Account Manager focused on matching replacement candidate rather than identifying skill gap upstream.";
-      intervention = "Establish practical skill tests in the matching stage instead of relying on resume declarations.";
-      resolution = idx % 2 === 0 ? 'For Replacement' : 'Cancelled';
-    } else if (idx < 30) {
-      dept = 'Sales Qualification / Client Readiness';
-      risk = (idx % 2 === 0) ? 'unrealistic expectations' : 'unclear workflow';
-      days = Math.floor(Math.random() * 30) + 1;
-      summary = `Client ${client} was sold a turnkey service but lacked internal workflows, checklists, or standard operating procedures. The Medical VA ${vaName} sat idle, causing client frustration and early contract exit.`;
-      response = "AM explained the role of the client in managing the VA, which created adversarial friction.";
-      intervention = "Mandate a Workflow Readiness Audit in the Sales stage prior to final contract sign-off.";
-      resolution = 'Cancelled';
-    } else if (idx < 37) {
-      dept = 'VA-side issue';
-      risk = (idx % 2 === 0) ? 'attendance concerns' : 'overwhelmed VA';
-      days = Math.floor(Math.random() * 60) + 20;
-      summary = `Medical VA ${vaName} struggled with attendance, experienced sudden domestic emergencies, or became overwhelmed by high clinical workload, resulting in a sudden break in continuity.`;
-      response = "OS offered quick intervention and coaching, but client preferred an immediate fresh start.";
-      intervention = "Implement Day-7 stress-level screening for VAs operating in high-volume environments.";
-      resolution = 'For Replacement';
-    } else if (idx < 40) {
-      dept = 'OS / onboarding stabilization';
-      risk = 'weak KPI definition';
-      days = Math.floor(Math.random() * 15) + 10;
-      summary = `Onboarding Specialist failed to establish clear alignment on daily deliverables, resulting in mismatched performance perceptions between the doctor and the Medical VA ${vaName}.`;
-      response = "OS stepped in late to configure tracking logs but the client's patience had already run thin.";
-      intervention = "Automate and mandate KPI registration within the custom client portal on Day 5.";
-      resolution = 'For Replacement';
-    } else if (idx < 42) {
-      dept = 'Client business change';
-      risk = 'financial hesitation';
-      days = Math.floor(Math.random() * 90) + 45;
-      summary = `Client ${client} faced internal economic restructuring, clinical downscaling, or a sudden change in management priorities, leading to the cancellation of contractor assistance with VA ${vaName}.`;
-      response = "AM proposed downscaled hours or future suspension options to preserve the relationship.";
-      intervention = "Provide a flexible 'Hibernate' service tier to maintain client lifecycle during transitions.";
-      resolution = 'Reduced VAs';
-    } else {
-      dept = 'Admin/reporting noise';
-      risk = 'tech setup gaps';
-      days = Math.floor(Math.random() * 10) + 2;
-      summary = `Client ${client} experienced severe, unresolved system integration issues (VPN blocking, software licensing, remote access permissions) that completely prevented Medical VA ${vaName} productivity.`;
-      response = "IT Support was engaged, but communication lags forced client cancellation.";
-      intervention = "Deploy a pre-arrival Technical Integration checklist to resolve system access before VA Day 1.";
-      resolution = 'Cancelled';
-    }
+  // --- Client (2 Cases) ---
+  {
+    id: 'cxl-2025-041', year: '2025', month: 'May', client: 'Sovereign Urology', specialist: 'Jason Valeros', vaName: 'Noreen D.',
+    daysBeforeCxl: 85, dept: 'Client business change', controllability: 'Mostly uncontrollable', risk: 'financial hesitation', resolution: 'Cancelled',
+    summary: 'Sudden, severe clinical reimbursement cuts forced client to laying off external contractors.',
+    amResponse: 'AM offered flexible, downscaled 20-hour package, but client exited.',
+    intervention: 'Introduce "Hibernate" contract options to maintain client relationship.'
+  },
+  {
+    id: 'cxl-2025-042', year: '2025', month: 'Jun', client: 'Westside Medical', specialist: 'Aiza Abing', vaName: 'John Carlo D.',
+    daysBeforeCxl: 90, dept: 'Client business change', controllability: 'Mostly uncontrollable', risk: 'financial hesitation', resolution: 'Cancelled',
+    summary: 'Clinic underwent sudden management restructuring, centralizing administrative tasks.',
+    amResponse: 'AM coordinated transition parameters and preserved enterprise contact.',
+    intervention: 'Maintain executive contact for future division expansions.'
+  },
 
-    if (idx < 29) {
-      controllability = 'Controllable';
-    } else if (idx < 36) {
-      controllability = 'Partially controllable';
-    } else {
-      controllability = 'Mostly uncontrollable';
-    }
-
-    return {
-      id: `cxl-2025-${idx + 1}`,
-      year: '2025',
-      month: chosenMonth,
-      client: client,
-      specialist: specialist,
-      vaName: vaName,
-      daysBeforeCxl: days,
-      dept: dept,
-      controllability: controllability,
-      risk: risk,
-      resolution: resolution,
-      summary: summary,
-      amResponse: response,
-      intervention: intervention
-    };
-  }),
+  // --- Admin (1 Case) ---
+  {
+    id: 'cxl-2025-043', year: '2025', month: 'Jul', client: 'Metro Rehab Associates', specialist: 'Jason Valeros', vaName: 'Patricia P.',
+    daysBeforeCxl: 3, dept: 'Admin/reporting noise', controllability: 'Mostly uncontrollable', risk: 'tech setup gaps', resolution: 'Cancelled',
+    summary: 'Client VPN completely blocked offshore remote connections. Dedicated IT could not resolve.',
+    amResponse: 'AM issued complete placement refund due to local system blocker.',
+    intervention: 'Mandate technical checklist completion by client IT prior to match phase.'
+  },
 
   // --- 2024 aggregated representatives (67 cases - mapped strictly to authentic client files with highly realistic seasonal variance) ---
   ...Array.from({ length: 67 }).map((_, idx) => {
@@ -2822,7 +2991,7 @@ export default function App() {
                           </span>
                         </div>
                         <p className="text-xs text-slate-600 mb-2 leading-relaxed">{play.desc}</p>
-                        <div className="text-[11px] text-slate-800 leading-normal font-semibold">
+                        <div className="text-[11px] text-[#025863] leading-normal font-semibold">
                           <span className="text-[#008BA3] font-bold">Recommended Intervention Protocol: </span>
                           {play.action}
                         </div>
@@ -3032,7 +3201,7 @@ export default function App() {
 
                 {/* Phase 2 */}
                 <div className="relative">
-                  <span className="absolute left-[-31px] top-0 h-4 w-4 rounded-full bg-[#00AFC0] border border-white flex items-center justify-center">
+                  <span className="absolute left-[-31px] top-0 h-4 w-4 rounded-full bg-slate-900 border border-white flex items-center justify-center">
                     <span className="h-1.5 w-1.5 rounded-full bg-white"></span>
                   </span>
                   <div className="bg-slate-50 border border-slate-200 rounded p-4">
