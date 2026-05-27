@@ -38,12 +38,8 @@
     .bar-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 
-  <!-- ==========================================
-       PURE JAVASCRIPT DATA ENGINE
-       Isolated from Babel to prevent compiler memory crashes.
-       Maps exactly to CSV parameters & ROCK Q1C2025 logic.
-       ========================================== -->
   <script>
+    // PURE NATIVE DATA ENGINE (Isolated from Babel to prevent compiler AST limits)
     window.MMM_DATA = {};
 
     window.MMM_DATA.HISTORICAL_SUMMARY = {
@@ -54,10 +50,10 @@
     };
 
     window.MMM_DATA.SURVEY_SNAPSHOT = [
-      { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', productivity: 5, confidence: 5, kpi: 4, tools: 5, checkins: 5, overall: 5, quote: "Onboarding process is very effective. 5/5" },
-      { client: 'Michaela Klose', specialist: 'Jason Valeros', productivity: 5, confidence: 5, kpi: 5, tools: 5, checkins: 5, overall: 5, quote: "I have nothing but wonderful things to say about MMM... This process has given me my life back." },
-      { client: 'Krista Roy', specialist: 'Jason Valeros', productivity: 5, confidence: 5, kpi: 5, tools: 5, checkins: 5, overall: 5, quote: "I'm so happy that they follow the EOS system... I like the KPIs, the ROIs. You guys took care of all the backend stuff." },
-      { client: 'Timothy Brookes', specialist: 'Marno', productivity: 5, confidence: 4, kpi: 5, tools: 5, checkins: 4, overall: 4, quote: "Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of." }
+      { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5" },
+      { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM... This process has given me my life back." },
+      { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm so happy that they follow the EOS system... I like the KPIs, the ROIs. You guys took care of all the backend stuff." },
+      { client: 'Timothy Brookes', specialist: 'Marno', quote: "Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of." }
     ];
 
     window.MMM_DATA.OS_METRICS = [
@@ -99,7 +95,7 @@
           const day = ((i * 7) % 28) + 1;
           const dateStr = `${year}-${monthNum}-${day.toString().padStart(2, '0')}`;
           
-          // Rule: No OS prior to April 1, 2025
+          // Rule: OS launched April 1, 2025
           const isPreOS = year < 2025 || (year === 2025 && mIdx < 3);
           const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
 
@@ -115,18 +111,17 @@
           else if (reason === 'Financial Issues') specificIssue = pickWeighted([{v:'Budget Cuts', w:60}, {v:'Clinic Downsizing', w:40}]);
           else specificIssue = pickWeighted([{v:'HTP Mismatch', w:60}, {v:'Backout VA', w:40}]);
 
-          // Preventable Link
           let prevent = 'Uncontrollable / N/A';
           if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
           else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
 
           const resolution = pickWeighted([{v:'Cancelled', w:50}, {v:'For Replacement', w:35}, {v:'Reduced VAs', w:15}]);
 
-          // Assign RFIs (Higher correlation with VA Issues & Failed Placements)
+          // RFI Correlation Flag (Mapped to RISE data)
           let hasRFI = false;
           let rfiNote = "None";
           if (reason === 'VA Issues' || reason === 'Failed Placement') {
-            if (Math.random() < 0.45) { // 45% of these have RFIs
+            if (Math.random() < 0.45) { 
               hasRFI = true;
               rfiNote = rfiList[Math.floor(Math.random() * rfiList.length)];
             }
@@ -164,11 +159,29 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useMemo, Fragment } = React;
+    const { useState, useMemo, Fragment, Component } = React;
     const DATA = window.MMM_DATA;
 
+    // ERROR BOUNDARY (Prevents White Screen of Death)
+    class ErrorBoundary extends Component {
+      constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+      static getDerivedStateFromError(error) { return { hasError: true, error }; }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="p-10 m-10 bg-rose-50 border-4 border-rose-500 rounded-lg text-rose-900 shadow-xl">
+              <h1 className="text-2xl font-black uppercase mb-4">Application Crash Detected</h1>
+              <p className="font-medium mb-4">The dashboard encountered a data rendering error. Please screenshot this box and report it.</p>
+              <pre className="text-[10px] bg-slate-900 text-rose-400 p-4 rounded overflow-x-auto">{this.state.error.stack}</pre>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
     // ==========================================
-    // UI ICONS & THEMES
+    // UI ICONS & COLORS
     // ==========================================
     const Icon = ({ name, size = 16, className = "" }) => {
       const paths = {
@@ -184,7 +197,7 @@
       };
       return (
         <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          {paths[name]}
+          {paths[name] || <circle cx="12" cy="12" r="10" />}
         </svg>
       );
     };
@@ -207,7 +220,7 @@
     }
 
     // ==========================================
-    // SPARTAN MODAL (DEEP DIVE)
+    // SPARTAN MODAL (MONTH LEDGER DEEP DIVE)
     // ==========================================
     const SpartanModal = ({ month, data, onClose }) => {
       const reasonMap = {}; const specMap = {};
@@ -221,6 +234,7 @@
       const topSpec = Object.keys(specMap).sort((a,b) => specMap[b] - specMap[a])[0] || 'Unknown';
 
       const getSpartanAction = (spec) => {
+        if (!spec) return "AUDIT PIPELINE.";
         if (spec.includes('Quality') || spec.includes('Skills') || spec.includes('HTP')) return "MANDATE DAY -3 TECHNICAL AUDIT. REJECT UNVETTED PROFILES.";
         if (spec.includes('Expectations') || spec.includes('Workflow')) return "HALT KICKOFF. REQUIRE SIGNED WORKFLOW BLUEPRINT.";
         if (spec.includes('Attendance') || spec.includes('Backout')) return "AUDIT SOURCING STABILITY. ISSUE RECRUITMENT WARNING.";
@@ -398,7 +412,7 @@
           </div>
           <div className="relative z-10">
             <h3 className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest mb-2">The Spartan Verdict</h3>
-            <h2 className="text-2xl font-black tracking-tight mb-6">Did OS Execution Meet the 40% Reduction Objective?</h2>
+            <h2 className="text-2xl font-black tracking-tight mb-6">Are Onboarding Specialists Moving The Needle?</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div>
@@ -415,13 +429,13 @@
               <div>
                 <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Reality</p>
                 <p className="text-sm font-medium leading-relaxed text-slate-300">
-                  Yes. Following the Q1 2025 ROCK implementation, OS teams successfully stabilized the pipeline, hitting the goal to reduce <strong className="text-white">Client Setup-driven</strong> early cancellations by &gt;40%. The overall early churn dropped by <strong className="text-white">~1,000 bps</strong>. However, OS currently functions as a defensive "containment layer"—catching upstream mismatches.
+                  Yes. Following the Q1 2025 ROCK implementation, OS teams stabilized the pipeline, hitting the goal to reduce <strong className="text-white">Client Setup-driven</strong> early cancellations. The overall early churn dropped by <strong className="text-white">~1,000 bps</strong>. Crucially, while OS holds sole accountability for Days 0-30, they are measured on 90-day retention—the premise being that a strong early foundation prevents late-stage systemic fractures. OS currently functions as a defensive "containment layer" against upstream mismatches.
                 </p>
               </div>
               <div>
                 <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Action</p>
                 <p className="text-sm font-bold text-[#00AFC0] leading-relaxed">
-                  To crush the 22% attrition floor, OS must transition from containment to gatekeepers. The primary driver has shifted from Readiness to Placements (VA Quality, HTP Mismatch). <strong className="text-white">Grant OS absolute veto power to halt client kickoffs if Pre-Onboarding Readiness is unmet.</strong>
+                  To crush the 22% attrition floor, OS must transition from containment to gatekeepers. The primary driver has shifted from Readiness to Placements (VA Quality, HTP Mismatch). <strong className="text-white">Grant OS absolute veto power to halt client kickoffs if Pre-Onboarding Readiness is unmet.</strong> High churn in the 31-60 day bucket indicates surface-level compliance during the OS phase that failed during AM handoff—mandate a stricter 30-day graduation gate.
                 </p>
               </div>
             </div>
@@ -510,7 +524,7 @@
                     <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">1. Resolution Outcomes</h4>
                     <div className="space-y-2">
                       {drillDownData.resList.map(item => {
-                        const isSel = drillDownData.activeRes === item.name;
+                        const isSel = focusResolution === item.name;
                         const pct = Math.round((item.count / drillDownData.totalFocus) * 100);
                         return (
                           <div key={item.name} onClick={() => {setFocusResolution(item.name);}} className={`p-2 rounded border cursor-pointer transition-colors relative overflow-hidden ${isSel ? 'bg-white border-[#025863] shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-100'}`}>
@@ -531,11 +545,11 @@
                   {/* Column 2: Reasons */}
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 relative">
                     <div className="hidden md:block absolute -left-3 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-300"></div>
-                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">2. Reasons for '{drillDownData.activeRes}'</h4>
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">2. Reasons for '{focusResolution}'</h4>
                     <div className="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scroll-x">
                       {drillDownData.reasonList.map(item => {
-                        const isSel = drillDownData.activeReas === item.name;
-                        const parentCount = drillDownData.resList.find(r=>r.name===drillDownData.activeRes)?.count || 1;
+                        const isSel = focusReason === item.name;
+                        const parentCount = drillDownData.resList.find(r=>r.name===focusResolution)?.count || 1;
                         const pct = Math.round((item.count / parentCount) * 100);
                         return (
                           <div key={item.name} onClick={() => setFocusReason(item.name)} className={`p-2 rounded border cursor-pointer transition-colors relative overflow-hidden ${isSel ? 'bg-white border-[#00AFC0] shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-100'}`}>
@@ -556,10 +570,10 @@
                   {/* Column 3: Sub Issues */}
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 relative">
                     <div className="hidden md:block absolute -left-3 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-300"></div>
-                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">3. Sub-Issues for '{drillDownData.activeReas}'</h4>
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">3. Sub-Issues for '{focusReason}'</h4>
                     <div className="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scroll-x">
                       {drillDownData.specList.map(item => {
-                        const parentCount = drillDownData.reasonList.find(r=>r.name===drillDownData.activeReas)?.count || 1;
+                        const parentCount = drillDownData.reasonList.find(r=>r.name===focusReason)?.count || 1;
                         const pct = Math.round((item.count / parentCount) * 100);
                         return (
                           <div key={item.name} className="p-2 rounded border border-transparent bg-white shadow-xs relative overflow-hidden">
@@ -596,7 +610,7 @@
               <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 2: Brass Tacks Forensics</span>
               <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Tenure Breakdown: Days to Cancellation Combo Chart</h3>
               <div className="bg-slate-50 border-l-4 border-[#FF6334] p-2 mt-2">
-                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Segments cancellations into exact time-to-failure buckets. Identifies immediate bleed vs. systemic friction. Line denotes cumulative volume %. <br/><strong className="text-[#FF6334]">ACTION:</strong> Hover over any column to see the exact composition of reasons for that timeframe.</p>
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: OS teams maintain sole accountability for Days 0-30, but are measured on 90-day retention. A strong early foundation ensures long-term viability. Churn bleeding into the 31-60 day window indicates surface-level compliance during the OS phase that fractured during the AM handover. <br/><strong className="text-[#FF6334]">ACTION:</strong> Hover over any column to see the exact composition of reasons for that timeframe.</p>
               </div>
             </div>
 
@@ -647,6 +661,7 @@
                   );
                 })}
 
+                {/* Cumulative Percentage Line Overlay */}
                 <path d={`M ${linePoints.join(" L ")}`} fill="none" stroke="#00AFC0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-md" />
                 {tenureData.map((b, i) => {
                   if (b.total === 0 && i > 0 && tenureData[i-1].total === 0) return null; 
@@ -725,11 +740,9 @@
                     <g key={d.year}>
                       <text x={cx} y="235" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{d.year}</text>
                       
-                      {/* Total Cxls Bar */}
                       <rect x={cx - 25} y={210 - tH} width="20" height={tH} fill="#cbd5e1" rx="2" />
                       <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
                       
-                      {/* RFI Bar */}
                       <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
                         onMouseEnter={() => setHoveredRFI(d)} onMouseLeave={() => setHoveredRFI(null)} 
                         className="cursor-pointer hover:brightness-110"
@@ -745,7 +758,7 @@
                   <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest border-b border-slate-700 pb-2 mb-3">RFI Impact: {hoveredRFI.year}</div>
                   <div className="flex justify-between items-center mb-1"><span className="text-slate-400">Total Cancellations:</span><span className="font-bold">{hoveredRFI.totalCxls}</span></div>
                   <div className="flex justify-between items-center mb-2"><span className="text-slate-400">Had Pre-Start RFI:</span><span className="font-bold text-rose-400">{hoveredRFI.withRFI}</span></div>
-                  <div className="bg-rose-950/50 p-2 rounded border border-rose-900/50">
+                  <div className="bg-rose-950/50 p-2 rounded border border-rose-900/50 mt-2">
                     <span className="font-black text-rose-400">{hoveredRFI.rate}%</span> of all cancellations ignored a critical pre-placement warning flag.
                   </div>
                 </div>
@@ -912,14 +925,14 @@
                             <p className="font-bold text-[#00AFC0] text-[10px] uppercase tracking-widest mb-1.5 border-b border-slate-700 pb-1">Context Summary</p>
                             <p className="text-[11px] text-slate-300 leading-relaxed">{item.summary}</p>
                             <div className="mt-2 flex gap-2">
-                              <span className="text-[10px] text-amber-400 font-semibold bg-amber-400/10 px-2 py-1 rounded">Pre-Defect: {item.preOnboardingIssue} | Sub: {item.specificIssue}</span>
+                              <span className="text-[10px] text-amber-400 font-semibold bg-amber-400/10 px-2 py-1 rounded border border-amber-400/50">Pre-Defect: {item.preOnboardingIssue}</span>
                               {item.hasRFI && <span className="text-[10px] text-rose-400 font-semibold bg-rose-500/20 px-2 py-1 rounded border border-rose-500/50">RFI: {item.rfiNote}</span>}
                             </div>
                           </div>
                           <div>
                             <p className="font-bold text-[#00AFC0] text-[10px] uppercase tracking-widest mb-1.5 border-b border-slate-700 pb-1">AM / OS Response Log</p>
                             <p className="text-[11px] text-slate-300 leading-relaxed">{item.amResponse}</p>
-                            <p className="text-[10px] text-emerald-400 mt-2 font-semibold bg-emerald-400/10 inline-block px-2 py-1 rounded">Required Action: {item.intervention}</p>
+                            <p className="text-[10px] text-emerald-400 mt-2 font-semibold bg-emerald-400/10 inline-block px-2 py-1 rounded border border-emerald-400/50">Required Action: {item.intervention}</p>
                           </div>
                         </div>
                       </td>
@@ -1023,7 +1036,7 @@
               </div>
             )}
 
-            <div className="space-y-0">
+            <div className="space-y-8">
               {(viewMode === 'executive' || activeTab === 1) && renderMacroPipeline()}
               {(viewMode === 'executive' || activeTab === 2) && renderTenureForensics()}
               {(viewMode === 'executive' || activeTab === 3) && renderRFIForensics()}
@@ -1033,7 +1046,6 @@
             </div>
           </main>
 
-          {/* SPARTAN MODAL FOR MONTH LEDGER */}
           {spartanMonth && (
             <SpartanModal month={spartanMonth.month} data={spartanMonth.cases} onClose={() => setSpartanMonth(null)} />
           )}
@@ -1049,7 +1061,11 @@
     }
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    root.render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    );
   </script>
 </body>
 </html>
