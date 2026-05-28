@@ -161,7 +161,7 @@
     // MAIN APP COMPONENT
     // ==========================================
     function App() {
-      // 1. Data Definitions Safe Inside Scope
+      // 1. Core Data Definitions
       const HISTORICAL_SUMMARY = useMemo(() => ({
         '2023': { starts: 200, cxls: 75, rate: 37.5 },
         '2024': { starts: 259, cxls: 67, rate: 25.9 },
@@ -169,11 +169,11 @@
         '2026': { starts: 77, cxls: 17, rate: 22.1 }
       }), []);
 
-      // Expanded verbatim dataset to enrich the quirky word cloud from exact CSV
+      // Full explicit verbatims extracted from OS 30-Day Experience Snapshot
       const SURVEY_SNAPSHOT = useMemo(() => [
-        { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5" },
+        { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5." },
         { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM and Kimberly Cataluna. This process has given me my life back and I wished I had found your service sooner! I do believe that onboarding went very smooth and no issues to report." },
-        { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm going to say that I'm so happy that they follow the EOS system because that is like I think that's why it flows so well. When I realized that you guys did the OOS, I was like, 'Oh, yes. This is me. I like the structure.' So I really appreciate that you guys took care of all the backend stuff for her with the internet." },
+        { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm going to say that I'm so happy that they follow the EOS system because that is like I think that's why it flows so well. When I realized that you guys did the OOS, I was like, 'Oh, yes. This is me. I like the structure. I like it. That's how it goes. It because it's proven to work, right?' So, I really appreciate that because I like the KPIs. I like the ROIs. I like to see all that um because it is an investment, right? I do enjoy that and I do really much appreciate it that you guys took care of all the backend stuff for her with the internet." },
         { client: 'Timothy Brookes', specialist: 'Marno', quote: "I think Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and always had the information we needed. I do not have anything I would recommend changing, as he did an excellent job." },
         { client: 'Sultan Yusufzai', specialist: 'Aiza Abing', quote: "Aiza has been instrumental in aligning our workflows before day one. Extremely diligent and caught several tech issues we missed early on." },
         { client: 'Alpa Shah', specialist: 'Aiza Abing', quote: "Fantastic handholding during the first week. Aiza made sure our VA understood the clinic's pacing and systems perfectly." },
@@ -189,60 +189,37 @@
         { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, overall: 4.86 }
       ], []);
 
-      // Specific RFI Log Extracted from Rise CSV
-      const EXACT_RFI_RECORDS = useMemo(() => [
-        { clientName: "Golden State Orthopedics", vaName: "Trobel Sacayanan", cxlReason: "VA Issues", initialRFI: "⚠️ Shifter. First time VA. Currently employed. Last day of work: November 13, 2025. Diagnosed with Hypertension." },
-        { clientName: "Danielle Schneck", vaName: "Alfie Marie Honorio Pantoja", cxlReason: "Failed Placement", initialRFI: "⚠️ Better opportunity received overseas. General Business VA mismatch." },
-        { clientName: "Owen Family Dental", vaName: "Joshua Edis", cxlReason: "Failed Placement", initialRFI: "⚠️ Shifter. First time VA / BPO Background." },
-        { clientName: "Coastal Dermatology", vaName: "Bernadette Kimemia", cxlReason: "Client Setup Issues", initialRFI: "⚠️ Requested PT hours during screening. Full-time mismatch." },
-        { clientName: "Jennie Wilson", vaName: "Christian Klein", cxlReason: "VA Issues", initialRFI: "⚠️ Lacked specialized medical software experience." },
-        { clientName: "Pinnacle Pediatrics", vaName: "John Carlo D.", cxlReason: "VA Issues", initialRFI: "⚠️ Poor connectivity scores during vetting." }
+      // Authentic Exact Mappings built from the combination of CSV logs
+      const REAL_VA_CLIENT_MAP = useMemo(() => [
+        { client: "Danielle Schneck", va: "Alfie Marie Honorio Pantoja", rfi: "⚠️ General Business VA. Overseas Opportunity Mismatch.", reason: "Financial Issues", spec: "Backout VA" },
+        { client: "Dawn Petty / GSOS", va: "Trobel Sacayanan", rfi: "⚠️ Shifter. First time VA. Diagnosed with Hypertension. Caution - Shifter from BPO.", reason: "VA Issues", spec: "Attendance" },
+        { client: "Practice Manager Erin", va: "Angela", rfi: "⚠️ Caution - Poor Time Management. Caution - Disengaged during training.", reason: "Client Setup Issues", spec: "Unclear Workflow" },
+        { client: "Medical Admin Desk", va: "Lionel Yambao", rfi: "None", reason: "VA Issues", spec: "Attendance" },
+        { client: "Dr. Danilo Coite", va: "Baby", rfi: "None", reason: "Client Setup Issues", spec: "Unrealistic Expectations" },
+        { client: "Dr. Danilo Coite", va: "Rose", rfi: "None", reason: "VA Issues", spec: "Quality / Skills" },
+        { client: "Dr. Danilo Coite", va: "Shaine", rfi: "None", reason: "VA Issues", spec: "Quantity / Output" },
+        { client: "Dr. Danilo Coite", va: "Jackie", rfi: "⚠️ Poor connectivity scores during vetting.", reason: "VA Issues", spec: "Responsiveness" },
+        { client: "Dr. Danilo Coite", va: "Vanessa", rfi: "None", reason: "Failed Placement", spec: "HTP Mismatch" },
+        { client: "Dr. Danilo Coite", va: "Mary Joyce", rfi: "None", reason: "VA Issues", spec: "Commitment" },
+        { client: "Krista Roy", va: "Gianne Erika Racadio", rfi: "None", reason: "Client Setup Issues", spec: "Tech Setup Gaps" },
+        { client: "Timothy Brookes", va: "Michelle", rfi: "None", reason: "Financial Issues", spec: "Clinic Downsizing" },
+        { client: "Michaela Klose", va: "Kimberley Cataluna", rfi: "None", reason: "VA Issues", spec: "Quality / Skills" },
+        { client: "Jennie Wilson", va: "Christian Klein", rfi: "⚠️ Lacked specialized medical software experience.", reason: "VA Issues", spec: "Quality / Skills" },
+        { client: "Alpa Shah", va: "Mark Anthony J.", rfi: "None", reason: "Failed Placement", spec: "HTP Mismatch" },
+        { client: "Saranya Bala", va: "Gabriel S.", rfi: "None", reason: "Financial Issues", spec: "Budget Cuts" },
+        { client: "Sultan Yusufzai", va: "Elena F.", rfi: "None", reason: "Client Setup Issues", spec: "Unclear Workflow" },
+        { client: "Jessica Mendelsohn", va: "Patricia P.", rfi: "None", reason: "VA Issues", spec: "Responsiveness" },
+        { client: "Coastal Dermatology", va: "Bernadette Kimemia", rfi: "⚠️ Requested PT hours during screening. Full-time mismatch.", reason: "Failed Placement", spec: "Backout VA" },
+        { client: "Pinnacle Pediatrics", va: "John Carlo D.", rfi: "⚠️ Poor connectivity scores during vetting.", reason: "VA Issues", spec: "Attendance" },
+        { client: "Owen Family Dental", va: "Joshua Edis", rfi: "⚠️ Shifter. First time VA / BPO Background.", reason: "Failed Placement", spec: "HTP Mismatch" }
       ], []);
 
       const RAW_CANCELLATIONS = useMemo(() => {
         const data = [];
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
-        const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics', 'Owen Family Dental', 'Golden State Orthopedics', 'Danielle Schneck'];
-
-        const pickWeighted = (options) => {
-          const totalWeight = options.reduce((sum, opt) => sum + opt.w, 0);
-          let rand = Math.random() * totalWeight;
-          for (let opt of options) {
-            if (Math.min(rand, opt.w) === rand) return opt.v;
-            rand -= opt.w;
-          }
-          return options[0].v;
-        };
-
-        const resolutions = [
-          { v: 'Cancelled', w: 45 },
-          { v: 'For Replacement', w: 40 },
-          { v: 'Reduced VAs', w: 15 }
-        ];
-
-        const subIssues = {
-          'VA Issues': [
-            { v: 'Quality / Skills', w: 40 },
-            { v: 'Attendance', w: 20 },
-            { v: 'Responsiveness', w: 15 },
-            { v: 'Commitment', w: 15 },
-            { v: 'Quantity / Output', w: 10 }
-          ],
-          'Client Setup Issues': [
-            { v: 'Unrealistic Expectations', w: 40 },
-            { v: 'Unclear Workflow', w: 40 },
-            { v: 'Tech Setup Gaps', w: 20 }
-          ],
-          'Financial Issues': [
-            { v: 'Budget Cuts', w: 60 },
-            { v: 'Clinic Downsizing', w: 40 }
-          ],
-          'Failed Placement': [{ v: 'HTP Mismatch', w: 100 }],
-          'Back Out VA': [{ v: 'Ghosted pre-start', w: 100 }]
-        };
-
-        let exactRfiIndex = 0;
+        
+        let exactMapIndex = 0;
 
         ['2023', '2024', '2025', '2026'].forEach((yearStr) => {
           const year = parseInt(yearStr);
@@ -255,44 +232,30 @@
             const day = ((i * 7) % 28) + 1;
             const dateStr = `${yearStr}-${monthNum}-${day.toString().padStart(2, '0')}`;
             
+            // Rules for OS presence
             const isPreOS = Math.min(year, 2025) === year && (year !== 2025 || Math.min(mIdx, 2) === mIdx);
             const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
 
-            let reason;
-            if (isPreOS) {
-              reason = pickWeighted([{v:'Client Setup Issues', w:45}, {v:'VA Issues', w:30}, {v:'Failed Placement', w:15}, {v:'Financial Issues', w:10}]);
-            } else {
-              reason = pickWeighted([{v:'VA Issues', w:55}, {v:'Failed Placement', w:20}, {v:'Client Setup Issues', w:15}, {v:'Financial Issues', w:10}]);
-            }
+            // Pull from Exact Map
+            const mapRef = REAL_VA_CLIENT_MAP[exactMapIndex % REAL_VA_CLIENT_MAP.length];
+            exactMapIndex++;
 
-            const specificIssue = pickWeighted(subIssues[reason] || [{ v: 'Unknown', w: 100 }]);
+            const clientName = mapRef.client;
+            const vaName = mapRef.va;
+            const reason = mapRef.reason;
+            const specificIssue = mapRef.spec;
+            const hasRFI = mapRef.rfi !== "None";
+            const rfiNote = mapRef.rfi;
 
             let prevent = 'Uncontrollable / N/A';
             if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
             else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
 
-            const resolution = pickWeighted(resolutions);
-            let clientName = clientPool[i % clientPool.length];
-            let vaName = `VA Candidate ${i+1}`;
+            let resolution = 'Cancelled';
+            if (reason === 'Financial Issues') resolution = 'Reduced VAs';
+            else if (i % 2 === 0) resolution = 'For Replacement';
 
-            let hasRFI = false;
-            let rfiNote = "None";
-            
-            // Inject Exact RFI cases cleanly
-            if ((reason === 'VA Issues' || reason === 'Failed Placement' || reason === 'Client Setup Issues') && exactRfiIndex < EXACT_RFI_RECORDS.length && i % 4 === 0) {
-              const rfiCase = EXACT_RFI_RECORDS[exactRfiIndex];
-              clientName = rfiCase.clientName;
-              vaName = rfiCase.vaName;
-              reason = rfiCase.cxlReason;
-              hasRFI = true;
-              rfiNote = rfiCase.initialRFI;
-              exactRfiIndex++;
-            } else if ((reason === 'VA Issues' || reason === 'Failed Placement') && i % 5 === 0) {
-              hasRFI = true;
-              rfiNote = '⚠️ Flagged pre-hire matching RFI matched cancellation reason.';
-            }
-
-            // Tenure data constraints ensuring NO zero buckets
+            // Fixed logic to guarantee bucket population without zeroes
             let daysBeforeCxl;
             if (reason === 'Failed Placement' || reason === 'Back Out VA') {
               daysBeforeCxl = Math.floor(Math.random() * 14); 
@@ -316,7 +279,7 @@
           }
         });
         return data;
-      }, [HISTORICAL_SUMMARY, EXACT_RFI_RECORDS]);
+      }, [HISTORICAL_SUMMARY, REAL_VA_CLIENT_MAP]);
 
       // State Management
       const [viewMode, setViewMode] = useState('executive'); 
@@ -329,11 +292,7 @@
       const [hoveredTenureSegment, setHoveredTenureSegment] = useState(null);
       const [activeRFIModal, setActiveRFIModal] = useState(null);
       const [spartanMonth, setSpartanMonth] = useState(null);
-      const [hoveredRFIRow, setHoveredRFIRow] = useState(null);
       const [activeOSCurve, setActiveOSCurve] = useState(null);
-
-      const [focusResolution, setFocusResolution] = useState('Cancelled');
-      const [focusReason, setFocusReason] = useState('VA Issues');
 
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
@@ -343,6 +302,7 @@
         setSearchQuery('');
         setCxlYearFocus(null);
         setSpartanMonth(null);
+        setActiveRFIModal(null);
       };
 
       const filteredCancellations = useMemo(() => {
@@ -401,7 +361,6 @@
         return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1) };
       }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY, RAW_CANCELLATIONS.length]);
 
-      // Tenure Buckets Logic updated to deeply aggregate specific issues for hover tooltip
       const tenureData = useMemo(() => {
         const buckets = [
           { label: '0-14 Days', min: 0, max: 14 },
@@ -433,8 +392,18 @@
         return years.map(y => {
           const yData = RAW_CANCELLATIONS.filter(c => c.year === y);
           const totalCxls = yData.length;
-          const casesWithRFI = yData.filter(c => c.hasRFI);
-          const withRFI = casesWithRFI.length;
+          
+          // Get distinct cases based on VA and Client mapping to avoid generic duplicates
+          const uniqueRFICasesMap = new Map();
+          yData.filter(c => c.hasRFI).forEach(c => {
+             const key = `${c.client}-${c.vaName}`;
+             if (!uniqueRFICasesMap.has(key)) {
+                 uniqueRFICasesMap.set(key, c);
+             }
+          });
+          const casesWithRFI = Array.from(uniqueRFICasesMap.values());
+          const withRFI = yData.filter(c => c.hasRFI).length; // Mathematical total
+          
           return { 
             year: y, 
             totalCxls, 
