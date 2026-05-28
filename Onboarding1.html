@@ -37,6 +37,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .bar-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    
     .custom-scroll::-webkit-scrollbar { width: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 2px; }
   </style>
@@ -50,10 +51,9 @@
     const { PieChart, Pie, Cell, Tooltip: RechartsTooltip, ResponsiveContainer, Legend } = Recharts;
 
     // ==========================================
-    // GLOBAL HELPERS 
+    // EXPLICIT FUNCTION HOISTING FOR UTILITIES
     // ==========================================
-    function Icon(props) {
-      const { name, size = 16, className = "" } = props;
+    function Icon({ name, size = 16, className = "" }) {
       const paths = {
         BarChart3: <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />,
         Layers: <Fragment><path d="m12 3-10 5 10 5 10-5-10-5Z" /><path d="m2 17 10 5 10-5" /><path d="m2 12 10 5 10-5" /></Fragment>,
@@ -95,31 +95,16 @@
       'Resignation': '#EC4899'
     };
 
-    function SpartanModal(props) {
-      const { month, data, onClose } = props;
-      const reasonMap = {}; 
-      const specMap = {};
-      if (data && Array.isArray(data)) {
+    function SpartanModal({ month, data, onClose }) {
+      const reasonMap = {}; const specMap = {};
+      if(data && Array.isArray(data)) {
         data.forEach(d => {
           reasonMap[d.reason] = (reasonMap[d.reason] || 0) + 1;
           specMap[d.specificIssue] = (specMap[d.specificIssue] || 0) + 1;
         });
       }
-      
-      let topReason = 'Unknown';
-      let topSpec = 'Unknown';
-
-      const reasonKeys = Object.keys(reasonMap);
-      if (reasonKeys.length > 0) {
-          reasonKeys.sort((a,b) => reasonMap[b] - reasonMap[a]);
-          topReason = reasonKeys[0];
-      }
-
-      const specKeys = Object.keys(specMap);
-      if (specKeys.length > 0) {
-          specKeys.sort((a,b) => specMap[b] - specMap[a]);
-          topSpec = specKeys[0];
-      }
+      const topReason = Object.keys(reasonMap).sort((a,b) => reasonMap[b] - reasonMap[a])[0] || 'Unknown';
+      const topSpec = Object.keys(specMap).sort((a,b) => specMap[b] - specMap[a])[0] || 'Unknown';
 
       const getSpartanAction = (spec) => {
         if (!spec) return "AUDIT PIPELINE.";
@@ -158,22 +143,15 @@
     }
 
     class ErrorBoundary extends Component {
-      constructor(props) { 
-        super(props); 
-        this.state = { hasError: false, error: null }; 
-      }
-      static getDerivedStateFromError(error) { 
-        return { hasError: true, error }; 
-      }
+      constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+      static getDerivedStateFromError(error) { return { hasError: true, error }; }
       render() {
         if (this.state.hasError) {
           return (
             <div className="p-10 m-10 bg-rose-50 border-4 border-rose-500 rounded-lg text-rose-900 shadow-xl">
               <h1 className="text-2xl font-black uppercase mb-4">Application Crash Prevented</h1>
-              <p className="font-medium mb-4">The dashboard encountered an execution defect.</p>
-              <pre className="text-[10px] bg-slate-900 text-rose-400 p-4 rounded overflow-x-auto">
-                {this.state.error ? this.state.error.stack : 'Unknown Error'}
-              </pre>
+              <p className="font-medium mb-4">The dashboard encountered an execution or variables load defect. Details are provided below:</p>
+              <pre className="text-[10px] bg-slate-900 text-rose-400 p-4 rounded overflow-x-auto">{this.state.error.stack}</pre>
             </div>
           );
         }
@@ -251,21 +229,12 @@
           for (let i = 0; i < count; i++) {
             const mIdx = i % 12;
             const monthStr = months[mIdx];
-            let monthNum = (mIdx + 1).toString();
-            if (monthNum.length === 1) { monthNum = '0' + monthNum; }
-            let day = ((i * 7) % 28) + 1;
-            let dayStr = day.toString();
-            if (dayStr.length === 1) { dayStr = '0' + dayStr; }
-            const dateStr = `${yearStr}-${monthNum}-${dayStr}`;
+            const monthNum = (mIdx + 1).toString().padStart(2, '0');
+            const day = ((i * 7) % 28) + 1;
+            const dateStr = `${yearStr}-${monthNum}-${day.toString().padStart(2, '0')}`;
             
             // Rules for OS presence
-            let isPreOS = false;
-            if (year < 2025) {
-                isPreOS = true;
-            } else if (year === 2025 && mIdx < 3) {
-                isPreOS = true;
-            }
-
+            const isPreOS = Math.min(year, 2025) === year && (year !== 2025 || Math.min(mIdx, 2) === mIdx);
             const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
 
             // Pull from Exact Map sequentially to ensure we use all exact records
@@ -276,27 +245,18 @@
             const vaName = mapRef.va;
             const reason = mapRef.reason;
             const specificIssue = mapRef.spec;
-            
-            let hasRFI = false;
-            if (mapRef.rfi !== "None") {
-                hasRFI = true;
-            }
+            const hasRFI = mapRef.rfi !== "None";
             const rfiNote = mapRef.rfi;
 
             let prevent = 'Uncontrollable / N/A';
-            if (reason === 'Client Setup Issues') {
-                prevent = 'Sales Qualification/Client Readiness';
-            } else if (reason === 'VA Issues' || reason === 'Failed Placement') {
-                prevent = 'Placements & Matching';
-            }
+            if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
+            else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
 
             const resolution = mapRef.resolution;
             let daysBeforeCxl = mapRef.daysWorked;
 
             // Ensure constraints based on actual mapped days (enforce < 90)
-            if (daysBeforeCxl > 90) {
-                daysBeforeCxl = Math.floor(Math.random() * 29) + 61;
-            }
+            if (daysBeforeCxl > 90) daysBeforeCxl = Math.floor(Math.random() * 29) + 61;
 
             data.push({
               id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
@@ -325,11 +285,9 @@
       const [activeRFIModal, setActiveRFIModal] = useState(null);
       const [spartanMonth, setSpartanMonth] = useState(null);
       const [activeOSCurve, setActiveOSCurve] = useState(null);
-      const [hoveredRFIRow, setHoveredRFIRow] = useState(null);
 
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
-      // Handle Resetting all Active Filters safely
       const handleResetFilters = () => {
         setSelectedYear('All');
         setSelectedMonth('All');
@@ -355,40 +313,21 @@
         let sortable = [...filteredCancellations];
         sortable.sort((a, b) => {
           let aVal = a[ledgerSortConfig.key] || ''; let bVal = b[ledgerSortConfig.key] || '';
-          if (typeof aVal === 'number' && typeof bVal === 'number') {
-              if (ledgerSortConfig.direction === 'asc') return aVal - bVal;
-              return bVal - aVal;
-          }
+          if (typeof aVal === 'number' && typeof bVal === 'number') return ledgerSortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
           aVal = aVal.toString().toLowerCase(); bVal = bVal.toString().toLowerCase();
           
           if (aVal !== bVal) {
              const isLess = aVal.localeCompare(bVal) === -1;
-             if (isLess) {
-                 if (ledgerSortConfig.direction === 'asc') return -1;
-                 return 1;
-             }
-             if (ledgerSortConfig.direction === 'asc') return 1;
-             return -1;
+             if (isLess) return ledgerSortConfig.direction === 'asc' ? -1 : 1;
+             return ledgerSortConfig.direction === 'asc' ? 1 : -1;
           }
           return 0;
         });
         return sortable;
       }, [filteredCancellations, ledgerSortConfig]);
 
-      const requestSort = (key) => {
-        let direction = 'asc';
-        if (ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc') {
-          direction = 'desc';
-        }
-        setLedgerSortConfig({ key, direction });
-      };
-
-      const Arrow = (props) => {
-          const { k } = props;
-          if (ledgerSortConfig.key !== k) return <span className="opacity-30 ml-1">⇅</span>;
-          if (ledgerSortConfig.direction === 'asc') return <span className="text-[#00AFC0] ml-1">▲</span>;
-          return <span className="text-[#00AFC0] ml-1">▼</span>;
-      };
+      const requestSort = key => setLedgerSortConfig({ key, direction: ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc' ? 'desc' : 'asc' });
+      const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : (ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>);
 
       const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear, RAW_CANCELLATIONS]);
       const monthlyBreakdown = useMemo(() => {
@@ -396,10 +335,7 @@
         return monthsList.map(mName => {
           const monthCases = baseForMonths.filter(c => c.month === mName);
           const reasonCounts = {};
-          monthCases.forEach(c => {
-             if (!reasonCounts[c.reason]) reasonCounts[c.reason] = 0;
-             reasonCounts[c.reason] += 1;
-          });
+          monthCases.forEach(c => reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1);
           return { month: mName, count: monthCases.length, reasons: reasonCounts, cases: monthCases };
         });
       }, [baseForMonths]);
@@ -417,7 +353,6 @@
         return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1) };
       }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY, RAW_CANCELLATIONS.length]);
 
-      // Tenure Buckets Logic 
       const tenureData = useMemo(() => {
         const buckets = [
           { label: '0-14 Days', min: 0, max: 14 },
@@ -428,7 +363,7 @@
 
         let runningTotal = 0;
         return buckets.map((b) => {
-          const cases = filteredCancellations.filter(c => c.daysBeforeCxl >= b.min && c.daysBeforeCxl <= b.max);
+          const cases = filteredCancellations.filter(c => Math.max(c.daysBeforeCxl, b.min) === c.daysBeforeCxl && Math.min(c.daysBeforeCxl, b.max) === c.daysBeforeCxl);
           
           const reasons = {};
           cases.forEach(c => {
@@ -436,10 +371,7 @@
               reasons[c.reason] = { total: 0, specifics: {} };
             }
             reasons[c.reason].total += 1;
-            if (!reasons[c.reason].specifics[c.specificIssue]) {
-                reasons[c.reason].specifics[c.specificIssue] = 0;
-            }
-            reasons[c.reason].specifics[c.specificIssue] += 1;
+            reasons[c.reason].specifics[c.specificIssue] = (reasons[c.reason].specifics[c.specificIssue] || 0) + 1;
           });
 
           runningTotal += cases.length;
@@ -453,7 +385,7 @@
           const yData = RAW_CANCELLATIONS.filter(c => c.year === y);
           const totalCxls = yData.length;
           
-          // Get distinct cases based on exact IDs
+          // Get distinct cases based on exact IDs to avoid generic duplicates
           const uniqueRFICasesMap = new Map();
           yData.filter(c => c.hasRFI).forEach(c => {
              const key = `${c.client}-${c.vaName}-${c.rfiNote}`;
@@ -462,18 +394,13 @@
              }
           });
           const casesWithRFI = Array.from(uniqueRFICasesMap.values());
-          const withRFI = casesWithRFI.length; 
+          const withRFI = casesWithRFI.length; // Distinct RFI records
           
-          let rate = 0;
-          if (totalCxls !== 0) {
-              rate = ((withRFI/totalCxls)*100).toFixed(0);
-          }
-
           return { 
             year: y, 
             totalCxls, 
             withRFI, 
-            rate,
+            rate: totalCxls !== 0 ? ((withRFI/totalCxls)*100).toFixed(0) : 0,
             casesWithRFI 
           };
         });
@@ -484,21 +411,12 @@
         const rfiCounts = {};
         activeRFIModal.casesWithRFI.forEach(c => {
             let category = "Other";
-            if (c.rfiNote.includes('Shifter') || c.rfiNote.includes('General Business VA')) {
-                category = 'Experience Mismatch (Shifter)';
-            } else if (c.rfiNote.includes('Hypertension') || c.rfiNote.includes('Health')) {
-                category = 'Health Risk';
-            } else if (c.rfiNote.includes('software') || c.rfiNote.includes('Tech')) {
-                category = 'Software/Tech Gap';
-            } else if (c.rfiNote.includes('connectivity') || c.rfiNote.includes('Time Management')) {
-                category = 'Infrastructure/Behavior';
-            } else if (c.rfiNote.includes('PT hours')) {
-                category = 'Hours Mismatch';
-            }
-            if (!rfiCounts[category]) {
-                rfiCounts[category] = 0;
-            }
-            rfiCounts[category] += 1;
+            if (c.rfiNote.includes('Shifter') || c.rfiNote.includes('General Business VA')) category = 'Experience Mismatch (Shifter)';
+            else if (c.rfiNote.includes('Hypertension') || c.rfiNote.includes('Health')) category = 'Health Risk';
+            else if (c.rfiNote.includes('software') || c.rfiNote.includes('Tech')) category = 'Software/Tech Gap';
+            else if (c.rfiNote.includes('connectivity') || c.rfiNote.includes('Time Management')) category = 'Infrastructure/Behavior';
+            else if (c.rfiNote.includes('PT hours')) category = 'Hours Mismatch';
+            rfiCounts[category] = (rfiCounts[category] || 0) + 1;
         });
         
         return Object.entries(rfiCounts).map(([name, value]) => ({ name, value }));
@@ -511,11 +429,8 @@
         return years.map(y => {
           const starts = HISTORICAL_SUMMARY[y].starts;
           const cxls = filteredCancellations.filter(c => c.year === y).length;
-          let rate = 0;
-          if (starts !== 0) {
-              rate = parseFloat(((cxls / starts) * 100).toFixed(1));
-          }
-          return { year: y, starts, cxls, rate };
+          const rate = starts !== 0 ? ((cxls / starts) * 100).toFixed(1) : 0;
+          return { year: y, starts, cxls, rate: parseFloat(rate) };
         });
       }, [filteredCancellations, HISTORICAL_SUMMARY]);
 
@@ -630,6 +545,7 @@
       }
 
       function renderMacroPipeline() {
+        const years = ['2023', '2024', '2025', '2026'];
         const linePoints = yoyStats.map((stat, i) => `${150 + (i * 170)},${200 - (stat.rate / 50) * 160}`);
         const dPath = "M " + linePoints.join(" L ");
 
