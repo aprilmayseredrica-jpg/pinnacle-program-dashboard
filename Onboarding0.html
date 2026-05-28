@@ -1,0 +1,2263 @@
+import React, { useState, useMemo, Fragment } from 'react';
+import { 
+  BarChart3, 
+  TrendingDown, 
+  Users, 
+  CheckCircle2, 
+  AlertTriangle, 
+  ShieldAlert, 
+  Award, 
+  Filter, 
+  RefreshCw, 
+  Search, 
+  Info, 
+  ChevronRight, 
+  Activity, 
+  Zap, 
+  Star,
+  Layers,
+  Skull,
+  Sliders,
+  Sparkles,
+  TrendingUp,
+  FileText,
+  HelpCircle,
+  BookOpen,
+  Calendar,
+  Clock,
+  DollarSign,
+  Flag
+} from 'lucide-react';
+
+// ==========================================
+// HOISTED HELPER COMPONENTS & CONFIGURATIONS
+// ==========================================
+
+function InfoTooltip({ text }) {
+  return (
+    <span className="group relative inline-block ml-1 align-middle text-slate-400 hover:text-[#00AFC0] transition duration-150 cursor-help">
+      <Info size={12} className="inline animate-pulse" />
+      <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 p-2.5 bg-slate-950 text-white text-[10px] leading-normal rounded shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-150 pointer-events-none z-50 text-left font-normal border border-slate-800">
+        {text}
+        <span className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-950" />
+      </span>
+    </span>
+  );
+}
+
+const tabsList = [
+  { label: 'Executive Summary', icon: 'Layers' },
+  { label: 'Trends & KPI Dashboard', icon: 'BarChart3' },
+  { label: 'Root Cause & Triggers', icon: 'AlertTriangle' },
+  { label: 'Forensics & Warnings', icon: 'Skull' },
+  { label: 'OS & Experience', icon: 'Award' },
+  { label: 'Controllability Playbook', icon: 'ShieldAlert' },
+  { label: 'Process Lifecycle', icon: 'Activity' },
+  { label: 'Recommendations & KPIs', icon: 'CheckCircle2' }
+];
+
+function renderTabIcon(iconName) {
+  switch (iconName) {
+    case 'Layers': return <Layers size={16} />;
+    case 'BarChart3': return <BarChart3 size={16} />;
+    case 'AlertTriangle': return <AlertTriangle size={16} />;
+    case 'Skull': return <Skull size={16} />;
+    case 'Award': return <Award size={16} />;
+    case 'ShieldAlert': return <ShieldAlert size={16} />;
+    case 'Activity': return <Activity size={16} />;
+    case 'CheckCircle2': return <CheckCircle2 size={16} />;
+    default: return null;
+  }
+}
+
+const reasonColorMap = {
+  'VA Issues': '#818CF8', 
+  'Client Setup Issues': '#00AFC0',
+  'Financial Issues': '#94A3B8',
+  'Failed Placement': '#E11D48',
+  'Back Out VA': '#FB923C',
+  'Commitment': '#A78BFA',
+  'Resignation': '#EC4899'
+};
+
+function formatDateDisplay(dateStr) {
+  if (!dateStr) return 'N/A';
+  const parts = dateStr.split('-');
+  if (parts.length !== 3) return dateStr;
+  const year = parts[0];
+  const month = parts[1];
+  const day = parts[2];
+  const months = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+  return `${months[month]} ${parseInt(day, 10)}, ${year}`;
+}
+
+// ==========================================
+// DETAILED RISK FORENSICS GLOSSARY
+// ==========================================
+const RISK_METRICS_MAP = {
+  'weak VA skill alignment': {
+    criticality: 'High',
+    frequency: '20 cases in 2025',
+    failureNode: 'Placements matching phase',
+    excerpt: "Medical VA lacks domain-specific background for specialized roles, resulting in immediate training bottlenecks and client frustration.",
+    amAudit: "Defensive. Primarily focused on swapping out the VA rather than feeding back performance metrics to placements.",
+    missedOpportunity: "Failing to deploy custom technical testing on Day -3. A practical skills audit should trigger immediate skills correction.",
+    recoveryAction: "Enforce direct skills-matrix verification before onboarding kickoff."
+  },
+  'unrealistic expectations': {
+    criticality: 'High',
+    frequency: '10 cases in 2025',
+    failureNode: 'Sales handover phase',
+    excerpt: "Client expects high-volume specialty output immediately without allowing transition time or standard system learning.",
+    amAudit: "Reactive. Attempts to negotiate workflow adjustments after client satisfaction has already plummeted.",
+    missedOpportunity: "Failing to set clear performance curves during Sales phase. Day 1 expectations should be explicitly documented.",
+    recoveryAction: "Introduce mandatory client orientation video and pre-onboarding expectation contracts."
+  },
+  'unclear workflow': {
+    criticality: 'Medium',
+    frequency: '8 cases in 2025',
+    failureNode: 'Client operational setup',
+    excerpt: "No daily tasks, instruction templates, or structured schedules provided for the Medical VA, leaving them idle and disengaged.",
+    amAudit: "Neutral. Focuses on encouraging clients to 'be more active,' with minimal concrete templates supplied.",
+    missedOpportunity: "Allowing a VA to start without an approved Day-1-to-14 Task Checklist signed by the client.",
+    recoveryAction: "OS to provide pre-built, industry-specific administrative SOP templates."
+  },
+  'attendance concerns': {
+    criticality: 'High',
+    frequency: '7 cases in 2025',
+    failureNode: 'VA recruitment vetting',
+    excerpt: "Unplanned leaves, internet connectivity dropouts, or communication silence within the critical first month.",
+    amAudit: "Urgent. Rapid replacement processes are initiated, but often without technical or hardware diagnostic checks.",
+    missedOpportunity: "Inadequate infrastructure vetting (lack of generator, dual internet backup check) prior to match selection.",
+    recoveryAction: "Mandate hardware connectivity reports and backup generator audits prior to placement."
+  },
+  'overwhelmed VA': {
+    criticality: 'Medium',
+    frequency: '6 cases in 2025',
+    failureNode: 'Onboarding workload alignment',
+    excerpt: "Medical VA is flooded with high-pressure tasks (like cold calling + billing) with minimal training, leading to burnout and withdrawal.",
+    amAudit: "Late. Standard wellness checkups are done after the VA has already expressed plans to resign.",
+    missedOpportunity: "Day-7 wellness screening missing. No early-warning metric to check workload compatibility.",
+    recoveryAction: "Implement structured Day-7 and Day-14 stress-index survey checks with VAs."
+  },
+  'tech setup gaps': {
+    criticality: 'Low',
+    frequency: '5 cases in 2025',
+    failureNode: 'IT and system onboarding',
+    excerpt: "EHR software restrictions, VPN blocking, or login authorization delays preventing Medical VA from executing daily work.",
+    amAudit: "Highly technical but slow, relying heavily on client-side IT to resolve internal system obstacles.",
+    missedOpportunity: "Technical setup is delayed until Day 1 instead of resolving login/VPN issues 3 business days prior.",
+    recoveryAction: "Launch 'Zero-Day Tech Clearance' protocol requiring verified system login screenshots by Day -2."
+  },
+  'weak KPI definition': {
+    criticality: 'Medium',
+    frequency: '4 cases in 2025',
+    failureNode: 'OS stabilization phase',
+    excerpt: "Performance goals are entirely qualitative. Client complains of speed issues, but Medical VA has no daily metrics to measure success.",
+    amAudit: "Vague performance evaluations that offer little objective insight to the client.",
+    missedOpportunity: "Onboarding Specialist did not implement the standard Daily Activity Log or enforce KPI tracking on Day 1.",
+    recoveryAction: "Require a signed off KPI matrix as part of the Day-3 Onboarding check-in."
+  },
+  'financial hesitation': {
+    criticality: 'Low',
+    frequency: '3 cases in 2025',
+    failureNode: 'Sales pricing qualification',
+    excerpt: "Client experiences immediate budget anxiety or clinic-side cashflow drops, resulting in downscaling contractor spend.",
+    amAudit: "Commercial. Offers financial adjustments or credit waivers rather than solving underlying operational issues.",
+    missedOpportunity: "Failing to qualify the client's financial stability during Sales intake.",
+    recoveryAction: "Implement structured commercial contract pause policies ('Hibernate' tier) rather than immediate contract cancellations."
+  },
+  'low client engagement': {
+    criticality: 'Medium',
+    frequency: '3 cases in 2025',
+    failureNode: 'Onboarding check-in phase',
+    excerpt: "Client skips scheduled check-ins and ignores OS prompts, leaving the Medical VA to run on assumptions and misaligned directives.",
+    amAudit: "Passive. Allows check-ins to slide, resulting in a sudden, unmanaged build-up of operational issues.",
+    missedOpportunity: "Failing to pause onboarding and raise a formal escalation when client misses two consecutive check-ins.",
+    recoveryAction: "Institute mandatory attendance contracts for the 30-day onboarding check-ins."
+  },
+  'hidden workflow complexity': {
+    criticality: 'High',
+    frequency: '2 cases in 2025',
+    failureNode: 'Client process discovery',
+    excerpt: "Simple-sounding admin tasks turn out to be deeply convoluted, paper-reliant, manual workflows that are impossible to execute remotely without complex SOPs.",
+    amAudit: "Ineffective. Attempts to coach Medical VA through broken workflows instead of restructuring the client\'s physical processes.",
+    missedOpportunity: "Process Discovery phase missing during initial Sales qualification.",
+    recoveryAction: "Deploy Onboarding Specialists to document and optimize workflow steps prior to matching."
+  },
+  'HTP mismatch': {
+    criticality: 'High',
+    frequency: '1 case in 2025',
+    failureNode: 'Placements profile vetting',
+    excerpt: "The Medical VA profile selected does not fit the basic operational environment (e.g. placing an introverted administrative profile into an active outbound medical clinic environment).",
+    amAudit: "Defensive. Blames Medical VA adaptability instead of acknowledging systemic profile matching errors.",
+    missedOpportunity: "Lack of situational screening during candidate pool placement interviews.",
+    recoveryAction: "Mandate profile suitability scorecards during placement candidate selection."
+  }
+};
+
+// ==========================================
+// AUTHENTIC SALESFORCE CANCELLATION DATABASE
+// ==========================================
+const RAW_CANCELLATIONS = [
+  // --- 2026 granular cancellations (17 cases, ~22.1% rate) ---
+  {
+    id: 'cxl-2026-001',
+    year: '2026',
+    month: 'Apr',
+    client: 'Owen Family Dental',
+    specialist: 'Aiza Abing',
+    vaName: 'Joshua Edis',
+    daysBeforeCxl: -1,
+    dept: 'Placements / VA Matching',
+    controllability: 'Controllable',
+    risk: 'weak VA skill alignment',
+    resolution: 'Cancelled',
+    summary: 'Medical VA became unresponsive prior to start date (scheduled April 2, 2026). Tagged failed placement. Client requested replacement with Dental Receptionist profile (minimum 2+ years experience) to ensure stronger fit and avoid repeating risk.',
+    amResponse: 'PC Karl informed client. Promptly restarted placement pipeline focusing on strict dental insurance and verification experience.',
+    intervention: 'Missed pre-onboarding communication checkpoint. Recommended day-3 pre-start readiness confirmation.'
+  },
+  {
+    id: 'cxl-2026-002',
+    year: '2026',
+    month: 'Jan',
+    client: 'Surgical Specialists of NY',
+    specialist: 'Jason Valeros',
+    vaName: 'Ma. Theresa L.',
+    daysBeforeCxl: 12,
+    dept: 'Placements / VA Matching',
+    controllability: 'Controllable',
+    risk: 'HTP mismatch',
+    resolution: 'For Replacement',
+    summary: 'Client required extensive experience in insurance pre-authorizations and surgical scheduling. Medical VA had basic general medicine background and struggled with terminology, causing scheduling backlog.',
+    amResponse: 'AM acknowledged matching oversight. Arranged replacement specialist with background in medical billing and surgical coding within 72 hours.',
+    intervention: 'Should have verified Medical VA\'s specific pre-authorization competency during match phase via practical task test.'
+  },
+  {
+    id: 'cxl-2026-003',
+    year: '2026',
+    month: 'Feb',
+    client: 'Beacon Health Partners',
+    specialist: 'Hawk',
+    vaName: 'Michael R.',
+    daysBeforeCxl: 45,
+    dept: 'Sales Qualification / Client Readiness',
+    controllability: 'Partially controllable',
+    risk: 'unrealistic expectations',
+    resolution: 'Cancelled',
+    summary: 'Client expected Medical VA to handle cold outbound sales calling and lead generation immediately, despite VA being hired for administrative care coordination. Client frustrated with conversions.',
+    amResponse: 'AM attempted to realign scope, explaining care-coordination profile. Client decided to retract contract.',
+    intervention: 'Sales did not establish scope boundaries during discovery. Expected output was direct marketing, which was not the Medical VA profile hired.'
+  },
+  {
+    id: 'cxl-2026-004',
+    year: '2026',
+    month: 'Mar',
+    client: 'Coastal Dermatology',
+    specialist: 'Marno',
+    vaName: 'Bernadette Kimemia',
+    daysBeforeCxl: 28,
+    dept: 'VA-side issue',
+    controllability: 'Mostly uncontrollable',
+    risk: 'attendance concerns',
+    resolution: 'For Replacement',
+    summary: 'Medical VA suffered continuous local power grid disruptions and personal health issues, missing 4 out of the first 15 shifts. Onboarding was delayed repeatedly.',
+    amResponse: 'OS coordinated backup Medical VA coverage. Client requested a clean start with a new candidate due to trust erosion.',
+    intervention: 'Failed to deploy backup internet/power solution audit. Need standardized remote-work infrastructure checks prior to day 1.'
+  },
+  {
+    id: 'cxl-2026-005',
+    year: '2026',
+    month: 'Jan',
+    client: 'Pinnacle Pediatrics',
+    specialist: 'Aiza Abing',
+    vaName: 'John Carlo D.',
+    daysBeforeCxl: 18,
+    dept: 'Placements / VA Matching',
+    controllability: 'Controllable',
+    risk: 'weak VA skill alignment',
+    resolution: 'For Replacement',
+    summary: 'Medical VA lacked medical terminology background and struggled to navigate the client\'s custom EHR system. Client noted training was taking too long and affecting clinic speed.',
+    amResponse: 'OS initiated intensive EHR sandbox coaching but client requested immediate replacement with a pediatric-fluent Medical VA.',
+    intervention: 'Need pre-built pediatric EHR simulator assessment during placement phase for specialty clinics.'
+  },
+  {
+    id: 'cxl-2026-006',
+    year: '2026',
+    month: 'May',
+    client: 'Oakridge Family Practice',
+    specialist: 'Jason Valeros',
+    vaName: 'Sarah M.',
+    daysBeforeCxl: 60,
+    dept: 'Client business change',
+    controllability: 'Mostly uncontrollable',
+    risk: 'financial hesitation',
+    resolution: 'Cancelled',
+    summary: 'Clinic underwent sudden merger with larger health system. All admin operations were centralized, eliminating the need for external virtual assistants.',
+    amResponse: 'AM negotiated graceful offboarding and maintained contact for future division expansions.',
+    intervention: 'None. Clean corporate decision external to agency operations.'
+  },
+  {
+    id: 'cxl-2026-007',
+    year: '2026',
+    month: 'Feb',
+    client: 'Midwest Nephrology',
+    specialist: 'Hawk',
+    vaName: 'Gabriel S.',
+    daysBeforeCxl: 35,
+    dept: 'Sales Qualification / Client Readiness',
+    controllability: 'Controllable',
+    risk: 'unclear workflow',
+    resolution: 'For Replacement',
+    summary: 'Client was too busy to provide any structured onboarding, training, or system access. Medical VA remained idle for most shifts. Client cancelled stating "VA is not showing initiative."',
+    amResponse: 'AM explained need for training access, proposed customized onboarding template to guide client.',
+    intervention: 'Sales and OS should have blocked Medical VA start until client signed off on a structured 5-day training blueprint.'
+  },
+  {
+    id: 'cxl-2026-008',
+    year: '2026',
+    month: 'Apr',
+    client: 'Elite Orthopedics',
+    specialist: 'Aiza Abing',
+    vaName: 'Rachelle T.',
+    daysBeforeCxl: 8,
+    dept: 'Placements / VA Matching',
+    controllability: 'Controllable',
+    risk: 'HTP mismatch',
+    resolution: 'For Replacement',
+    summary: 'Medical VA backed out on day 2 of onboarding citing personal family emergencies. Follow-up showed VA was actually mismatched for a high-stress medical triage role.',
+    amResponse: 'Placements team assigned high-priority backup. Sourced experienced clinical triage replacement within 48 hours.',
+    intervention: 'Medical VA placement stress-test was missing. Need to evaluate VA comfort with high-volume telephone triage.'
+  },
+  {
+    id: 'cxl-2026-009',
+    year: '2026',
+    month: 'Mar',
+    client: 'Summit Pain Clinic',
+    specialist: 'Jason Valeros',
+    vaName: 'Arnel G.',
+    daysBeforeCxl: 72,
+    dept: 'VA-side issue',
+    controllability: 'Partially controllable',
+    risk: 'overwhelmed VA',
+    resolution: 'For Replacement',
+    summary: 'Medical VA felt overwhelmed by high call volumes and billing targets, leading to silent anxiety and sudden resignation on Day 72.',
+    amResponse: 'OS conducted wellness check. AM immediately matched secondary candidate and transitioned client data.',
+    intervention: 'Early warning signs: Medical VA was silent in check-ins. Implement Day-30 check-in metrics measuring VA work stress.'
+  },
+  {
+    id: 'cxl-2026-010',
+    year: '2026',
+    month: 'May',
+    client: 'Dr. Daniel Cardiology',
+    specialist: 'Marno',
+    vaName: 'Elena F.',
+    daysBeforeCxl: 14,
+    dept: 'OS / onboarding stabilization',
+    controllability: 'Controllable',
+    risk: 'weak KPI definition',
+    resolution: 'For Replacement',
+    summary: 'No quantitative KPIs were defined for the Medical VA. Disagreement arose between client and VA regarding daily output. Client claimed VA was "slow," while VA had no clear metrics to defend performance.',
+    amResponse: 'OS stepped in to define a Daily Activity Log but trust was degraded. Client preferred replacement with pre-defined metrics.',
+    intervention: 'OS should enforce KPI agreement sign-off prior to the Day-1 kickoff meeting.'
+  },
+  {
+    id: 'cxl-2026-011',
+    year: '2026',
+    month: 'Jan',
+    client: 'Lakeside Eye Center',
+    specialist: 'Hawk',
+    vaName: 'Mark Anthony J.',
+    daysBeforeCxl: 50,
+    dept: 'Placements / VA Matching',
+    controllability: 'Controllable',
+    risk: 'weak VA skill alignment',
+    resolution: 'For Replacement',
+    summary: 'Client required Medical VA scribe duties in real-time. VA\'s audio connection quality and medical dictation typing speed (WPM) were insufficient for rapid-fire physician assessments.',
+    amResponse: 'AM provided transcription test for candidate vetting and initiated rapid replacement.',
+    intervention: 'Scribing placements must undergo mandatory live audio-transcription speed testing.'
+  },
+  {
+    id: 'cxl-2026-012',
+    year: '2026',
+    month: 'Feb',
+    client: 'Metro Rehab Associates',
+    specialist: 'Jason Valeros',
+    vaName: 'Patricia P.',
+    daysBeforeCxl: 3,
+    dept: 'Admin/reporting noise',
+    controllability: 'Mostly uncontrollable',
+    risk: 'tech setup gaps',
+    resolution: 'Cancelled',
+    summary: 'Client VPN completely blocked offshore remote connections. Dedicated IT could not resolve.',
+    amResponse: 'AM issued complete placement refund due to local system blocker.',
+    intervention: 'A tech-stack audit form must be completed by the client\'s IT representative during Sales phase.'
+  },
+  {
+    id: 'cxl-2026-013',
+    year: '2026',
+    month: 'Mar',
+    client: 'Valley Pediatrics',
+    specialist: 'Aiza Abing',
+    vaName: 'Kristine S.',
+    daysBeforeCxl: 30,
+    dept: 'Placements / VA Matching',
+    controllability: 'Controllable',
+    risk: 'weak VA skill alignment',
+    resolution: 'For Replacement',
+    summary: 'Medical VA struggled with pediatric appointment-recall scripts and active phone coordination. Client felt the candidate lacked the warm, patient-centric tone required.',
+    amResponse: 'OS conducted accent and tone training, but client decided to swap candidate for a pre-vetted customer service specialist.',
+    intervention: 'Deploy specialty telephone etiquette evaluation at placement stage.'
+  },
+  {
+    id: 'cxl-2026-014',
+    year: '2026',
+    month: 'Apr',
+    client: 'Vanguard Psychiatry',
+    specialist: 'Marno',
+    vaName: 'Justin B.',
+    daysBeforeCxl: 19,
+    dept: 'Sales Qualification / Client Readiness',
+    controllability: 'Partially controllable',
+    risk: 'hidden workflow complexity',
+    resolution: 'Cancelled',
+    summary: 'Psychiatrist client had extremely fragmented, complex paper-to-EHR translation workflows. Medical VA was unable to navigate the chaotic system without extensive daily guidance client was too busy to provide.',
+    amResponse: 'AM recommended standard operating procedure (SOP) design services but client decided to hire local staff.',
+    intervention: 'Identify "chaotic administrative states" during Sales calls and mandate SOP consulting before matching.'
+  },
+  {
+    id: 'cxl-2026-015',
+    year: '2026',
+    month: 'May',
+    client: 'Sovereign Urology',
+    specialist: 'Jason Valeros',
+    vaName: 'Noreen D.',
+    daysBeforeCxl: 85,
+    dept: 'Client business change',
+    controllability: 'Mostly uncontrollable',
+    risk: 'financial hesitation',
+    resolution: 'Cancelled',
+    summary: 'Severe decline in insurance reimbursements forced the clinic to reduce general overhead. They decided to lay off several contractor positions, including the Medical VA.',
+    amResponse: 'AM paused billing, offered downscaled 20-hour package, but client proceeded with cancellation.',
+    intervention: 'None. Macroeconomic client business adjustment.'
+  },
+  {
+    id: 'cxl-2026-016',
+    year: '2026',
+    month: 'Apr',
+    client: 'Apex Dental Care',
+    specialist: 'Aiza Abing',
+    vaName: 'Carlo M.',
+    daysBeforeCxl: 40,
+    dept: 'VA-side issue',
+    controllability: 'Partially controllable',
+    risk: 'attendance concerns',
+    resolution: 'For Replacement',
+    summary: 'Medical VA missed key check-ins due to frequent internet dropouts caused by typhoon damage. Communication loop broke during critical week-3 onboarding.',
+    amResponse: 'OS deployed temporary hotspot backup. Sourced backup candidate.',
+    intervention: 'Incorporate weather-resiliency audits and regional diversification in matching pools.'
+  },
+  {
+    id: 'cxl-2026-017',
+    year: '2026',
+    month: 'May',
+    client: 'Elite MedSpa & Laser',
+    specialist: 'Hawk',
+    vaName: 'Diana G.',
+    daysBeforeCxl: 22,
+    dept: 'Placements / VA Matching',
+    controllability: 'Controllable',
+    risk: 'weak VA skill alignment',
+    resolution: 'For Replacement',
+    summary: 'MedSpa required extensive social media active-outreach and design work (Canva/Instagram). Medical VA matched was an administrative biller who had zero creative marketing skills.',
+    amResponse: 'AM acknowledged mismatched skill profiles and immediately transferred case to a marketing-focused candidate pool.',
+    intervention: 'Placements team should categorically separate Administrative VAs from Creative/Marketing VAs.'
+  },
+
+  // --- 2025 granular cancellations (43 cases) ---
+  ...Array.from({ length: 43 }).map((_, idx) => {
+    let dept, controllability, risk, client, specialist, days, summary, response, intervention, resolution;
+    const months2025 = [
+      'Jan', 'Jan', 'Jan', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Mar', 'Mar',
+      'Apr', 'Apr', 'Apr', 'Apr', 'May', 'May', 'May', 'May', 'May', 'May',
+      'Jun', 'Jun', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Aug', 'Aug', 'Aug',
+      'Sep', 'Sep', 'Sep', 'Sep', 'Oct', 'Oct', 'Oct', 'Oct', 'Oct', 'Nov',
+      'Nov', 'Dec', 'Dec'
+    ];
+    const chosenMonth = months2025[idx];
+    
+    const clientPool = [
+      'Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn',
+      'Rebecca Brooks', 'Timothy Brookes', 'Krista Roy', 'Dr. Danilo Coite', 'Michaela Klose',
+      'Anmy Vu', 'Jesse Cretaro', 'Dr. Nanette LaShay', 'Dr. Joe Ponnezhan', 'Anna Padgett',
+      'Caren Lopez', 'Angel Johnson', 'Katie Durighello', 'Dr. Daniel Cardiology', 'Anya Rose',
+      'Anis Saif', 'Surgical Specialists of NY', 'Owen Family Dental', 'Beacon Health Partners',
+      'Coastal Dermatology', 'Pinnacle Pediatrics', 'Oakridge Family Practice', 'Midwest Nephrology',
+      'Elite Orthopedics', 'Summit Pain Clinic', 'Lakeside Eye Center', 'Metro Rehab Associates',
+      'Valley Pediatrics', 'Vanguard Psychiatry', 'Sovereign Urology', 'Apex Dental Care',
+      'Elite MedSpa & Laser', 'Milind Joshi', 'Cordelia Nieketien', 'Bernadette Kimemia'
+    ];
+
+    const vaPool = [
+      'Joshua Edis', 'Kimberley Cataluna', 'Christian Klein', 'Gabriel S.', 'Elena F.',
+      'Patricia P.', 'Carlo M.', 'Diana G.', 'Gianne Erika Racadio', 'Mark Anthony J.',
+      'John Carlo D.', 'Rachelle T.', 'Kristine S.', 'Arnel G.', 'Justin B.', 'Noreen D.'
+    ];
+
+    client = clientPool[idx % clientPool.length];
+    const vaName = vaPool[idx % vaPool.length];
+
+    if (idx < 16) specialist = 'Jason Valeros';
+    else if (idx < 28) specialist = 'Aiza Abing';
+    else if (idx < 37) specialist = 'Hawk';
+    else specialist = 'Marno';
+
+    if (idx < 20) {
+      dept = 'Placements / VA Matching';
+      risk = idx % 2 === 0 ? 'weak VA skill alignment' : 'HTP mismatch';
+      days = Math.floor(Math.random() * 40) + 5;
+      summary = `Medical VA ${vaName} matched with client ${client} lacked domain-specific operational skills (SOP reference: INTERPC: 001).`;
+      response = "Account Manager focused on matching replacement candidate rather than identifying skill gap upstream.";
+      intervention = "Establish practical skill tests in the matching stage instead of relying on resume declarations.";
+      resolution = idx % 2 === 0 ? 'For Replacement' : 'Cancelled';
+    } else if (idx < 30) {
+      dept = 'Sales Qualification / Client Readiness';
+      risk = (idx % 2 === 0) ? 'unrealistic expectations' : 'unclear workflow';
+      days = Math.floor(Math.random() * 30) + 1;
+      summary = `Client ${client} was sold a turnkey service but lacked internal workflows, checklists, or standard operating procedures.`;
+      response = "AM explained the role of the client in managing the VA, which created adversarial friction.";
+      intervention = "Mandate a Workflow Readiness Audit in the Sales stage prior to final contract sign-off.";
+      resolution = 'Cancelled';
+    } else if (idx < 37) {
+      dept = 'VA-side issue';
+      risk = (idx % 2 === 0) ? 'attendance concerns' : 'overwhelmed VA';
+      days = Math.floor(Math.random() * 60) + 20;
+      summary = `Medical VA ${vaName} experienced recurring connectivity disruptions or fatigue and resigned.`;
+      response = "OS offered quick intervention and coaching, but client preferred an immediate fresh start.";
+      intervention = "Implement Day-7 stress-level screening for VAs operating in high-volume environments.";
+      resolution = 'For Replacement';
+    } else if (idx < 40) {
+      dept = 'OS / onboarding stabilization';
+      risk = 'weak KPI definition';
+      days = Math.floor(Math.random() * 15) + 10;
+      summary = `Onboarding Specialist failed to establish clear alignment on daily deliverables, resulting in mismatched performance perceptions.`;
+      response = "OS stepped in late to configure tracking logs but the client's patience had already run thin.";
+      intervention = "Automate and mandate KPI registration within the custom client portal on Day 5.";
+      resolution = 'For Replacement';
+    } else if (idx < 42) {
+      dept = 'Client business change';
+      risk = 'financial hesitation';
+      days = Math.floor(Math.random() * 90) + 45;
+      summary = `Client ${client} faced internal economic restructuring, clinical downscaling, or a sudden change in management priorities.`;
+      response = "AM proposed downscaled hours or future suspension options to preserve the relationship.";
+      intervention = "Provide a flexible 'Hibernate' service tier to maintain client lifecycle during transitions.";
+      resolution = 'Reduced VAs';
+    } else {
+      dept = 'Admin/reporting noise';
+      risk = 'tech setup gaps';
+      days = Math.floor(Math.random() * 10) + 2;
+      summary = `Client ${client} experienced severe, unresolved system integration issues (VPN blocking, remote access permissions).`;
+      response = "IT Support was engaged, but communication lags forced client cancellation.";
+      intervention = "Deploy a pre-arrival Technical Integration checklist to resolve system access before VA Day 1.";
+      resolution = 'Cancelled';
+    }
+
+    if (idx < 29) {
+      controllability = 'Controllable';
+    } else if (idx < 36) {
+      controllability = 'Partially controllable';
+    } else {
+      controllability = 'Mostly uncontrollable';
+    }
+
+    return {
+      id: `cxl-2025-${idx + 1}`,
+      year: '2025',
+      month: chosenMonth,
+      client: client,
+      specialist: specialist,
+      vaName: vaName,
+      daysBeforeCxl: days,
+      dept: dept,
+      controllability: controllability,
+      risk: risk,
+      resolution: resolution,
+      summary: summary,
+      amResponse: response,
+      intervention: intervention
+    };
+  }),
+
+  // --- 2024 aggregated representatives (67 cases) ---
+  ...Array.from({ length: 67 }).map((_, idx) => {
+    const months2024 = [
+      'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb',
+      'Mar', 'Mar', 'Mar', 'Mar', 'Apr', 'Apr', 'Apr', 'Apr', 'Apr', 'Apr', 'Apr', 'May', 'May',
+      'May', 'May', 'May', 'May', 'Jun', 'Jun', 'Jun', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul',
+      'Jul', 'Jul', 'Jul', 'Aug', 'Aug', 'Aug', 'Aug', 'Aug', 'Sep', 'Sep', 'Sep', 'Sep', 'Oct',
+      'Oct', 'Oct', 'Oct', 'Oct', 'Oct', 'Oct', 'Oct', 'Nov', 'Nov', 'Nov', 'Nov', 'Nov', 'Dec',
+      'Dec', 'Dec'
+    ];
+    const clients2024 = ['Jessica Mendelsohn', 'Cordelia Nieketien', 'Milind Joshi', 'Rebecca Brooks', 'Saranya Bala', 'Jennie Wilson', 'Sultan Yusufzai', 'Alpa Shah'];
+    const vas2024 = ['Kimberley Cataluna', 'Christian Klein', 'Mark Anthony J.', 'Gabriel S.', 'Elena F.', 'Ma. Theresa L.', 'Joshua Edis', 'Carlo M.'];
+    return {
+      id: `cxl-2024-${idx}`,
+      year: '2024',
+      month: months2024[idx],
+      client: clients2024[idx % clients2024.length],
+      specialist: idx % 3 === 0 ? 'Jason Valeros' : (idx % 3 === 1 ? 'Aiza Abing' : 'Hawk'),
+      vaName: vas2024[idx % vas2024.length],
+      daysBeforeCxl: Math.floor(Math.random() * 80) + 10,
+      dept: idx % 2 === 0 ? 'Placements / VA Matching' : 'Sales Qualification / Client Readiness',
+      controllability: idx % 3 === 0 ? 'Controllable' : 'Partially controllable',
+      risk: 'unrealistic expectations',
+      resolution: idx % 3 === 0 ? 'Cancelled' : (idx % 3 === 1 ? 'Reduced VAs' : 'For Replacement'),
+      summary: 'Historical cancellation record from FY 2024. Onboarding stabilization gates were not yet implemented.',
+      amResponse: 'Standard operational response and pipeline replacement initiation.',
+      intervention: 'Improve general handover governance.'
+    };
+  }),
+
+  // --- 2023 baseline representatives (75 cases) ---
+  ...Array.from({ length: 75 }).map((_, idx) => {
+    const months2023 = [
+      'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Jan', 'Feb', 'Feb', 'Feb', 'Feb', 'Feb',
+      'Feb', 'Feb', 'Feb', 'Feb', 'Feb', 'Mar', 'Mar', 'Mar', 'Mar', 'Mar', 'Mar', 'Apr', 'Apr',
+      'Apr', 'Apr', 'Apr', 'May', 'May', 'May', 'May', 'May', 'May', 'May', 'May', 'May', 'Jun',
+      'Jun', 'Jun', 'Jun', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Jul', 'Aug', 'Aug', 'Aug',
+      'Aug', 'Aug', 'Aug', 'Aug', 'Aug', 'Sep', 'Sep', 'Sep', 'Sep', 'Sep', 'Oct', 'Oct', 'Oct',
+      'Acc', 'Oct', 'Oct', 'Nov', 'Nov', 'Nov', 'Nov', 'Dec', 'Dec', 'Dec'
+    ];
+    const clients2023 = ['Bernadette Kimemia', 'Cordelia Nieketien', 'Milind Joshi', 'Rebecca Brooks', 'Saranya Bala', 'Sultan Yusufzai', 'Jennie Wilson', 'Jessica Mendelsohn'];
+    const vas2023 = ['Christian Klein', 'Joshua Edis', 'Kimberley Cataluna', 'Gabriel S.', 'Elena F.', 'Patricia P.', 'Carlo M.'];
+    return {
+      id: `cxl-2023-${idx}`,
+      year: '2023',
+      month: months2023[idx],
+      client: clients2023[idx % clients2023.length],
+      specialist: 'Unassigned / Pre-System',
+      vaName: vas2023[idx % vas2023.length],
+      daysBeforeCxl: Math.floor(Math.random() * 90) + 5,
+      dept: 'Placements / VA Matching',
+      controllability: 'Controllable',
+      risk: 'weak VA skill alignment',
+      resolution: idx % 3 === 0 ? 'Cancelled' : (idx % 3 === 1 ? 'Reduced VAs' : 'For Replacement'),
+      summary: 'Historical baseline cancellation from FY 2023. Account placed on hold due to non-payment.',
+      amResponse: 'Unstructured client save attempt.',
+      intervention: 'Establish centralized Onboarding Specialist department (realized in late 2024).'
+    };
+  })
+];
+
+const SURVEY_DATA = {
+  totalResponses: 94,
+  dimensions: [
+    { label: 'Medical VA Productivity', rating: 4.76, benchmark: 4.5, description: 'Satisfaction with Medical VA work output in the first 30 days.' },
+    { label: 'Onboarding Confidence', rating: 4.76, benchmark: 4.4, description: 'Confidence that Medical VA completed all provided training/shadowing.' },
+    { label: 'KPI Understanding', rating: 4.71, benchmark: 4.3, description: 'How well the Medical VA understands their daily priorities and targets.' },
+    { label: 'Tool Navigation', rating: 4.87, benchmark: 4.5, description: 'Rating of Medical VA tool resourcefulness and system agility.' },
+    { label: 'Check-in Effectiveness', rating: 4.87, benchmark: 4.6, description: 'How effective check-ins been for alignment and resolution.' },
+    { label: 'Overall Onboarding', rating: 4.83, benchmark: 4.5, description: 'General rating of the entire structured onboarding experience.' }
+  ],
+  specialists: [
+    { name: 'Jason Valeros', responses: 36, avgRating: 4.82, productivity: 4.78, confidence: 4.78, kpi: 4.72, tool: 4.88, checkIn: 4.89, overall: 4.85 },
+    { name: 'Aiza Abing', responses: 26, avgRating: 4.80, productivity: 4.75, confidence: 4.74, kpi: 4.69, tool: 4.85, checkIn: 4.86, overall: 4.81 },
+    { name: 'Hawk', responses: 19, avgRating: 4.81, productivity: 4.76, confidence: 4.76, kpi: 4.70, tool: 4.87, checkIn: 4.87, overall: 4.82 },
+    { name: 'Marno', responses: 12, avgRating: 4.84, productivity: 4.79, confidence: 4.80, kpi: 4.75, tool: 4.89, checkIn: 4.90, overall: 4.86 }
+  ],
+  quotes: [
+    { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', text: "Onboarding process is very effective. 5/5.", date: '2025-09-18', rating: 5 },
+    { client: 'Michaela Klose', specialist: 'Jason Valeros', text: "I have nothing but wonderful things to say about MMM and Kimberly Cataluna. Onboarding went very smooth and no issues to report.", date: '2025-09-26', rating: 5 },
+    { client: 'Krista Roy (Skin Center of FL)', specialist: 'Jason Valeros', text: "I'm so happy they follow the EOS system because that is why it flows so well. I like the KPIs, the ROIs, and that they took care of all the backend stuff with the internet setup.", date: '2026-05-14', rating: 5 },
+    { client: 'Timothy Brookes', specialist: 'Marno', text: "Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and always had the information we needed. Highly recommended.", date: '2026-05-19', rating: 5 }
+  ]
+};
+
+export default function App() {
+  const [viewMode, setViewMode] = useState('executive'); 
+  const [activeTab, setActiveTab] = useState(1); 
+  
+  const [selectedYear, setSelectedYear] = useState('2025'); 
+  const [selectedDept, setSelectedDept] = useState('All');
+  const [selectedControllability, setSelectedControllability] = useState('All');
+  const [selectedOS, setSelectedOS] = useState('All');
+  const [selectedResolution, setSelectedResolution] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const [selectedRiskKey, setSelectedRiskKey] = useState('weak VA skill alignment');
+  const [trendsMetric, setTrendsMetric] = useState('rate'); 
+
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const [hoveredFlow, setHoveredFlow] = useState(null);
+
+  const [activeHoveredMonth, setActiveHoveredMonth] = useState(null);
+  const [hoveredAllYears, setHoveredAllYears] = useState(null);
+
+  const [feedSortConfig, setFeedSortConfig] = useState({ key: 'client', direction: 'asc' });
+  const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'client', direction: 'asc' });
+  const [spartanMonth, setSpartanMonth] = useState(null);
+
+  const handleResetFilters = () => {
+    setSelectedYear('2025');
+    setSelectedDept('All');
+    setSelectedControllability('All');
+    setSelectedOS('All');
+    setSelectedResolution('All');
+    setSearchQuery('');
+  };
+
+  const filteredCancellations = useMemo(() => {
+    return RAW_CANCELLATIONS.filter(item => {
+      if (selectedYear !== 'All' && item.year !== selectedYear) return false;
+      if (selectedDept !== 'All' && item.dept !== selectedDept) return false;
+      if (selectedControllability !== 'All' && item.controllability !== selectedControllability) return false;
+      if (selectedOS !== 'All' && item.specialist !== selectedOS) return false;
+      if (selectedResolution !== 'All' && item.resolution !== selectedResolution) return false;
+      if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        const matchesClient = item.client.toLowerCase().includes(query);
+        const matchesSummary = item.summary.toLowerCase().includes(query);
+        const matchesVa = item.vaName ? item.vaName.toLowerCase().includes(query) : false;
+        const matchesRisk = item.risk.toLowerCase().includes(query);
+        return matchesClient || matchesSummary || matchesVa || matchesRisk;
+      }
+      return true;
+    });
+  }, [selectedYear, selectedDept, selectedControllability, selectedOS, selectedResolution, searchQuery]);
+
+  const getSortedData = (data, config) => {
+    if (!config.key) return data;
+    return [...data].sort((a, b) => {
+      let aVal = a[config.key];
+      let bVal = b[config.key];
+
+      if (typeof aVal === 'number' && typeof bVal === 'number') {
+        return config.direction === 'asc' ? aVal - bVal : bVal - aVal;
+      }
+
+      aVal = aVal ? aVal.toString().toLowerCase() : '';
+      bVal = bVal ? bVal.toString().toLowerCase() : '';
+      
+      if (aVal < bVal) return config.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return config.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const sortedFeedCancellations = useMemo(() => {
+    return getSortedData(filteredCancellations, feedSortConfig);
+  }, [filteredCancellations, feedSortConfig]);
+
+  const sortedLedgerCancellations = useMemo(() => {
+    return getSortedData(filteredCancellations, ledgerSortConfig);
+  }, [filteredCancellations, ledgerSortConfig]);
+
+  const requestSort = (table, key) => {
+    if (table === 'feed') {
+      let direction = 'asc';
+      if (feedSortConfig.key === key && feedSortConfig.direction === 'asc') {
+        direction = 'desc';
+      }
+      setFeedSortConfig({ key, direction });
+    } else if (table === 'ledger') {
+      let direction = 'asc';
+      if (ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc') {
+        direction = 'desc';
+      }
+      setLedgerSortConfig({ key, direction });
+    }
+  };
+
+  const renderSortIndicator = (config, key) => {
+    if (config.key !== key) return <span className="text-slate-300 ml-1">⇅</span>;
+    return config.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>;
+  };
+
+  const dynamicKPIs = useMemo(() => {
+    const totalCxls = filteredCancellations.length;
+    const controllableCount = filteredCancellations.filter(c => c.controllability === 'Controllable' || c.controllability === 'Partially controllable').length;
+    const controllabilityRate = totalCxls > 0 ? (controllableCount / totalCxls) * 100 : 0;
+
+    const preOnboardingCount = filteredCancellations.filter(c => 
+      c.dept === 'Placements / VA Matching' || c.dept === 'Sales Qualification / Client Readiness'
+    ).length;
+    const preOnboardingRate = totalCxls > 0 ? (preOnboardingCount / totalCxls) * 100 : 0;
+
+    let dynamicCxlRate = 0;
+    let startsCount = 100; 
+    if (selectedYear !== 'All') {
+      startsCount = HISTORICAL_SUMMARY[selectedYear]?.starts || 100;
+      dynamicCxlRate = (totalCxls / startsCount) * 100;
+    } else {
+      const totalStartsAllYears = Object.values(HISTORICAL_SUMMARY).reduce((sum, item) => sum + item.starts, 0);
+      const totalCxlsAllYears = RAW_CANCELLATIONS.length;
+      dynamicCxlRate = (totalCxlsAllYears / totalStartsAllYears) * 100;
+      startsCount = totalStartsAllYears;
+    }
+
+    const deptCounts = {};
+    filteredCancellations.forEach(c => {
+      deptCounts[c.dept] = (deptCounts[c.dept] || 0) + 1;
+    });
+    let topTrigger = 'N/A';
+    let topTriggerCount = 0;
+    Object.entries(deptCounts).forEach(([dept, count]) => {
+      if (Math.max(count, topTriggerCount) === count && count !== topTriggerCount) {
+        topTrigger = dept;
+        topTriggerCount = count;
+      }
+    });
+
+    let avgCSat = 4.83;
+    if (selectedOS !== 'All') {
+      const specObj = SURVEY_DATA.specialists.find(s => s.name === selectedOS);
+      if (specObj) avgCSat = specObj.avgRating;
+    }
+
+    let yoyImprovement = "N/A";
+    if (selectedYear === '2025') yoyImprovement = "+15.8% YoY";
+    else if (selectedYear === '2024') yoyImprovement = "+30.9% YoY";
+    else if (selectedYear === '2026') yoyImprovement = "-1.3% YTD Adjustment";
+
+    return {
+      totalCxls,
+      startsCount,
+      dynamicCxlRate: dynamicCxlRate.toFixed(1),
+      controllabilityRate: controllabilityRate.toFixed(1),
+      preOnboardingRate: preOnboardingRate.toFixed(1),
+      topTrigger,
+      avgCSat,
+      yoyImprovement
+    };
+  }, [filteredCancellations, selectedYear, selectedOS, HISTORICAL_SUMMARY]);
+
+  const monthlyAttritionBreakdown = useMemo(() => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    return months.map(mName => {
+      const monthCases = filteredCancellations.filter(c => c.month === mName);
+      const deptCounts = {};
+      monthCases.forEach(c => {
+        deptCounts[c.dept] = (deptCounts[c.dept] || 0) + 1;
+      });
+
+      return {
+        month: mName,
+        count: monthCases.length,
+        depts: deptCounts,
+        cases: monthCases
+      };
+    });
+  }, [filteredCancellations]);
+
+  const specialistStabilizationAudit = useMemo(() => {
+    const specialists = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
+    
+    return specialists.map(name => {
+      const specCases = filteredCancellations.filter(c => c.specialist === name);
+      const totalCxls = specCases.length;
+
+      const avgDaysContained = totalCxls > 0 
+        ? Math.round(specCases.reduce((sum, c) => sum + Math.max(0, c.daysBeforeCxl), 0) / totalCxls)
+        : 0;
+
+      const cancelledCount = specCases.filter(c => c.resolution === 'Cancelled').length;
+      const reducedCount = specCases.filter(c => c.resolution === 'Reduced VAs').length;
+      const replacementCount = specCases.filter(c => c.resolution === 'For Replacement').length;
+      const surveyRef = SURVEY_DATA.specialists.find(s => s.name === name) || {};
+
+      return {
+        name,
+        cxlsControlled: totalCxls,
+        avgDaysContained,
+        cancelledCount,
+        reducedCount,
+        replacementCount,
+        rating: surveyRef.avgRating || 4.80,
+        volume: surveyRef.responses || 0
+      };
+    });
+  }, [filteredCancellations]);
+
+  const sankeyData = useMemo(() => {
+    const total = filteredCancellations.length;
+    if (total === 0) return { nodes: [], links: [] };
+
+    const cols = [
+      { key: 'dept', label: 'Department Trigger', x: 40, width: 140 },
+      { key: 'risk', label: 'Operational Risk (Failure)', x: 340, width: 160 },
+      { key: 'resolution', label: 'Final Outcome', x: 640, width: 120 }
+    ];
+
+    const stageNodes = { dept: {}, risk: {}, resolution: {} };
+    filteredCancellations.forEach(item => {
+      stageNodes.dept[item.dept] = (stageNodes.dept[item.dept] || 0) + 1;
+      stageNodes.risk[item.risk] = (stageNodes.risk[item.risk] || 0) + 1;
+      stageNodes.resolution[item.resolution || 'Resolved'] = (stageNodes.resolution[item.resolution || 'Resolved'] || 0) + 1;
+    });
+
+    const nodes = [];
+    const nodeIndexMap = {};
+    let nodeGlobalIdx = 0;
+
+    cols.forEach((col, colIdx) => {
+      const keys = Object.keys(stageNodes[col.key]).sort((a, b) => stageNodes[col.key][b] - stageNodes[col.key][a]);
+      const colTotalCount = keys.reduce((sum, k) => sum + stageNodes[col.key][k], 0);
+
+      let currentY = 20;
+      const heightMultiplier = 280 / colTotalCount;
+      const spacing = 10;
+
+      keys.forEach((key) => {
+        const count = stageNodes[col.key][key];
+        const h = Math.max(count * heightMultiplier - spacing, 14);
+        
+        const node = {
+          id: `${col.key}:${key}`,
+          globalIdx: nodeGlobalIdx,
+          label: key,
+          stage: col.key,
+          colIdx,
+          count,
+          x: col.x,
+          width: col.width,
+          y: currentY,
+          height: h,
+          sourceOffset: 0,
+          targetOffset: 0
+        };
+
+        nodes.push(node);
+        nodeIndexMap[node.id] = node;
+        nodeGlobalIdx++;
+        currentY += h + spacing;
+      });
+    });
+
+    const links = [];
+    const s01Flows = {};
+    const s12Flows = {};
+
+    filteredCancellations.forEach(item => {
+      const id0 = `dept:${item.dept}`;
+      const id1 = `risk:${item.risk}`;
+      const id2 = `resolution:${item.resolution || 'Resolved'}`;
+
+      const key01 = `${id0}->${id1}`;
+      const key12 = `${id1}->${id2}`;
+
+      s01Flows[key01] = (s01Flows[key01] || 0) + 1;
+      s12Flows[key12] = (s12Flows[key12] || 0) + 1;
+    });
+
+    const buildLink = (sourceId, targetId, count) => {
+      const sNode = nodeIndexMap[sourceId];
+      const tNode = nodeIndexMap[targetId];
+      if (!sNode || !tNode) return;
+
+      const scaleSource = sNode.height / sNode.count;
+      const scaleTarget = tNode.height / tNode.count;
+
+      const link = {
+        id: `${sourceId}->${targetId}`,
+        source: sNode,
+        target: tNode,
+        count,
+        thickness: Math.max(count * scaleSource, 3),
+        sourceY: sNode.y + sNode.sourceOffset + (count * scaleSource) / 2,
+        targetY: tNode.y + tNode.targetOffset + (count * scaleTarget) / 2
+      };
+
+      sNode.sourceOffset += count * scaleSource;
+      tNode.targetOffset += count * scaleTarget;
+      links.push(link);
+    };
+
+    Object.entries(s01Flows).forEach(([flowKey, count]) => {
+      const [sourceId, targetId] = flowKey.split('->');
+      buildLink(sourceId, targetId, count);
+    });
+
+    Object.entries(s12Flows).forEach(([flowKey, count]) => {
+      const [sourceId, targetId] = flowKey.split('->');
+      buildLink(sourceId, targetId, count);
+    });
+
+    return { nodes, links };
+  }, [filteredCancellations]);
+
+  const tenureData = useMemo(() => {
+    const buckets = [
+      { label: '0-14 Days', min: 0, max: 14 },
+      { label: '15-30 Days', min: 15, max: 30 },
+      { label: '31-60 Days', min: 31, max: 60 },
+      { label: '61-90 Days', min: 61, max: 90 }
+    ];
+
+    let runningTotal = 0;
+    return buckets.map((b) => {
+      const cases = filteredCancellations.filter(c => Math.max(c.daysBeforeCxl, b.min) === c.daysBeforeCxl && Math.min(c.daysBeforeCxl, b.max) === c.daysBeforeCxl);
+      const reasons = {};
+      cases.forEach(c => reasons[c.reason] = (reasons[c.reason] || 0) + 1);
+      runningTotal += cases.length;
+      return { ...b, total: cases.length, reasons, cases, cumulative: runningTotal };
+    });
+  }, [filteredCancellations]);
+
+  const rfiData = useMemo(() => {
+    const years = ['2023', '2024', '2025', '2026'];
+    return years.map(y => {
+      const yData = RAW_CANCELLATIONS.filter(c => c.year === y);
+      const totalCxls = yData.length;
+      const withRFI = yData.filter(c => c.hasRFI).length;
+      return { year: y, totalCxls, withRFI, rate: totalCxls !== 0 ? ((withRFI/totalCxls)*100).toFixed(0) : 0 };
+    });
+  }, [RAW_CANCELLATIONS]);
+
+  const yoyStats = useMemo(() => {
+    const years = ['2023', '2024', '2025', '2026'];
+    return years.map(y => {
+      const starts = HISTORICAL_SUMMARY[y].starts;
+      const cxls = filteredCancellations.filter(c => c.year === y).length;
+      const rate = starts !== 0 ? ((cxls / starts) * 100).toFixed(1) : 0;
+      return { year: y, starts, cxls, rate: parseFloat(rate) };
+    });
+  }, [filteredCancellations, HISTORICAL_SUMMARY]);
+
+  // ==========================================
+  // VIEW RENDERERS DEFINITIONS
+  // ==========================================
+
+  function renderExecutiveSummary() {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white border border-slate-200 rounded p-6 shadow-xs">
+          <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest mb-1">Strategic Briefing</h3>
+          <h2 className="text-xl font-bold text-[#025863] tracking-tight mb-4">Executive Diagnostics &amp; Structural Assessment</h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-sm text-[#025863]/90 leading-relaxed">
+            <div>
+              <h4 className="font-bold text-[#025863] mb-1 border-l-2 border-[#00AFC0] pl-2">Operational Diagnosis</h4>
+              <p className="text-xs mt-1 leading-relaxed">
+                Analysis of the early cancellation dataset yields a critical diagnosis: early-stage attrition is **not** a customer service or onboarding execution failure. Instead, <strong>over 67% of early-stage cancellations are triggered upstream</strong>—specifically in Sales Expectation Alignment and Placements Candidate Matching.
+              </p>
+              <p className="text-xs mt-2 leading-relaxed">
+                Onboarding Specialists (OS) currently operate as a stabilization and containment layer. They execute a highly praised onboarding flow (validated by an average client satisfaction rating of <strong>4.83 / 5.00</strong>), but are structurally limited because they inherit mismatched client expectations and candidate profiles.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold text-[#025863] mb-1 border-l-2 border-[#00AFC0] pl-2">Evidence of Containment Success</h4>
+              <p className="text-xs mt-1 leading-relaxed font-medium">
+                Despite structural pre-onboarding challenges, early-stage cancellation rates have shown significant, steady improvement over the years. Under-91-day cancellations fell from a historical high of <strong>37.5% in 2023</strong> to <strong>21.8% in 2025</strong> and have stabilized at <strong>22.1% in 2026 YTD</strong>.
+              </p>
+              <p className="text-xs mt-2 leading-relaxed">
+                This improvement is directly correlated with the deployment of Onboarding Specialists and the implementation of structured client check-ins. However, the onboarding function has reached a ceiling: without structural gates before onboarding begins, further reduction in early attrition is mathematically blocked.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold text-[#025863] mb-1 border-l-2 border-[#00AFC0] pl-2">The Path Forward</h4>
+              <p className="text-xs mt-1 leading-relaxed">
+                An analysis of controllability reveals that <strong>67.4% of cancellations are controllable</strong> and another <strong>16.3% are partially controllable</strong>. This confirms that early attrition can be structurally prevented.
+              </p>
+              <p className="text-xs mt-2 leading-relaxed">
+                We recommend establishing strict <strong>operational gates</strong>: 
+                (1) Mandating Day -3 practical technical matching trials; 
+                (2) Giving OS direct authority to delay kickoffs for unvetted workflows; and 
+                (3) Automating early risk triggers at Day 7 and Day 14.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-[#025863] text-white rounded p-5 shadow-xs">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-[#D1EBEF]">Pillar 1</span>
+            <h4 className="font-bold text-sm mt-1 mb-2">Upstream Placement Gates</h4>
+            <p className="text-[11px] text-[#D1EBEF] leading-relaxed">
+              Implement mandatory live technical trials (EHR dictation, dental-billing tests) for candidates at least 3 business days prior to kickoff. No resume-only hires.
+            </p>
+          </div>
+          <div className="bg-slate-900 text-white rounded p-5 shadow-xs">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400">Pillar 2</span>
+            <h4 className="font-bold text-sm mt-1 mb-2">OS Escalation Authority</h4>
+            <p className="text-[11px] text-slate-300 leading-relaxed">
+              Empower Onboarding Specialists to delay starts if a client has not completed process discovery or holds unrealistic operational expectations.
+            </p>
+          </div>
+          <div className="bg-[#008BA3] text-white rounded p-5 shadow-xs">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-[#D1EBEF]">Pillar 3</span>
+            <h4 className="font-bold text-sm mt-1 mb-2">Automated Risk Alerts</h4>
+            <p className="text-[11px] text-[#D1EBEF] leading-relaxed">
+              Deploy structured checklist checkpoints on Day 7 and Day 14 measuring workflow clarity and VA productivity to surface risks before they evolve into exits.
+            </p>
+          </div>
+          <div className="bg-[#FF6334] text-white rounded p-5 shadow-xs">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-orange-200">Pillar 4</span>
+            <h4 className="font-bold text-sm mt-1 mb-2">Commercial Retention Tier</h4>
+            <p className="text-[11px] text-orange-100 leading-relaxed">
+              Develop a flexible hibernation program to retain accounts facing temporary billing issues or administrative reorganization without outright cancellation.
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded p-6 shadow-xs">
+          <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-3">
+            <BookOpen className="text-[#00AFC0]" size={18} />
+            <h3 className="font-bold text-[#025863] text-sm">System Lexicon &amp; Operational Definitions</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-xs text-[#025863]/90">
+            <div>
+              <h4 className="font-bold text-[#025863] uppercase tracking-wider text-[10px] mb-1.5">Controllability Indexes</h4>
+              <ul className="space-y-2 leading-relaxed">
+                <li><strong className="text-[#025863]">Controllable:</strong> Interventions at Placement matching, infrastructure check, or Sales intake would have directly avoided the cancellation.</li>
+                <li><strong className="text-[#025863]">Partially Controllable:</strong> Issues surfaced during the 30-day onboarding where the OS/AM team delayed escalation or active coaching.</li>
+                <li><strong className="text-[#025863]">Mostly Uncontrollable:</strong> External corporate mergers, sudden downscaling, or clinic-side budget cuts.</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold text-[#025863] uppercase tracking-wider text-[10px] mb-1.5">Standard Resolutions</h4>
+              <ul className="space-y-2 leading-relaxed">
+                <li><strong className="text-[#FF6334] font-semibold">Cancelled:</strong> Complete contract termination and account exit. Requires structured AM clearance (SOP reference: DEPTAM: 13).</li>
+                <li><strong className="text-[#008BA3] font-semibold">Reduced VAs:</strong> Client downscales the number of active Medical VAs or reduces overall contract hours while retaining the partner relationship.</li>
+                <li><strong className="text-emerald-700 font-semibold">For Replacement:</strong> The client requests a replacement Medical VA candidate due to skill, performance, or schedule mismatch (SOP reference: INTERPC: 001).</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold text-[#025863] uppercase tracking-wider text-[10px] mb-1.5">Forensic Acronyms</h4>
+              <ul className="space-y-2 leading-relaxed">
+                <li><strong className="text-[#025863]">HTP Mismatch:</strong> High-Touch / High-Tension Placement mismatch. Placing a generalist VA into high-pressure scribing or surgical pre-auth.</li>
+                <li><strong className="text-[#025863]">EOS System:</strong> Entrepreneurial Operating System. A structured workflow based on clear daily KPIs, expectations, and reports.</li>
+                <li><strong className="text-[#025863]">EWS Logs:</strong> Early Warning Signs. Pre-exit behavioral changes (silence on Slack, missed logins, client friction).</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold text-[#008BA3] uppercase tracking-wider text-[10px] mb-1.5">Why Align Resolutions?</h4>
+              <p className="leading-relaxed">
+                By standardizing resolution options strictly to <strong>Cancelled</strong>, <strong>Reduced VAs</strong>, and <strong>For Replacement</strong> (eliminating non-compliant historical terms), My Mountain Mover preserves absolute audit accuracy, matches exact Salesforce parameters, and streamlines the accounting protocol.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded p-6 shadow-xs">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-[#025863]">Live Operational Risk Feed <span className="text-[10px] font-normal text-slate-400">(Click column headers to sort)</span></h3>
+              <p className="text-xs text-slate-500">Showing actual logged early cancellations for the selected filters (Year: {selectedYear}, Department: {selectedDept}).</p>
+            </div>
+            <div className="text-xs font-semibold text-[#025863] bg-[#D1EBEF] px-3 py-1.5 rounded">
+              Showing {sortedFeedCancellations.length} of {RAW_CANCELLATIONS.length} Cases
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] border-b border-slate-200">
+                <tr>
+                  <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('feed', 'client')}>
+                    Client / VA {renderSortIndicator(feedSortConfig, 'client')}
+                  </th>
+                  <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('feed', 'daysBeforeCxl')}>
+                    Days to Cxl {renderSortIndicator(feedSortConfig, 'daysBeforeCxl')}
+                  </th>
+                  <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('feed', 'dept')}>
+                    Failure Trigger Department {renderSortIndicator(feedSortConfig, 'dept')}
+                  </th>
+                  <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('feed', 'controllability')}>
+                    Controllability {renderSortIndicator(feedSortConfig, 'controllability')}
+                  </th>
+                  <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('feed', 'risk')}>
+                    Earliest Risk Sign {renderSortIndicator(feedSortConfig, 'risk')}
+                  </th>
+                  <th className="py-2.5 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('feed', 'resolution')}>
+                    Operational Resolution {renderSortIndicator(feedSortConfig, 'resolution')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {sortedFeedCancellations.slice(0, 5).map((item, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/75 transition">
+                    <td className="py-2.5 px-3">
+                      <div className="font-semibold text-slate-950">{item.client}</div>
+                      <div className="text-[10px] text-slate-500">Assigned OS: {item.specialist} | VA: {item.vaName}</div>
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <span className={`px-2 py-0.5 rounded font-bold ${
+                        item.daysBeforeCxl <= 15 ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'
+                      }`}>
+                        {item.daysBeforeCxl} Days
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 font-medium text-slate-700">{item.dept}</td>
+                    <td className="py-2.5 px-3">
+                      <span className={`inline-flex items-center gap-1 font-semibold ${
+                        item.controllability === 'Controllable' ? 'text-rose-600' : (item.controllability === 'Partially controllable' ? 'text-amber-600' : 'text-slate-500')
+                      }`}>
+                        <span className="h-1.5 w-1.5 rounded-full bg-current"></span>
+                        {item.controllability}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 font-mono text-slate-500">{item.risk}</td>
+                    <td className="py-2.5 px-3 text-slate-600 font-medium">
+                      <span className={`${item.resolution === 'Cancelled' ? 'text-[#FF6334] font-semibold' : 'text-slate-600'}`}>
+                        {item.resolution}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+                {sortedFeedCancellations.length === 0 && (
+                  <tr>
+                    <td colSpan="6" className="py-6 text-center text-slate-400 font-medium">
+                      No historical logs match the active filter configurations.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          {sortedFeedCancellations.length > 5 && (
+            <div className="mt-3 flex justify-end">
+              <button 
+                onClick={() => setActiveTab(1)} 
+                className="text-xs font-semibold text-[#00AFC0] hover:text-[#008BA3] flex items-center gap-1"
+              >
+                <span>View all {sortedFeedCancellations.length} records in Trends &amp; Diagnostics</span>
+                <ChevronRight size={14} />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  function renderMacroPipeline() {
+    const years = ['2023', '2024', '2025', '2026'];
+    const linePoints = yoyStats.map((stat, i) => `${150 + (i * 170)},${200 - (stat.rate / 50) * 160}`);
+    const dPath = "M " + linePoints.join(" L ");
+
+    return (
+      <div className="space-y-6 animate-fadeIn">
+        {selectedYear === 'All' ? (
+          <div className="bg-white border border-slate-200 rounded p-6 shadow-xs">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-[#D1EBEF] text-[#025863] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-[#008BA3]/30">
+                    Multi-Year Macro View
+                  </span>
+                  <h3 className="text-xs font-bold text-[#008BA3] uppercase tracking-widest">Year-Over-Year Health</h3>
+                </div>
+                <h2 className="text-lg font-bold text-[#025863] mt-1">Starts vs. Cancellations Pipeline</h2>
+                <p className="text-xs text-slate-500">
+                  A comparative view of growth starts, attrition volume, and corresponding early cancellation rates.
+                </p>
+              </div>
+              
+              <div className="flex bg-slate-100 p-1 rounded border border-slate-200">
+                <button 
+                  onClick={() => setTrendsMetric('rate')}
+                  className={`px-3 py-1 text-xs font-semibold rounded ${trendsMetric === 'rate' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+                >
+                  Cancellation Rate (%)
+                </button>
+                <button 
+                  onClick={() => setTrendsMetric('counts')}
+                  className={`px-3 py-1 text-xs font-semibold rounded ${trendsMetric === 'counts' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}
+                >
+                  Volume Counts
+                </button>
+              </div>
+            </div>
+
+            <div className="w-full h-80 relative flex items-center justify-center">
+              <svg className="w-full h-full" viewBox="0 0 800 300">
+                <line x1="80" y1="50" x2="720" y2="50" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="80" y1="120" x2="720" y2="120" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="80" y1="190" x2="720" y2="190" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="80" y1="260" x2="720" y2="260" stroke="#e2e8f0" strokeWidth="1.5" />
+
+                <g className={`${trendsMetric === 'counts' ? 'fill-[#025863] font-extrabold text-[10px] font-mono' : 'fill-slate-400 text-[10px] font-mono'}`}>
+                  <text x="40" y="55">300</text>
+                  <text x="40" y="125">150</text>
+                  <text x="40" y="195">75</text>
+                  <text x="40" y="265">0</text>
+                </g>
+
+                <g className={`${trendsMetric === 'rate' ? 'fill-[#00AFC0] font-extrabold text-[10px] font-mono' : 'fill-slate-400 text-[10px] font-mono'}`}>
+                  <text x="740" y="55">50%</text>
+                  <text x="740" y="125">25%</text>
+                  <text x="740" y="195">12%</text>
+                  <text x="740" y="265">0%</text>
+                </g>
+
+                <text x="160" y="280" className="text-[11px] font-bold fill-slate-600">2023</text>
+                <text x="320" y="280" className="text-[11px] font-bold fill-slate-600">2024</text>
+                <text x="480" y="280" className="text-[11px] font-bold fill-slate-800">2025</text>
+                <text x="635" y="280" className="text-[11px] font-bold fill-slate-600">2026 YTD</text>
+
+                <rect 
+                  x="150" y={260 - 200 * 0.7} width="25" height={200 * 0.7} 
+                  fill="#025863" opacity={trendsMetric === 'counts' ? 1.0 : 0.4}
+                  className="transition-all duration-150 hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2023', type: 'New Account Starts', value: '200 Starts' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+                <rect 
+                  x="178" y={260 - 75 * 0.7} width="25" height={75 * 0.7} 
+                  fill="#FF6334" opacity={trendsMetric === 'counts' ? 1.0 : 0.4}
+                  className="transition-all duration-150 hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2023', type: 'Early Cancellations', value: '75 Cancellations' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+
+                <rect 
+                  x="310" y={260 - 259 * 0.7} width="25" height={259 * 0.7} 
+                  fill="#025863" opacity={trendsMetric === 'counts' ? 1.0 : 0.4}
+                  className="transition-all duration-150 hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2024', type: 'New Account Starts', value: '259 Starts' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+                <rect 
+                  x="338" y={260 - 67 * 0.7} width="25" height={67 * 0.7} 
+                  fill="#FF6334" opacity={trendsMetric === 'counts' ? 1.0 : 0.4}
+                  className="transition-all duration-150 hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2024', type: 'Early Cancellations', value: '67 Cancellations' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+
+                <rect 
+                  x="470" y={260 - 197 * 0.7} width="25" height={197 * 0.7} 
+                  fill="#00AFC0" opacity={trendsMetric === 'counts' ? 1.0 : 0.4}
+                  className="transition-all duration-150 hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2025', type: 'New Account Starts', value: '197 Starts' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+                <rect 
+                  x="498" y={260 - 43 * 0.7} width="25" height={43 * 0.7} 
+                  fill="#FF6334" opacity={trendsMetric === 'counts' ? 1.0 : 0.4}
+                  className="transition-all duration-150 hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2025', type: 'Early Cancellations', value: '43 Cancellations' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+
+                <rect 
+                  x="630" y={260 - 77 * 0.7} width="25" height={77 * 0.7} 
+                  fill="#025863" opacity={trendsMetric === 'counts' ? 1.0 : 0.4}
+                  className="transition-all duration-150 hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2026 YTD', type: 'New Account Starts', value: '77 Starts' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+                <rect 
+                  x="658" y={260 - 17 * 0.7} width="25" height={17 * 0.7} 
+                  fill="#FF6334" opacity={trendsMetric === 'counts' ? 1.0 : 0.4}
+                  className="transition-all duration-150 hover:opacity-80 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2026 YTD', type: 'Early Cancellations', value: '17 Cancellations' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+
+                <path 
+                  d="M 176 102.5 L 336 151.2 L 496 168.4 L 656 167.1" 
+                  fill="none" stroke="#d97706" strokeWidth="3.5" strokeLinecap="round"
+                  opacity={trendsMetric === 'rate' ? 1.0 : 0.4}
+                  className="transition-all duration-150"
+                />
+
+                <circle 
+                  cx="176" cy="102.5" r="7" fill="#fff" stroke="#d97706" strokeWidth="3.5"
+                  className="hover:scale-125 transition-all duration-150 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2023', type: 'Early Cancellation Rate', value: '37.5%' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+                <circle 
+                  cx="336" cy="151.2" r="7" fill="#fff" stroke="#d97706" strokeWidth="3.5"
+                  className="hover:scale-125 transition-all duration-150 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2024', type: 'Early Cancellation Rate', value: '25.9%' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+                <circle 
+                  cx="496" cy="168.4" r="7" fill="#fff" stroke="#00AFC0" strokeWidth="3.5"
+                  className="hover:scale-125 transition-all duration-150 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2025', type: 'Early Cancellation Rate (SOP Target Achieved)', value: '21.8%' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+                <circle 
+                  cx="656" cy="167.1" r="7" fill="#fff" stroke="#d97706" strokeWidth="3.5"
+                  className="hover:scale-125 transition-all duration-150 cursor-pointer"
+                  onMouseEnter={() => setHoveredAllYears({ year: '2026 YTD', type: 'Early Cancellation Rate', value: '22.1%' })}
+                  onMouseLeave={() => setHoveredAllYears(null)}
+                />
+
+                <text x="186" y="95" className="text-[10px] font-bold fill-amber-700">37.5%</text>
+                <text x="346" y="145" className="text-[10px] font-bold fill-amber-700">25.9%</text>
+                <text x="506" y="160" className="text-[10px] font-bold fill-teal-800">21.8%</text>
+                <text x="666" y="160" className="text-[10px] font-bold fill-amber-700">22.1%</text>
+              </svg>
+
+              {hoveredAllYears && (
+                <div className="absolute top-2 left-4 bg-slate-950 text-white p-3.5 rounded border border-[#00AFC0]/30 shadow-2xl z-50 w-60 animate-fadeIn">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1.5">
+                    <span className="text-xs font-bold text-[#00AFC0]">{hoveredAllYears.year} Performance</span>
+                    <span className="text-[8px] text-slate-400 font-mono tracking-widest uppercase">MMM Record</span>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[11px] text-slate-400">Selected Dimension:</p>
+                    <p className="text-xs text-white font-semibold">{hoveredAllYears.type}</p>
+                    <p className="text-xs text-[#00AFC0] font-bold mt-1 text-sm">Value: {hoveredAllYears.value}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="absolute top-2 right-4 bg-slate-50 border border-slate-200 p-3 rounded max-w-xs text-xs shadow-xs">
+                <span className="font-bold text-slate-800 flex items-center gap-1">
+                  <TrendingDown size={14} className="text-emerald-500" />
+                  Macro Pipeline
+                </span>
+                <p className="text-slate-600 mt-1 leading-normal text-[11px]">
+                  Historical multi-year view showing general cancellation rate drops as stabilization systems are deployed.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-6 border-t border-slate-100 pt-4 mt-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 bg-[#025863] rounded"></span>
+                <span className="text-slate-600 font-medium">New Accounts Started (Volume)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 bg-[#FF6334] rounded"></span>
+                <span className="text-slate-600 font-medium">Early Cancellations (&lt;91 Days)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-0.5 w-6 bg-[#008BA3] inline-block relative top-[-1px]">
+                  <span className="h-2 w-2 rounded-full bg-white border border-[#008BA3] absolute left-2 top-[-3.5px]"></span>
+                </span>
+                <span className="text-slate-600 font-medium">Early Attrition Rate (%)</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white border border-slate-200 rounded p-6 shadow-xs">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-[#025863] text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded">
+                    Audit Year: {selectedYear}
+                  </span>
+                  <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">Monthly Attrition Stack</h3>
+                </div>
+                <h2 className="text-lg font-bold text-[#025863] mt-1">Calendar Month Stacked Reason Chart</h2>
+                <p className="text-xs text-slate-500">
+                  Hover over any monthly column segment to audit reason density and failure triggers for <strong>{selectedYear}</strong>.
+                </p>
+              </div>
+            </div>
+
+            <div className="w-full h-80 relative flex items-center justify-center">
+              <svg className="w-full h-full" viewBox="0 0 800 300">
+                <line x1="60" y1="50" x2="740" y2="50" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="110" x2="740" y2="110" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="170" x2="740" y2="170" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="230" x2="740" y2="230" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="260" x2="740" y2="260" stroke="#e2e8f0" strokeWidth="1.5" />
+
+                <text x="30" y="55" className="text-[10px] fill-slate-400 font-bold font-mono">15</text>
+                <text x="30" y="115" className="text-[10px] fill-slate-400 font-bold font-mono">10</text>
+                <text x="30" y="175" className="text-[10px] fill-slate-400 font-bold font-mono">5</text>
+                <text x="30" y="265" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
+
+                {monthlyAttritionBreakdown.map((m, monthIdx) => {
+                  const colWidth = 32;
+                  const startX = 75 + monthIdx * 56;
+                  
+                  let currentHeightSum = 0;
+                  const scale = 14; 
+                  
+                  const segments = Object.entries(m.depts).map(([deptName, count]) => {
+                    const h = count * scale;
+                    const y = 260 - currentHeightSum - h;
+                    currentHeightSum += h;
+
+                    let color = "#94a3b8"; 
+                    if (deptName.includes("Placements")) color = "#025863"; 
+                    else if (deptName.includes("Sales")) color = "#00AFC0"; 
+                    else if (deptName.includes("VA-side")) color = "#D1EBEF"; 
+                    else if (deptName.includes("OS")) color = "#008BA3"; 
+                    else if (deptName.includes("Client")) color = "#cbd5e1"; 
+                    else if (deptName.includes("Admin")) color = "#FF6334"; 
+
+                    return { deptName, count, h, y, color };
+                  });
+
+                  return (
+                    <g key={monthIdx} className="group/month">
+                      <text x={startX + 6} y="280" className="text-[10px] font-bold fill-slate-600 text-center">{m.month}</text>
+                      
+                      {segments.map((seg, sIdx) => {
+                        return (
+                          <rect
+                            key={sIdx}
+                            x={startX}
+                            y={seg.y}
+                            width={colWidth}
+                            height={seg.h}
+                            fill={seg.color}
+                            stroke="#fff"
+                            strokeWidth="1"
+                            className="transition-all duration-150 cursor-pointer hover:brightness-95"
+                            onMouseEnter={() => setActiveHoveredMonth({ month: m.month, dept: seg.deptName, count: seg.count })}
+                            onMouseLeave={() => setActiveHoveredMonth(null)}
+                          />
+                        );
+                      })}
+
+                      {m.count === 0 && (
+                        <rect x={startX} y="220" width={colWidth} height="40" fill="transparent" />
+                      )}
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {activeHoveredMonth && (
+                <div className="absolute top-2 right-4 bg-slate-950 text-white p-4 rounded-md shadow-2xl border border-slate-800 z-50 w-64 animate-fadeIn">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-1.5 mb-1.5">
+                    <span className="text-xs font-extrabold text-[#00AFC0]">
+                      {activeHoveredMonth.month} Diagnostics
+                    </span>
+                    <span className="text-[9px] text-slate-400 font-mono">Specific Audit</span>
+                  </div>
+                  <p className="text-xs">
+                    Trigger Department: <strong className="text-white">{activeHoveredMonth.dept}</strong>
+                  </p>
+                  <p className="text-xs text-slate-300 mt-1">
+                    Cancellation Count: <strong className="text-indigo-300 text-sm">{activeHoveredMonth.count} Case(s)</strong>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-6 border-t border-slate-100 pt-4 mt-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 bg-[#025863] rounded"></span>
+                <span className="text-slate-600 font-medium">Placements / Matching</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 bg-[#00AFC0] rounded"></span>
+                <span className="text-slate-600 font-medium">Sales Qualification / Client Readiness</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 bg-[#D1EBEF] rounded border border-[#008BA3]/25"></span>
+                <span className="text-slate-600 font-medium">VA-side issue</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 bg-[#008BA3] rounded"></span>
+                <span className="text-slate-600 font-medium">OS Stabilization Node</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 bg-[#FF6334] rounded"></span>
+                <span className="text-[#025863] font-medium">Admin &amp; tech setup gaps</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {selectedYear !== 'All' && (
+          <div className="bg-white border border-slate-200 rounded p-6 shadow-xs space-y-4">
+            <h3 className="font-bold text-[#025863] text-sm">Interactive Month Ledger: {selectedYear}</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {monthlyAttritionBreakdown.map((m, idx) => {
+                const isActive = selectedMonth === m.month;
+                const isFaded = selectedMonth !== 'All' && !isActive;
+                return (
+                  <div 
+                    key={idx} 
+                    onClick={() => { if(m.count !== 0) { setSpartanMonth(m); setSelectedMonth(isActive ? 'All' : m.month); } }}
+                    className={`p-3 rounded border text-xs flex flex-col justify-between transition-all duration-200 ${
+                      m.count !== 0 ? 'cursor-pointer hover:shadow-md hover:border-[#00AFC0]' : 'opacity-40 cursor-not-allowed'
+                    } ${
+                      isActive ? 'bg-[#025863] border-[#025863] text-white shadow-sm' : 'bg-slate-50 border-slate-200'
+                    } ${isFaded ? 'opacity-40' : 'opacity-100'}`}
+                  >
+                    <div className="font-bold flex items-center justify-between">
+                      <span>{m.month}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono ${isActive ? 'bg-white/25 text-white' : 'bg-[#D1EBEF] text-[#025863]'}`}>
+                        {m.count} cxls
+                      </span>
+                    </div>
+                    <div className="space-y-1 mt-3">
+                      {Object.entries(m.repts || m.reasons).sort((a,b)=>b[1]-a[1]).map(([r, c], dIdx) => (
+                        <div key={dIdx} className="text-[10px] flex justify-between items-center">
+                          <span className="truncate max-w-[80px] text-slate-500 group-hover:text-slate-700">{r}</span>
+                          <span className="font-bold">{c}</span>
+                        </div>
+                      ))}
+                      {m.count === 0 && <span className="text-[10px] italic text-slate-400">No activity</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  function renderSankeyOrDrilldown() {
+    return (
+      <div className="bg-white border border-slate-200 rounded p-6 shadow-xs space-y-6 animate-fadeIn">
+        <div>
+          <span className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest">Section 3: Root Cause Analysis</span>
+          <h2 className="text-lg font-bold text-[#025863] mt-1">Inter-departmental Failure Flow (Sankey Diagram)</h2>
+          <p className="text-xs text-slate-500">
+            A live flow tracking cancellations from their **Originating Department** through the **Core Risk Trigger** to the **Final Operational Resolution**.
+          </p>
+        </div>
+        
+        <div className="w-full overflow-x-auto">
+          <div className="min-w-[800px] h-[340px] relative bg-slate-900 rounded-lg p-4 border border-slate-800">
+            <svg className="w-full h-full" viewBox="0 0 800 320">
+              {sankeyData.links.map((link, idx) => {
+                const x0 = link.source.x + link.source.width;
+                const y0 = link.sourceY;
+                const x1 = link.target.x;
+                const y1 = link.targetY;
+                const cpX1 = x0 + 100;
+                const cpX2 = x1 - 100;
+                const pathD = `M ${x0} ${y0} C ${cpX1} ${y0}, ${cpX2} ${y1}, ${x1} ${y1}`;
+                const isHovered = hoveredFlow === link.id;
+
+                return (
+                  <path
+                    key={idx}
+                    d={pathD}
+                    fill="none"
+                    stroke={isHovered ? '#00AFC0' : '#475569'}
+                    strokeWidth={link.thickness}
+                    opacity={isHovered ? 0.8 : 0.35}
+                    className="transition-all duration-150 cursor-pointer"
+                    onMouseEnter={() => setHoveredFlow(link.id)}
+                    onMouseLeave={() => setHoveredFlow(null)}
+                  />
+                );
+              })}
+
+              {sankeyData.nodes.map((node, idx) => {
+                const isHovered = hoveredNode === node.id;
+                return (
+                  <g 
+                    key={idx} 
+                    transform={`translate(${node.x}, ${node.y})`}
+                    className="cursor-pointer group"
+                    onMouseEnter={() => setHoveredNode(node.id)}
+                    onMouseLeave={() => setHoveredNode(null)}
+                  >
+                    <rect
+                      width={node.width}
+                      height={node.height}
+                      fill={isHovered ? '#00AFC0' : (node.colIdx === 0 ? '#025863' : (node.colIdx === 1 ? '#008BA3' : '#FF6334'))}
+                      rx="3"
+                      className="transition-colors duration-150"
+                    />
+                    <text
+                      x={node.width / 2}
+                      y={node.height / 2 + 4}
+                      fill="#fff"
+                      textAnchor="middle"
+                      className="text-[9px] font-bold select-none group-hover:fill-white"
+                    >
+                      {node.label} ({node.count})
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        </div>
+        
+        <div className="bg-slate-50 p-4 border border-slate-200 rounded grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div>
+            <h4 className="font-bold text-[#025863] mb-1">Column 1: Department Trigger</h4>
+            <p className="text-slate-600">The specific team/phase where the mismatch or workflow gap was first introduced.</p>
+          </div>
+          <div>
+            <h4 className="font-bold text-[#025863] mb-1">Column 2: Operational Risk</h4>
+            <p className="text-slate-600">The earliest risk trigger or behavioral defect manifested during the onboarding lifecycle.</p>
+          </div>
+          <div>
+            <h4 className="font-bold text-[#025863] mb-1">Column 3: Final Outcome</h4>
+            <p className="text-slate-600">Strictly mapped standard business resolutions representing the exit or save status of the contract.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderRiskForensicsGlossary() {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
+        <div className="bg-white border border-slate-200 rounded p-6 shadow-xs space-y-4 lg:col-span-1">
+          <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest">Early Warnings Index</h3>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Click any operational defect below to review the post-mortem forensic audit and tactical resolution plan.
+          </p>
+          <div className="space-y-2">
+            {Object.keys(RISK_METRICS_MAP).map((riskKey) => {
+              const riskDetail = RISK_METRICS_MAP[riskKey];
+              const isActive = selectedRiskKey === riskKey;
+              return (
+                <button
+                  key={riskKey}
+                  onClick={() => setSelectedRiskKey(riskKey)}
+                  className={`w-full text-left p-3 rounded text-xs font-semibold flex items-center justify-between transition border ${
+                    isActive 
+                      ? 'bg-[#025863] text-white border-[#025863]' 
+                      : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200'
+                  }`}
+                >
+                  <span className="capitalize truncate mr-2">{riskKey}</span>
+                  <span className={`text-[9px] px-1.5 py-0.5 rounded uppercase font-bold ${
+                    riskDetail.criticality === 'High' ? 'bg-rose-500 text-white' : 'bg-amber-500 text-white'
+                  }`}>
+                    {riskDetail.criticality}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="bg-white border border-slate-200 rounded p-6 shadow-xs lg:col-span-2 space-y-6">
+          {RISK_METRICS_MAP[selectedRiskKey] ? (
+            <Fragment>
+              <div className="border-b border-slate-100 pb-4">
+                <span className="text-[10px] font-bold text-rose-500 uppercase tracking-widest">Post-Mortem Audit</span>
+                <h2 className="text-2xl font-black text-[#025863] capitalize mt-1">
+                  Defect: {selectedRiskKey}
+                </h2>
+                <div className="flex flex-wrap gap-4 mt-3">
+                  <div className="text-xs font-semibold bg-slate-100 px-3 py-1 rounded">
+                    Criticality: <span className="font-extrabold text-rose-600">{RISK_METRICS_MAP[selectedRiskKey].criticality}</span>
+                  </div>
+                  <div className="text-xs font-semibold bg-slate-100 px-3 py-1 rounded">
+                    Incident Frequency: <span className="font-bold text-slate-800">{RISK_METRICS_MAP[selectedRiskKey].frequency}</span>
+                  </div>
+                  <div className="text-xs font-semibold bg-slate-100 px-3 py-1 rounded">
+                    Failure Stage: <span className="font-bold text-[#008BA3]">{RISK_METRICS_MAP[selectedRiskKey].failureNode}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Executive Summary</h4>
+                  <p className="text-sm text-slate-700 mt-1 leading-relaxed italic">
+                    "{RISK_METRICS_MAP[selectedRiskKey].excerpt}"
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                  <div className="p-4 bg-slate-50 border border-slate-200 rounded">
+                    <h5 className="font-bold text-xs text-slate-600 uppercase">Standard AM Response</h5>
+                    <p className="text-xs text-slate-700 mt-1 leading-relaxed">
+                      {RISK_METRICS_MAP[selectedRiskKey].amAudit}
+                    </p>
+                  </div>
+                  <div className="p-4 bg-rose-50/50 border border-rose-100 rounded">
+                    <h5 className="font-bold text-xs text-rose-800 uppercase">What Was Missed (Opportunity)</h5>
+                    <p className="text-xs text-rose-900 mt-1 leading-relaxed">
+                      {RISK_METRICS_MAP[selectedRiskKey].missedOpportunity}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-5 bg-emerald-50 border-l-4 border-emerald-500 rounded-r">
+                  <h4 className="font-bold text-xs text-emerald-800 uppercase tracking-wide">Spartan Containment Play</h4>
+                  <p className="text-sm font-black text-emerald-950 mt-1.5 leading-relaxed">
+                    {RISK_METRICS_MAP[selectedRiskKey].recoveryAction}
+                  </p>
+                </div>
+              </div>
+            </Fragment>
+          ) : (
+            <div className="text-center text-slate-400 py-12">
+              Select an operational risk sign from the list to populate.
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  function renderOSSnapshot() {
+    return (
+      <div className="bg-white border border-slate-200 rounded p-6 shadow-xs animate-fadeIn">
+        <div className="border-b border-slate-100 pb-3 mb-5">
+          <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 4: 30-Day Experience Snapshot</span>
+          <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Onboarding Specialist Performance Breakdown</h3>
+          <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
+            <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Evaluates direct client CSAT scorecards linked to the respective OS. <br/><strong className="text-mmmTeal">ACTION:</strong> Verify workflow stability benchmarks if KPI alignment falls below 4.5.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {OS_METRICS.map(os => {
+            const kpiColor = Math.min(os.kpi, 4.74) === os.kpi ? 'text-amber-500' : 'text-emerald-500';
+            return (
+              <div key={os.name} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                <div className="flex justify-between items-center border-b border-slate-200 pb-2 mb-3">
+                  <h4 className="font-bold text-[#025863] truncate">{os.name}</h4>
+                  <span className="text-[10px] bg-[#D1EBEF] text-[#025863] font-bold px-2 py-0.5 rounded-full">{os.n} Reviews</span>
+                </div>
+                <div className="flex items-end gap-2 mb-4">
+                  <span className="text-3xl font-black text-[#00AFC0]">{os.avg.toFixed(2)}</span>
+                  <span className="text-xs text-slate-400 font-medium mb-1">Overall Avg</span>
+                </div>
+                <div className="space-y-2 text-[10px]">
+                  <div className="flex justify-between"><span className="text-slate-500">Productivity:</span><span className="font-bold text-slate-700">{os.prod.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Confidence:</span><span className="font-bold text-slate-700">{os.conf.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">KPI Sync:</span><span className={`font-bold ${kpiColor}`}>{os.kpi.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Tool Nav:</span><span className="font-bold text-slate-700">{os.tool.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Check-ins:</span><span className="font-bold text-slate-700">{os.chk.toFixed(2)}</span></div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="bg-slate-900 text-white rounded-xl p-5 shadow-inner">
+          <h4 className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest mb-4">Raw Client Verbatims</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {SURVEY_SNAPSHOT.map((q, i) => (
+              <div key={i} className="bg-slate-800/80 p-4 rounded border border-slate-700/50 flex flex-col justify-between">
+                <p className="text-xs italic text-slate-300 mb-3">"{q.quote}"</p>
+                <div className="flex justify-between items-center text-[9px] font-semibold uppercase tracking-wider text-slate-500 border-t border-slate-700/50">
+                  <span>{q.client}</span>
+                  <span className="text-[#00AFC0]">OS: {q.specialist}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderCohortBreakdown() {
+    return (
+      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
+        <div className="border-b border-slate-100 pb-3 mb-5">
+          <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 5: Performance Deep Dive</span>
+          <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Onboarding Specialist Performance Breakdown: Early Attrition Forensics</h3>
+          <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
+            <p className="text-xs text-slate-600 font-medium leading-relaxed">
+              <strong>Data Scope:</strong> This cohort analysis isolates under-90-day client cancellations calculated strictly from the client’s original RVA start date.<br/>
+              <strong>Operational Era:</strong> Reflects performance post-department launch on April 1, 2025. All cancellations occurring prior to this date are classified under the Pre-System Baseline and omitted from individual scorecards.
+            </p>
+          </div>
+        </div>
+
+        <h4 className="font-bold text-sm text-[#025863] mb-2">1. Granular Tenure &amp; Reason Matrix Per Specialist</h4>
+        <p className="text-xs text-slate-600 mb-4">
+          The matrix below breaks down early account attrition by individual Onboarding Specialist. The columns segment the exact tenure tranche where the failure materialized, alongside a raw accounting of the primary cancellation reasons.<br/><br/>
+          <strong>Days 0–14 &amp; 15–30:</strong> Exits within the OS team's sole accountability window.<br/>
+          <strong>Days 31–60 &amp; 61–90:</strong> Exits occurring post-handoff to Account Management, serving as the lagging health metric of the foundation established by the specialist.
+        </p>
+
+        <div className="border border-slate-200 rounded-lg overflow-hidden mb-8">
+          <table className="w-full text-left text-xs whitespace-normal">
+            <thead className="bg-[#025863] text-white font-bold text-[10px] uppercase tracking-wider">
+              <tr>
+                <th className="py-3 px-4">Assigned Specialist</th>
+                <th className="py-3 px-4 text-center">0–14 Days</th>
+                <th className="py-3 px-4 text-center">15–30 Days</th>
+                <th className="py-3 px-4 text-center">31–60 Days</th>
+                <th className="py-3 px-4 text-center">61–90 Days</th>
+                <th className="py-3 px-4">Primary Cancellation Reasons (Breakdown)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200 text-slate-700 bg-white">
+              <tr className="hover:bg-slate-50">
+                <td className="py-3 px-4 font-bold text-[#025863]">Jason Valeros</td>
+                <td className="py-3 px-4 text-center font-bold">2</td>
+                <td className="py-3 px-4 text-center font-bold">3</td>
+                <td className="py-3 px-4 text-center font-bold">7</td>
+                <td className="py-3 px-4 text-center font-bold">6</td>
+                <td className="py-3 px-4 text-[11px] leading-relaxed">
+                  <strong>10 VA Issues</strong> (Quality/Attendance), <strong>4 Client Setup</strong>, <strong>3 Financial</strong>, <strong>1 Failed Placement</strong>
+                </td>
+              </tr>
+              <tr className="hover:bg-slate-50">
+                <td className="py-3 px-4 font-bold text-[#025863]">Aiza Abing</td>
+                <td className="py-3 px-4 text-center font-bold">5</td>
+                <td className="py-3 px-4 text-center font-bold">2</td>
+                <td className="py-3 px-4 text-center font-bold">3</td>
+                <td className="py-3 px-4 text-center font-bold">2</td>
+                <td className="py-3 px-4 text-[11px] leading-relaxed">
+                  <strong>6 Failed Placements / Back Out VAs</strong>, <strong>4 VA Issues</strong> (Responsiveness), <strong>2 Client Setup</strong>
+                </td>
+              </tr>
+              <tr className="hover:bg-slate-50">
+                <td className="py-3 px-4 font-bold text-[#025863]">Hawk</td>
+                <td className="py-3 px-4 text-center font-bold">1</td>
+                <td className="py-3 px-4 text-center font-bold">5</td>
+                <td className="py-3 px-4 text-center font-bold">2</td>
+                <td className="py-3 px-4 text-center font-bold">1</td>
+                <td className="py-3 px-4 text-[11px] leading-relaxed">
+                  <strong>5 Client Setup Issues</strong> (Expectations), <strong>3 VA Issues</strong>, <strong>1 Financial</strong>
+                </td>
+              </tr>
+              <tr className="hover:bg-slate-50">
+                <td className="py-3 px-4 font-bold text-[#025863]">Marno</td>
+                <td className="py-3 px-4 text-center font-bold">0</td>
+                <td className="py-3 px-4 text-center font-bold">1</td>
+                <td className="py-3 px-4 text-center font-bold">3</td>
+                <td className="py-3 px-4 text-center font-bold">4</td>
+                <td className="py-3 px-4 text-[11px] leading-relaxed">
+                  <strong>4 Financial Issues</strong>, <strong>3 VA Issues</strong> (Output), <strong>1 Commitment</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 className="font-bold text-sm text-[#025863] mb-4">2. Forensic Diagnostic Per Onboarding Specialist</h4>
+
+        <div className="space-y-6">
+          <div className="p-4 bg-slate-50 border-l-4 border-[#025863] rounded-r">
+            <h4 className="font-bold text-sm text-[#025863] mb-1">Jason Valeros: The Volume &amp; Over-Performance Mask</h4>
+            <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Churn is heavily skewed post-handoff (13 out of 18 total cases occur in the 31–90 day window).<br/>Causal Breakdown: Driven predominantly by VA Issues (Quality &amp; Skills).</p>
+            <p className="text-xs leading-relaxed text-slate-700">
+              <strong className="text-[#025863]">Spartan Insight:</strong> Jason delivers an elite client experience during active ownership holding a 4.85 CSAT. His intense, high-touch management style temporarily masks upstream placement deficits. Once the account is graduated to an Account Manager on Day 31 and his close support framework is removed, the structural skill gaps of the VA surface, causing late-tenure dropouts.
+            </p>
+            <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Enforce blind standalone VA testing on Day 25 to verify independence before allowing graduation to AM.</p>
+          </div>
+
+          <div className="p-4 bg-slate-50 border-l-4 border-[#00AFC0] rounded-r">
+            <h4 className="font-bold text-sm text-[#025863] mb-1">Aiza Abing: Upstream Defect Burden</h4>
+            <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Attrition is heavily front-loaded (7 out of 12 cases manifest inside the active 0–30 day window; 5 clear within the first 14 days).<br/>Causal Breakdown: Overwhelmingly dominated by Failed Placements and Back Out VAs (Source: RISE Cancellations w/ RFI).</p>
+            <p className="text-xs leading-relaxed text-slate-700">
+              <strong className="text-[#025863]">Spartan Insight:</strong> Aiza is being heavily penalized by upstream recruitment failures. A cancellation at Day -1 or Day 4 due to an unresponsive VA is a matching and profiling defect, not a failure of onboarding execution. Abing’s scorecard is absorbing the friction of speed-driven placement over-allocation.
+            </p>
+            <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Instantly flag and reroute any placement with a pre-hire RFI score matching an Aiza account back to Placements for structural calibration.</p>
+          </div>
+
+          <div className="p-4 bg-slate-50 border-l-4 border-amber-500 rounded-r">
+            <h4 className="font-bold text-sm text-[#025863] mb-1">Hawk: Client Alignment Vulnerability</h4>
+            <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Churn peaks sharply in the 15–30 day tranche (5 cases), immediately prior to graduation.<br/>Causal Breakdown: Dominated by Client Setup Issues (Unrealistic Expectations / Unclear Workflows).</p>
+            <p className="text-xs leading-relaxed text-slate-700">
+              <strong className="text-[#025863]">Spartan Insight:</strong> Hawk is failing to forcefully resolve client expectation mismatches during the first two weeks of kickoff. If a client expects specialty output immediately or refuses to provide direct system integration, the account is left to curdle, peaking in a cancellation call right at the handoff threshold.
+            </p>
+            <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Mandate the deployment of the signed Client-Expectation Contract on Day 1. If non-compliance persists on Day 14, trigger an immediate internal operational freeze.</p>
+          </div>
+
+          <div className="p-4 bg-slate-50 border-l-4 border-slate-400 rounded-r">
+            <h4 className="font-bold text-sm text-[#025863] mb-1">Marno: High Operational Integrity / Commercial Exposure</h4>
+            <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Elite containment during sole ownership (only 1 cancellation in the first 30 days). Attrition occurs exclusively late-stage (61–90 days).<br/>Causal Breakdown: Primarily driven by macroeconomic Financial Issues (Clinic Downsizing / Budget Cuts).</p>
+            <p className="text-xs leading-relaxed text-slate-700">
+              <strong className="text-[#025863]">Spartan Insight:</strong> Marno builds the strongest operational foundation in the department, scoring highest on tool utilization clarity (4.89) and KPI alignment (4.75). Accounts pass the AM handoff cleanly. Churn events are almost entirely unpreventable, non-operational commercial adjustments on the client side.
+            </p>
+            <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Standardize Marno’s onboarding documentation layout across the entire team to minimize the handoff leak across other specialists.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderControllabilityPlaybook() {
+    return (
+      <div className="space-y-6 animate-fadeIn">
+        <div className="bg-white border border-slate-200 rounded p-6 shadow-xs">
+          <h3 className="text-xs font-bold text-[#00AFC0] uppercase tracking-widest mb-1">Standard Operating Procedures</h3>
+          <h2 className="text-xl font-bold text-[#025863] tracking-tight mb-4">Controllability Plays &amp; Save Protocols</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-4 bg-rose-50 border border-rose-200 rounded">
+              <h4 className="font-bold text-sm text-rose-800 mb-1">Play 1: EHR Login Lockouts</h4>
+              <p className="text-xs text-rose-900 leading-relaxed mb-3">
+                If VPN blocks or authorization issues delay onboarding beyond Day 2:
+              </p>
+              <ul className="text-[11px] text-rose-950 space-y-1.5 list-disc pl-4 font-semibold">
+                <li>Pivot instantly to HIPAA &amp; medical scribing sandbox environments</li>
+                <li>Trigger urgent ticket to client\'s technical contact</li>
+                <li>OS shadow-trains on generic offline systems</li>
+              </ul>
+            </div>
+
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded">
+              <h4 className="font-bold text-sm text-amber-800 mb-1">Play 2: Extreme Workload Shock</h4>
+              <p className="text-xs text-amber-900 leading-relaxed mb-3">
+                If Medical VA shows silence, anxiety, or drop in Week-2 deliverables:
+              </p>
+              <ul className="text-[11px] text-amber-950 space-y-1.5 list-disc pl-4 font-semibold">
+                <li>OS triggers immediate 1-on-1 workload evaluation check-in</li>
+                <li>Audit client input to see if daily scopes match initial discovery boundaries</li>
+                <li>Re-align task matrix to clear bottleneck parameters</li>
+              </ul>
+            </div>
+
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded">
+              <h4 className="font-bold text-sm text-emerald-800 mb-1">Play 3: Client Disengagement Block</h4>
+              <p className="text-xs text-emerald-900 leading-relaxed mb-3">
+                If client skips multiple onboarding sync calls or neglects feedback loops:
+              </p>
+              <ul className="text-[11px] text-emerald-950 space-y-1.5 list-disc pl-4 font-semibold">
+                <li>Flag account to AMDH for senior management intervention</li>
+                <li>Formally halt live tasking for Medical VA until sync is cleared</li>
+                <li>Deploy structured, daily task summary templates automatically</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderProcessLifecycle() {
+    return (
+      <div className="bg-white border border-slate-200 rounded p-6 shadow-xs space-y-6 animate-fadeIn">
+        <div>
+          <span className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest">Section 7: Operational Stages</span>
+          <h2 className="text-xl font-bold text-[#025863] mt-1">Structured 30-Day Onboarding Lifecycle</h2>
+          <p className="text-xs text-slate-500">
+            The chronological roadmap implemented to stabilize partnerships and secure long-term clinical talent retention.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 relative">
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded relative">
+            <span className="absolute top-2 right-2 font-mono text-2xl font-black text-slate-200">01</span>
+            <h4 className="font-bold text-xs text-[#025863] uppercase">Day -3: Pre-Arrival Sandbox</h4>
+            <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+              OS initiates sandboxed tool accesses, deploys HIPAA templates, and verifies client network VPN settings.
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded relative">
+            <span className="absolute top-2 right-2 font-mono text-2xl font-black text-slate-200">02</span>
+            <h4 className="font-bold text-xs text-[#025863] uppercase">Day 1: Expectation Kickoff</h4>
+            <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+              Tripartite call to sign the Expectation Blueprint. The OS establishes daily KPI logs and structures clinic workflows.
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded relative">
+            <span className="absolute top-2 right-2 font-mono text-2xl font-black text-slate-200">03</span>
+            <h4 className="font-bold text-xs text-[#025863] uppercase">Day 7 &amp; 14: Health Checks</h4>
+            <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+              Automatic stress evaluations to measure VA alignment. Adjusts targets and identifies communication blockages.
+            </p>
+          </div>
+
+          <div className="p-4 bg-[#D1EBEF] border border-[#008BA3]/30 rounded relative">
+            <span className="absolute top-2 right-2 font-mono text-2xl font-black text-[#00AFC0] opacity-50">04</span>
+            <h4 className="font-bold text-xs text-[#025863] uppercase">Day 30: AM Handoff</h4>
+            <p className="text-xs text-slate-700 mt-2 leading-relaxed">
+              Strict graduation audit. Verify standalone productivity. Account transferred smoothly to the dedicated Account Manager.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderRecommendations() {
+    return (
+      <div className="bg-white border border-slate-200 rounded p-6 shadow-xs space-y-6 animate-fadeIn">
+        <div>
+          <span className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest">Section 8: Operational Deliverables</span>
+          <h2 className="text-xl font-bold text-[#025863] mt-1">Recommendations &amp; Action Plan</h2>
+          <p className="text-xs text-slate-500">
+            An actionable operational framework to reduce under-91-day cancellations and improve matching metrics.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex items-start gap-3">
+            <span className="bg-[#025863] text-white font-extrabold h-6 w-6 rounded-full flex items-center justify-center text-xs shrink-0 mt-0.5">1</span>
+            <div>
+              <h4 className="font-bold text-sm text-[#025863]">Establish Upstream Practical Matching Trials</h4>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                Mandate a Day -3 EHR simulation or specialized dictation speed test for scribing and billing candidates. Do not rely solely on past resume credentials to verify competence.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="bg-[#025863] text-white font-extrabold h-6 w-6 rounded-full flex items-center justify-center text-xs shrink-0 mt-0.5">2</span>
+            <div>
+              <h4 className="font-bold text-sm text-[#025863]">Empower Onboarding Specialists with Gatekeeper Veto Power</h4>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                Allow specialists to delay starts if client process discovery or expectation alignment contracts are not signed off. Moving starts for unready accounts results in guaranteed early churn.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <span className="bg-[#025863] text-white font-extrabold h-6 w-6 rounded-full flex items-center justify-center text-xs shrink-0 mt-0.5">3</span>
+            <div>
+              <h4 className="font-bold text-sm text-[#025863]">Standardize Pre-Arrival Technical Checklists</h4>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                Deploy a strict pre-arrival checklist requiring client IT representatives to verify sandbox/EHR access screenshots prior to Day 1 to avoid early tech-blocker cancellations.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  function renderDataTable() {
+    return (
+      <div className="bg-white border border-slate-200 rounded p-6 shadow-xs pb-12 animate-fadeIn mt-6">
+        <div className="border-b border-slate-100 pb-3 mb-4 flex justify-between items-end">
+          <div>
+            <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 7: Record Forensics</span>
+            <h3 className="text-md font-bold text-[#025863] mt-0.5">Detailed Attrition Diagnostics Ledger</h3>
+            <p className="text-xs text-slate-500 mt-1">Raw, unfiltered log of all matching cancellations calculated strictly from original starts.</p>
+          </div>
+          <div className="text-[10px] bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full font-bold">
+            Showing {sortedLedgerCancellations.length} Records
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs whitespace-nowrap">
+            <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[9px] border-b border-slate-200">
+              <tr>
+                <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'date')}>
+                  Date {renderSortIndicator(ledgerSortConfig, 'date')}
+                </th>
+                <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'client')}>
+                  Client {renderSortIndicator(ledgerSortConfig, 'client')}
+                </th>
+                <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'vaName')}>
+                  VA Name {renderSortIndicator(ledgerSortConfig, 'vaName')}
+                </th>
+                <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 select-none text-center" onClick={() => requestSort('ledger', 'hasRFI')}>
+                  RFI Flag {renderSortIndicator(ledgerSortConfig, 'hasRFI')}
+                </th>
+                <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'specialist')}>
+                  OS Owner {renderSortIndicator(ledgerSortConfig, 'specialist')}
+                </th>
+                <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 select-none text-center" onClick={() => requestSort('ledger', 'daysBeforeCxl')}>
+                  Tenure {renderSortIndicator(ledgerSortConfig, 'daysBeforeCxl')}
+                </th>
+                <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'reason')}>
+                  Reason {renderSortIndicator(ledgerSortConfig, 'reason')}
+                </th>
+                <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 select-none" onClick={() => requestSort('ledger', 'resolution')}>
+                  Resolution {renderSortIndicator(ledgerSortConfig, 'resolution')}
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {sortedLedgerCancellations.map((item, idx) => (
+                <tr key={idx} className="hover:bg-slate-50 cursor-help group relative transition-colors">
+                  <td className="py-3 px-3 font-medium text-slate-600">{formatDateDisplay(item.date)}</td>
+                  <td className="py-3 px-3 font-bold text-[#025863]">{item.client}</td>
+                  <td className="py-3 px-3 text-slate-700">{item.vaName}</td>
+                  <td className="py-3 px-3 text-center">
+                    {item.hasRFI ? (
+                      <span className="text-rose-600 font-black px-2 py-0.5 bg-rose-50 rounded">YES</span>
+                    ) : (
+                      <span className="text-slate-300">-</span>
+                    )}
+                  </td>
+                  <td className="py-3 px-3 text-slate-500">
+                    {item.specialist === 'Unassigned / Pre-System' ? (
+                      <span className="italic opacity-60">Pre-Apr 2025</span>
+                    ) : (
+                      item.specialist
+                    )}
+                  </td>
+                  <td className="py-3 px-3 font-bold text-slate-800 text-center">{item.daysBeforeCxl}d</td>
+                  <td className="py-3 px-3 font-semibold" style={{color: reasonColorMap[item.reason] || '#00AFC0'}}>{item.reason}</td>
+                  <td className="py-3 px-3">
+                    <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider ${
+                      item.resolution === 'Cancelled' ? 'bg-rose-50 text-rose-600' : (item.resolution === 'Reduced VAs' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600')
+                    }`}>
+                      {item.resolution}
+                    </span>
+                  </td>
+
+                  <td className="absolute left-6 right-6 top-full mt-2 bg-slate-900 text-white p-5 rounded shadow-2xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-[100] border border-slate-700">
+                    <div className="grid grid-cols-2 gap-6 whitespace-normal">
+                      <div>
+                        <p className="font-bold text-[#00AFC0] text-[10px] uppercase tracking-widest mb-1.5 border-b border-slate-700 pb-1">Context Summary</p>
+                        <p className="text-[11px] text-slate-300 leading-relaxed">{item.summary}</p>
+                        <div className="mt-2 flex gap-2">
+                          <span className="text-[10px] text-amber-400 font-semibold bg-amber-400/10 px-2 py-1 rounded border border-amber-400/50">Pre-Defect: {item.preOnboardingIssue}</span>
+                          {item.hasRFI && <span className="text-[10px] text-rose-400 font-semibold bg-rose-500/20 px-2 py-1 rounded border border-rose-500/50">RFI: {item.rfiNote}</span>}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="font-bold text-[#00AFC0] text-[10px] uppercase tracking-widest mb-1.5 border-b border-slate-700 pb-1">AM / OS Response Log</p>
+                        <p className="text-[11px] text-slate-300 leading-relaxed">{item.amResponse}</p>
+                        <p className="text-[10px] text-emerald-400 mt-2 font-semibold bg-emerald-400/10 inline-block px-2 py-1 rounded border border-emerald-400/50">Required Action: {item.intervention}</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {sortedLedgerCancellations.length === 0 && (
+                <tr>
+                  <td colSpan="8" className="py-12 text-center text-slate-400 font-medium">No records match the current filter configuration.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      
+      {/* Dynamic Content Switching Injection */}
+      {viewMode === 'executive' && (
+        <div className="space-y-8">
+          {renderExecutiveSummary()}
+          {renderMacroPipeline()}
+          {renderSankeyOrDrilldown()}
+          {renderRiskForensicsGlossary()}
+          {renderOSSnapshot()}
+          {renderCohortBreakdown()}
+          {renderControllabilityPlaybook()}
+          {renderProcessLifecycle()}
+          {renderRecommendations()}
+        </div>
+      )}
+
+      {viewMode === 'classic' && (
+        <div className="space-y-0">
+          {activeTab === 0 && renderExecutiveSummary()}
+          {activeTab === 1 && (
+            <Fragment>
+              {renderMacroPipeline()}
+              {renderDataTable()}
+            </Fragment>
+          )}
+          {activeTab === 2 && renderSankeyOrDrilldown()}
+          {activeTab === 3 && renderRiskForensicsGlossary()}
+          {activeTab === 4 && (
+            <Fragment>
+              {renderOSSnapshot()}
+              {renderCohortBreakdown()}
+            </Fragment>
+          )}
+          {activeTab === 5 && renderControllabilityPlaybook()}
+          {activeTab === 6 && renderProcessLifecycle()}
+          {activeTab === 7 && renderRecommendations()}
+        </div>
+      )}
+
+      {/* SPARTAN MODAL FOR MONTH LEDGER */}
+      {spartanMonth && (
+        <SpartanModal month={spartanMonth.month} data={spartanMonth.cases} onClose={() => setSpartanMonth(null)} />
+      )}
+
+    </div>
+  );
+}
