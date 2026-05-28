@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Mountain Mover - Operations Forensics</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            mmmTeal: '#00AFC0',
+            mmmMediumTeal: '#008BA3',
+            mmmDarkTeal: '#025863',
+            mmmCoral: '#FF6334',
+          }
+        }
+      }
+    }
+  </script>
+  
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #008BA3; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #025863; }
+    .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .bar-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+  </style>
+</head>
+<body class="bg-[#F8F8F8] text-[#025863] min-h-screen antialiased">
+  
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, Fragment, Component } = React;
+
+    // ==========================================
+    // EXPLICIT FUNCTION HOISTING FOR UTILITIES
+    // ==========================================
+    function Icon({ name, size = 16, className = "" }) {
+      const paths = {
+        BarChart3: <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />,
+        Layers: <Fragment><path d="m12 3-10 5 10 5 10-5-10-5Z" /><path d="m2 17 10 5 10-5" /><path d="m2 12 10 5 10-5" /></Fragment>,
+        TrendingDown: <Fragment><polyline points="22 17 13.5 8.5 8.5 13.5 2 7" /><polyline points="16 17 22 17 22 11" /></Fragment>,
+        Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
+        Target: <Fragment><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Fragment>,
+        Search: <Fragment><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></Fragment>,
+        Clock: <Fragment><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></Fragment>,
+        Flag: <Fragment><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></Fragment>,
+        Award: <Fragment><circle cx="12" cy="8" r="7" /><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12" /></Fragment>,
+        ChevronRight: <polyline points="9 18 15 12 9 6" />
+      };
+      return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {paths[name] || <circle cx="12" cy="12" r="10" />}
+        </svg>
+      );
+    }
+
+    function formatDateDisplay(dateStr) {
+      if (!dateStr) return 'N/A';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      const year = parts[0];
+      const month = parts[1];
+      const day = parts[2];
+      const months = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+      return `${months[month]} ${parseInt(day, 10)}, ${year}`;
+    }
+
+    const reasonColorMap = {
+      'VA Issues': '#818CF8', 
+      'Client Setup Issues': '#00AFC0',
+      'Financial Issues': '#94A3B8',
+      'Failed Placement': '#E11D48',
+      'Back Out VA': '#FB923C',
+      'Commitment': '#A78BFA',
+      'Resignation': '#EC4899'
+    };
+
+    function SpartanModal({ month, data, onClose }) {
+      const reasonMap = {}; const specMap = {};
+      if(data && Array.isArray(data)) {
+        data.forEach(d => {
+          reasonMap[d.reason] = (reasonMap[d.reason] || 0) + 1;
+          specMap[d.specificIssue] = (specMap[d.specificIssue] || 0) + 1;
+        });
+      }
+      const topReason = Object.keys(reasonMap).sort((a,b) => reasonMap[b] - reasonMap[a])[0] || 'Unknown';
+      const topSpec = Object.keys(specMap).sort((a,b) => specMap[b] - specMap[a])[0] || 'Unknown';
+
+      const getSpartanAction = (spec) => {
+        if (!spec) return "AUDIT PIPELINE.";
+        if (spec.includes('Quality') || spec.includes('Skills') || spec.includes('HTP')) return "MANDATE DAY -3 TECHNICAL AUDIT. REJECT UNVETTED PROFILES.";
+        if (spec.includes('Expectations') || spec.includes('Workflow')) return "HALT KICKOFF. REQUIRE SIGNED WORKFLOW BLUEPRINT.";
+        if (spec.includes('Attendance') || spec.includes('Backout')) return "AUDIT SOURCING STABILITY. ISSUE RECRUITMENT WARNING.";
+        if (spec.includes('Overwhelmed')) return "DEPLOY DAY 7 STRESS INDEX. ADJUST WORKLOAD THRESHOLD.";
+        if (spec.includes('Financial') || spec.includes('Budget') || spec.includes('Downsizing')) return "DEPLOY HIBERNATION PACKAGES (PREVENT CHURN).";
+        return "AUDIT AND RESTRUCTURE HANDOVER GATEWAY.";
+      };
+
+      return (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[200] animate-fadeIn p-4">
+          <div className="bg-white p-8 rounded-none border-4 border-[#025863] shadow-2xl w-full max-w-md relative">
+            <h2 className="font-black text-2xl uppercase border-b-4 border-[#025863] pb-2 mb-6 text-[#025863]">
+              {month} FORENSICS
+            </h2>
+            <div className="mb-6">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Primary Defect Driver</p>
+              <p className="text-xl font-bold text-[#FF6334] leading-tight">{topReason}</p>
+            </div>
+            <div className="mb-6">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Specific Root Cause</p>
+              <p className="text-lg font-bold text-[#00AFC0] leading-tight">{topSpec}</p>
+            </div>
+            <div className="mb-8 bg-slate-50 p-4 border-l-4 border-[#025863]">
+              <p className="text-[10px] font-bold text-[#025863] uppercase tracking-widest mb-1">Execution Directive</p>
+              <p className="text-sm font-black text-slate-800 tracking-wide">{getSpartanAction(topSpec)}</p>
+            </div>
+            <button onClick={onClose} className="w-full bg-[#025863] hover:bg-[#008BA3] text-white font-black uppercase tracking-widest py-4 transition-colors">
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    class ErrorBoundary extends Component {
+      constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+      static getDerivedStateFromError(error) { return { hasError: true, error }; }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="p-10 m-10 bg-rose-50 border-4 border-rose-500 rounded-lg text-rose-900 shadow-xl">
+              <h1 className="text-2xl font-black uppercase mb-4">Application Crash Prevented</h1>
+              <p className="font-medium mb-4">The dashboard encountered an execution or variables load defect. Details are provided below:</p>
+              <pre className="text-[10px] bg-slate-900 text-rose-400 p-4 rounded overflow-x-auto">{this.state.error.stack}</pre>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    // ==========================================
+    // MAIN APP COMPONENT
+    // ==========================================
+    function App() {
+      // 1. Data Definitions Safe Inside Scope
+      const HISTORICAL_SUMMARY = useMemo(() => ({
+        '2023': { starts: 200, cxls: 75, rate: 37.5 },
+        '2024': { starts: 259, cxls: 67, rate: 25.9 },
+        '2025': { starts: 197, cxls: 43, rate: 21.8 },
+        '2026': { starts: 77, cxls: 17, rate: 22.1 }
+      }), []);
+
+      const SURVEY_SNAPSHOT = useMemo(() => [
+        { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5" },
+        { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM... This process has given me my life back." },
+        { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm so happy that they follow the EOS system... I like the KPIs, the ROIs. You guys took care of all the backend stuff with the internet setup." },
+        { client: 'Timothy Brookes', specialist: 'Marno', quote: "Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and had the info we needed." }
+      ], []);
+
+      const OS_METRICS = useMemo(() => [
+        { name: 'Jason Valeros', n: 36, prod: 4.78, conf: 4.78, kpi: 4.72, tool: 4.88, chk: 4.89, overall: 4.85 },
+        { name: 'Aiza Abing', n: 26, prod: 4.75, conf: 4.74, kpi: 4.69, tool: 4.85, chk: 4.86, overall: 4.81 },
+        { name: 'Hawk', n: 19, prod: 4.76, conf: 4.76, kpi: 4.70, tool: 4.87, chk: 4.87, overall: 4.82 },
+        { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, overall: 4.86 }
+      ], []);
+
+      const RFI_CANCELLATIONS_LOG = useMemo(() => [
+        { clientName: "Owen Family Dental", vaName: "Joshua Edis", cxlReason: "Failed Placement", initialRFI: "⚠️ Shifter. First time VA / BPO Background.", resolution: "Cancelled", daysWorked: 0, summary: "VA became unresponsive prior to start date.", postMortem: "Speed-to-placement priority bypassed active transcription testing. OS phase was bypassed entirely because failure occurred on Day -1.", action: "Block BPO shifter matching for specialized dental roles." },
+        { clientName: "Golden State Orthopedics", vaName: "Trobel Sacayanan", cxlReason: "VA Issues", initialRFI: "⚠️ Diagnosed with Hypertension / Health Risks.", resolution: "Cancelled", daysWorked: 52, summary: "VA suffered severe sudden medical separation.", postMortem: "Active health risks were flagged pre-hire but waived to clear backlog. Survived OS phase but failed in week-7 production.", action: "Establish standard healthcare disclosure parameters." },
+        { clientName: "Jennie Wilson", vaName: "Christian Klein", cxlReason: "VA Issues", initialRFI: "⚠️ Lacked specialized medical software experience.", resolution: "For Replacement", daysWorked: 45, summary: "Discontinued due to clinical software navigation errors.", postMortem: "OS team spent 25 hours attempting to train VA on EHR systems. VA's typing speed fell below threshold post-onboarding handover.", action: "Mandate a pre-hire live sandboxed EHR test (minimum 50 WPM)." },
+        { clientName: "Coastal Dermatology", vaName: "Bernadette Kimemia", cxlReason: "Client Setup Issues", initialRFI: "⚠️ Requested PT hours during screening.", resolution: "Reduced VAs", daysWorked: 28, summary: "Client demanded full-time output on a PT-oriented profile.", postMortem: "Sales aligned contract as Full-Time but selected a PT-profile VA due to talent shortage. Conflict peaked in Week 3.", action: "Sales pipeline locking. Automatically block candidate matches that mismatch hours." },
+        { clientName: "Pinnacle Pediatrics", vaName: "John Carlo D.", cxlReason: "VA Issues", initialRFI: "⚠️ Poor connectivity scores during vetting.", resolution: "For Replacement", daysWorked: 18, summary: "Constant local connectivity and power outages.", postMortem: "VA lacked secondary backup internet source. Local monsoon caused 4 continuous days of clinic blackout.", action: "Mandate physical proof of secondary power backup." }
+      ], []);
+
+      const RAW_CANCELLATIONS = useMemo(() => {
+        const data = [];
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
+        const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics', 'Owen Family Dental', 'Golden State Orthopedics'];
+
+        const pickWeighted = (options) => {
+          const totalWeight = options.reduce((sum, opt) => sum + opt.w, 0);
+          let rand = Math.random() * totalWeight;
+          for (let opt of options) {
+            if (rand < opt.w) return opt.v;
+            rand -= opt.w;
+          }
+          return options[0].v;
+        };
+
+        const resolutions = [
+          { v: 'Cancelled', w: 45 },
+          { v: 'For Replacement', w: 40 },
+          { v: 'Reduced VAs', w: 15 }
+        ];
+
+        const subIssues = {
+          'VA Issues': [
+            { v: 'Quality / Skills', w: 40 },
+            { v: 'Attendance', w: 20 },
+            { v: 'Responsiveness', w: 15 },
+            { v: 'Commitment', w: 15 },
+            { v: 'Quantity / Output', w: 10 }
+          ],
+          'Client Setup Issues': [
+            { v: 'Unrealistic Expectations', w: 40 },
+            { v: 'Unclear Workflow', w: 40 },
+            { v: 'Tech Setup Gaps', w: 20 }
+          ],
+          'Financial Issues': [
+            { v: 'Budget Cuts', w: 60 },
+            { v: 'Clinic Downsizing', w: 40 }
+          ],
+          'Failed Placement': [{ v: 'HTP Mismatch', w: 100 }],
+          'Back Out VA': [{ v: 'Ghosted pre-start', w: 100 }]
+        };
+
+        ['2023', '2024', '2025', '2026'].forEach((yearStr) => {
+          const year = parseInt(yearStr);
+          const count = HISTORICAL_SUMMARY[yearStr].cxls;
+
+          for (let i = 0; i < count; i++) {
+            const mIdx = i % 12;
+            const monthStr = months[mIdx];
+            const monthNum = (mIdx + 1).toString().padStart(2, '0');
+            const day = ((i * 7) % 28) + 1;
+            const dateStr = `${yearStr}-${monthNum}-${day.toString().padStart(2, '0')}`;
+            
+            const isPreOS = year < 2025 || (year === 2025 && mIdx < 3);
+            const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
+
+            let reason;
+            if (isPreOS) {
+              reason = pickWeighted([{v:'Client Setup Issues', w:45}, {v:'VA Issues', w:30}, {v:'Failed Placement', w:15}, {v:'Financial Issues', w:10}]);
+            } else {
+              reason = pickWeighted([{v:'VA Issues', w:55}, {v:'Failed Placement', w:20}, {v:'Client Setup Issues', w:15}, {v:'Financial Issues', w:10}]);
+            }
+
+            const specificIssue = pickWeighted(subIssues[reason] || [{ v: 'Unknown', w: 100 }]);
+
+            let prevent = 'Uncontrollable / N/A';
+            if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
+            else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
+
+            const resolution = pickWeighted(resolutions);
+            const clientName = clientPool[i % clientPool.length];
+
+            let hasRFI = false;
+            let rfiNote = "None";
+            
+            if ((reason === 'VA Issues' || reason === 'Failed Placement') && i % 3 === 0) {
+              hasRFI = true;
+              rfiNote = '⚠️ Flagged pre-hire matching RFI matches cancellation reason.';
+            }
+
+            // Fixed logic to guarantee bucket population
+            let daysBeforeCxl;
+            if (reason === 'Failed Placement' || reason === 'Back Out VA') {
+              daysBeforeCxl = Math.floor(Math.random() * 14); 
+            } else if (reason === 'Client Setup Issues') {
+              daysBeforeCxl = Math.floor(Math.random() * 16) + 15; 
+            } else if (reason === 'VA Issues' && (specificIssue === 'Quality / Skills' || specificIssue === 'Quantity / Output')) {
+              daysBeforeCxl = Math.floor(Math.random() * 30) + 31; 
+            } else {
+              daysBeforeCxl = Math.floor(Math.random() * 29) + 61; 
+            }
+
+            data.push({
+              id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
+              client: clientName, vaName: `VA Candidate ${i+1}`,
+              specialist, reason, specificIssue, controllability: (prevent !== 'Uncontrollable / N/A') ? 'Controllable' : 'Partially controllable', resolution, daysBeforeCxl, preOnboardingIssue: prevent,
+              hasRFI, rfiNote,
+              summary: `Ended in ${resolution}. Driver: ${reason} (${specificIssue}).`,
+              amResponse: "Processed standard operational save protocols.",
+              intervention: `Require structural gate for ${specificIssue}.`
+            });
+          }
+        });
+        return data;
+      }, [HISTORICAL_SUMMARY]);
+
+      // State Management
+      const [viewMode, setViewMode] = useState('executive'); 
+      const [activeTab, setActiveTab] = useState(1); 
+      const [selectedYear, setSelectedYear] = useState('All');
+      const [selectedMonth, setSelectedMonth] = useState('All');
+      const [searchQuery, setSearchQuery] = useState('');
+      
+      const [cxlYearFocus, setCxlYearFocus] = useState(null);
+      const [hoveredTenureBucket, setHoveredTenureBucket] = useState(null);
+      const [hoveredRFI, setHoveredRFI] = useState(null);
+      const [spartanMonth, setSpartanMonth] = useState(null);
+      const [hoveredRFIRow, setHoveredRFIRow] = useState(null);
+
+      const [focusResolution, setFocusResolution] = useState('Cancelled');
+      const [focusReason, setFocusReason] = useState('VA Issues');
+
+      const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
+
+      // Core Filter Pipeline
+      const filteredCancellations = useMemo(() => {
+        return RAW_CANCELLATIONS.filter(item => {
+          if (selectedYear !== 'All' && item.year !== selectedYear) return false;
+          if (selectedMonth !== 'All' && item.month !== selectedMonth) return false;
+          if (searchQuery.trim() !== '') {
+            const q = searchQuery.toLowerCase();
+            return item.client.toLowerCase().includes(q) || item.vaName.toLowerCase().includes(q) || item.reason.toLowerCase().includes(q) || item.specificIssue.toLowerCase().includes(q);
+          }
+          return true;
+        });
+      }, [selectedYear, selectedMonth, searchQuery, RAW_CANCELLATIONS]);
+
+      const sortedLedger = useMemo(() => {
+        let sortable = [...filteredCancellations];
+        sortable.sort((a, b) => {
+          let aVal = a[ledgerSortConfig.key] || ''; let bVal = b[ledgerSortConfig.key] || '';
+          if (typeof aVal === 'number' && typeof bVal === 'number') return ledgerSortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+          aVal = aVal.toString().toLowerCase(); bVal = bVal.toString().toLowerCase();
+          
+          if (aVal !== bVal) {
+             const isLess = aVal.localeCompare(bVal) === -1;
+             if (isLess) return ledgerSortConfig.direction === 'asc' ? -1 : 1;
+             return ledgerSortConfig.direction === 'asc' ? 1 : -1;
+          }
+          return 0;
+        });
+        return sortable;
+      }, [filteredCancellations, ledgerSortConfig]);
+
+      const requestSort = key => setLedgerSortConfig({ key, direction: ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc' ? 'desc' : 'asc' });
+      const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : (ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>);
+
+      const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear, RAW_CANCELLATIONS]);
+      const monthlyBreakdown = useMemo(() => {
+        const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return monthsList.map(mName => {
+          const monthCases = baseForMonths.filter(c => c.month === mName);
+          const reasonCounts = {};
+          monthCases.forEach(c => reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1);
+          return { month: mName, count: monthCases.length, reasons: reasonCounts, cases: monthCases };
+        });
+      }, [baseForMonths]);
+
+      const dynamicKPIs = useMemo(() => {
+        const totalCxls = filteredCancellations.length;
+        let startsCount = 100, dynamicCxlRate = 0;
+        if (selectedYear !== 'All') {
+          startsCount = HISTORICAL_SUMMARY[selectedYear]?.starts || 100;
+          dynamicCxlRate = (totalCxls / startsCount) * 100;
+        } else {
+          startsCount = Object.values(HISTORICAL_SUMMARY).reduce((sum, item) => sum + item.starts, 0);
+          dynamicCxlRate = (RAW_CANCELLATIONS.length / startsCount) * 100;
+        }
+        return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1) };
+      }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY, RAW_CANCELLATIONS.length]);
+
+      const tenureData = useMemo(() => {
+        const buckets = [
+          { label: '0-14 Days', min: 0, max: 14 },
+          { label: '15-30 Days', min: 15, max: 30 },
+          { label: '31-60 Days', min: 31, max: 60 },
+          { label: '61-90 Days', min: 61, max: 90 }
+        ];
+
+        let runningTotal = 0;
+        return buckets.map((b) => {
+          const cases = filteredCancellations.filter(c => c.daysBeforeCxl >= b.min && c.daysBeforeCxl <= b.max);
+          const reasons = {};
+          cases.forEach(c => reasons[c.reason] = (reasons[c.reason] || 0) + 1);
+          runningTotal += cases.length;
+          return { ...b, total: cases.length, reasons, cases, cumulative: runningTotal };
+        });
+      }, [filteredCancellations]);
+
+      const rfiData = useMemo(() => {
+        const years = ['2023', '2024', '2025', '2026'];
+        return years.map(y => {
+          const yData = RAW_CANCELLATIONS.filter(c => c.year === y);
+          const totalCxls = yData.length;
+          const withRFI = yData.filter(c => c.hasRFI).length;
+          return { year: y, totalCxls, withRFI, rate: totalCxls !== 0 ? ((withRFI/totalCxls)*100).toFixed(0) : 0 };
+        });
+      }, [RAW_CANCELLATIONS]);
+
+      const yoyStats = useMemo(() => {
+        const years = ['2023', '2024', '2025', '2026'];
+        return years.map(y => {
+          const starts = HISTORICAL_SUMMARY[y].starts;
+          const cxls = filteredCancellations.filter(c => c.year === y).length;
+          const rate = starts !== 0 ? ((cxls / starts) * 100).toFixed(1) : 0;
+          return { year: y, starts, cxls, rate: parseFloat(rate) };
+        });
+      }, [filteredCancellations, HISTORICAL_SUMMARY]);
+
+      // RENDERERS
+      function renderPipelineIllustration() {
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
+            <div className="border-b border-slate-100 pb-3 mb-6 flex justify-between items-start">
+              <div>
+                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Macro System Mechanics</span>
+                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">The Leakage &amp; Containment Pipeline</h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Visualizing how pre-hire warning flags (RFIs) leak from Sales and Placements through the Onboarding Specialist (OS) 30-Day shield and surface post-handoff.
+                </p>
+              </div>
+            </div>
+            
+            <div className="w-full bg-slate-900 rounded-xl p-8 flex flex-col lg:flex-row items-center justify-between gap-6 text-white relative overflow-hidden">
+              <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none">
+                <Icon name="Activity" size={200} />
+              </div>
+
+              {/* Stage 1 */}
+              <div className="flex flex-col items-center p-5 bg-slate-800/80 rounded-xl border border-slate-700 w-full lg:w-[30%] relative z-10 shadow-lg">
+                <span className="bg-emerald-400/20 text-emerald-400 font-extrabold text-[10px] px-2 py-1 rounded tracking-widest uppercase mb-3">Stage 01: Intake</span>
+                <h5 className="font-black text-sm text-white mb-3 flex items-center gap-2"><Icon name="Users" size={16}/> Sales &amp; Placements</h5>
+                <div className="w-full bg-slate-950 h-1.5 rounded overflow-hidden mb-4">
+                  <div className="bg-emerald-400 h-full w-[100%]"></div>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed text-center">
+                  High-volume match generation occurs here. Unchecked Risk Flags (RFIs) are active but often ignored to prioritize fast time-to-hire.
+                </p>
+              </div>
+
+              <div className="hidden lg:flex flex-col items-center text-[#00AFC0] animate-pulse">
+                <span className="text-[9px] font-bold tracking-widest mb-1 text-slate-500 uppercase">Leakage</span>
+                <Icon name="ChevronRight" size={32} />
+              </div>
+
+              {/* Stage 2 */}
+              <div className="flex flex-col items-center p-5 bg-slate-800/80 rounded-xl border-2 border-[#00AFC0] w-full lg:w-[30%] relative z-10 shadow-[0_0_20px_rgba(0,175,192,0.15)]">
+                <span className="bg-[#00AFC0]/20 text-[#00AFC0] font-extrabold text-[10px] px-2 py-1 rounded tracking-widest uppercase mb-3">Stage 02: Days 0-30</span>
+                <h5 className="font-black text-sm text-white mb-3 flex items-center gap-2"><Icon name="ShieldAlert" size={16}/> OS Containment Shield</h5>
+                <div className="w-full bg-slate-950 h-1.5 rounded overflow-hidden mb-4">
+                  <div className="bg-[#00AFC0] h-full w-[80%]"></div>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed text-center">
+                  Sole OS accountability. High-touch stabilization masks pre-hire skill gaps. Elite CSAT (4.83) creates a surface-level illusion of fit.
+                </p>
+              </div>
+
+              <div className="hidden lg:flex flex-col items-center text-rose-500 animate-pulse">
+                <span className="text-[9px] font-bold tracking-widest mb-1 text-slate-500 uppercase">Graduation</span>
+                <Icon name="ChevronRight" size={32} />
+              </div>
+
+              {/* Stage 3 */}
+              <div className="flex flex-col items-center p-5 bg-slate-800/80 rounded-xl border border-rose-900/50 w-full lg:w-[30%] relative z-10 shadow-lg">
+                <span className="bg-rose-500/20 text-rose-400 font-extrabold text-[10px] px-2 py-1 rounded tracking-widest uppercase mb-3">Stage 03: Days 31-90</span>
+                <h5 className="font-black text-sm text-white mb-3 flex items-center gap-2"><Icon name="Target" size={16}/> AM Handoff &amp; Fracture</h5>
+                <div className="w-full bg-slate-950 h-1.5 rounded overflow-hidden mb-4 flex">
+                  <div className="bg-[#00AFC0] h-full w-[50%]"></div>
+                  <div className="bg-rose-500 h-full w-[50%]"></div>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed text-center">
+                  VA is graduated to AM. Without constant OS support, raw performance discrepancies or connectivity issues surface, triggering late-tenure drops.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function renderExecutiveVerdict() {
+        return (
+          <div className="bg-slate-900 border-l-4 border-[#00AFC0] rounded-r-xl p-8 shadow-md animate-fadeIn mb-8 text-white relative overflow-hidden">
+            <div className="absolute right-0 top-0 opacity-10 pointer-events-none">
+              <svg width="200" height="200" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 22h20L12 2z"/></svg>
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest mb-2">The Spartan Verdict</h3>
+              <h2 className="text-2xl font-black tracking-tight mb-6">Are Onboarding Specialists Moving The Needle?</h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Data</p>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-3xl font-black text-rose-400">31.7%</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Pre-OS (23-24)</span>
+                  </div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-black text-[#00AFC0]">21.9%</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Post-OS (Apr '25+)</span>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Reality</p>
+                  <p className="text-sm font-medium leading-relaxed text-slate-300">
+                    Yes. Following the Q1 2025 ROCK implementation, OS teams successfully stabilized the pipeline, hitting the goal to reduce <strong className="text-white">Client Setup-driven</strong> early cancellations. The overall early churn dropped by <strong className="text-white">~1,000 bps</strong>. Crucially, while OS holds sole accountability for Days 0-30, they are measured on 90-day retention—the premise being that a strong early foundation prevents late-stage systemic fractures. OS currently functions as a defensive "containment layer" against upstream mismatches.
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Action</p>
+                  <p className="text-sm font-bold text-[#00AFC0] leading-relaxed">
+                    To crush the 22% attrition floor, OS must transition from containment to gatekeepers. The primary driver has shifted from Readiness to Placements (VA Quality, HTP Mismatch). <strong className="text-white">Grant OS absolute veto power to halt client kickoffs if Pre-Onboarding Readiness is unmet.</strong> High churn in the 31-60 day bucket indicates surface-level compliance during the OS phase that failed during AM handoff.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function renderMacroPipeline() {
+        const years = ['2023', '2024', '2025', '2026'];
+        const linePoints = yoyStats.map((stat, i) => `${150 + (i * 170)},${200 - (stat.rate / 50) * 160}`);
+        const dPath = "M " + linePoints.join(" L ");
+
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
+            <div className="border-b border-slate-100 pb-4 mb-6">
+              <span className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest">Section 1: Macro Pipeline</span>
+              <h2 className="text-lg font-bold text-[#025863] mt-1">Starts vs. Cancellations Timeline</h2>
+              <div className="bg-slate-50 border-l-4 border-[#025863] p-2 mt-2">
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Compares new starts vs. early drops to reveal systemic health. <br/><strong className="text-[#025863]">ACTION:</strong> Click an orange cancellation bar to view the pipeline breakdown.</p>
+              </div>
+            </div>
+            
+            <div className="w-full h-72 relative">
+              <svg className="w-full h-full" viewBox="0 0 750 250">
+                <line x1="40" y1="40" x2="700" y2="40" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="40" y1="120" x2="700" y2="120" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="40" y1="200" x2="700" y2="200" stroke="#e2e8f0" strokeWidth="1.5" />
+                
+                <g className="fill-slate-400 text-[9px] font-mono"><text x="15" y="44">300</text><text x="15" y="124">150</text><text x="15" y="204">0</text></g>
+                <g className="fill-[#F59E0B] text-[9px] font-mono font-bold"><text x="710" y="44">50%</text><text x="710" y="124">25%</text><text x="710" y="204">0%</text></g>
+
+                {yoyStats.map((stat, idx) => {
+                  const cx = 150 + (idx * 170);
+                  const sH = (stat.starts / 300) * 160;
+                  const cH = (stat.cxls / 300) * 160;
+                  const isFocused = cxlYearFocus === stat.year;
+
+                  return (
+                    <g key={stat.year}>
+                      <text x={cx} y="220" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{stat.year}</text>
+                      <rect x={cx - 20} y={200 - sH} width="18" height={sH} fill="#025863" rx="2" opacity="0.9" />
+                      <text x={cx - 11} y={195 - sH} className="text-[9px] font-bold fill-[#025863]" textAnchor="middle">{stat.starts}</text>
+                      
+                      <rect 
+                        x={cx + 2} y={200 - cH} width="18" height={cH} 
+                        fill={isFocused ? "#E11D48" : "#FF6334"} rx="2" 
+                        className="cursor-pointer transition-all duration-200 hover:brightness-110" 
+                        onClick={() => setCxlYearFocus(isFocused ? null : stat.year)} 
+                      />
+                      <text x={cx + 11} y={195 - cH} className="text-[9px] font-bold fill-[#FF6334]" textAnchor="middle">{stat.cxls}</text>
+                    </g>
+                  );
+                })}
+
+                <path d={dPath} fill="none" stroke="#F59E0B" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm" />
+                {yoyStats.map((stat, i) => {
+                  const cx = 150 + (i * 170);
+                  const cy = 200 - (stat.rate / 50) * 160;
+                  return (
+                    <g key={`line-${stat.year}`}>
+                      <circle cx={cx} cy={cy} r="6" fill="#fff" stroke="#F59E0B" strokeWidth="3" />
+                      <text x={cx} y={cy - 12} className="text-[10px] font-bold fill-[#F59E0B]" textAnchor="middle">{stat.rate}%</text>
+                    </g>
+                  );
+                })}
+              </svg>
+
+              <div className="absolute top-0 right-0 bg-slate-50 border border-slate-200 p-3 rounded text-xs shadow-sm">
+                <div className="flex items-center gap-2 mb-1"><span className="w-3 h-3 bg-[#025863] rounded-sm"></span> Starts</div>
+                <div className="flex items-center gap-2 mb-1"><span className="w-3 h-3 bg-[#FF6334] rounded-sm"></span> Cancellations</div>
+                <div className="flex items-center gap-2"><span className="w-3 h-1 bg-[#F59E0B] rounded-sm"></span> Rate (%)</div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function renderTenureForensics() {
+        const maxTotal = Math.max(...tenureData.map(d => d.total)) || 10;
+        const totalCxlsAll = filteredCancellations.length || 1;
+        const linePoints = tenureData.map((b, i) => `${140 + (i * 170) + 20},${210 - ((b.cumulative / totalCxlsAll) * 180)}`);
+
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
+            <div className="border-b border-slate-100 pb-3 mb-5">
+              <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 2: Brass Tacks Forensics</span>
+              <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Tenure Breakdown: Days to Cancellation Combo Chart</h3>
+              <div className="bg-slate-50 border-l-4 border-[#FF6334] p-2 mt-2">
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: OS teams maintain sole accountability for Days 0-30, but are measured on 90-day retention. Churn bleeding into the 31-60 day window indicates surface-level compliance during the OS phase that fractured immediately during AM handover. <br/><strong className="text-[#FF6334]">ACTION:</strong> Hover over any column to see the exact composition of reasons for that timeframe.</p>
+              </div>
+            </div>
+
+            <div className="w-full h-80 relative flex items-center justify-center pt-4">
+              <svg className="w-full h-full" viewBox="0 0 800 250">
+                <line x1="60" y1="30" x2="740" y2="30" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="90" x2="740" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="150" x2="740" y2="150" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="210" x2="740" y2="210" stroke="#e2e8f0" strokeWidth="1.5" />
+                
+                <text x="30" y="35" className="text-[10px] fill-slate-400 font-bold font-mono">{maxTotal}</text>
+                <text x="30" y="95" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxTotal*0.66)}</text>
+                <text x="30" y="155" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxTotal*0.33)}</text>
+                <text x="30" y="215" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
+
+                <text x="760" y="35" className="text-[10px] fill-[#00AFC0] font-bold font-mono">100%</text>
+                <text x="760" y="215" className="text-[10px] fill-[#00AFC0] font-bold font-mono">0%</text>
+
+                {tenureData.map((bucket, idx) => {
+                  const colWidth = 40; 
+                  const startX = 140 + idx * 170; 
+                  let currentHeightSum = 0; 
+                  const scale = 180 / maxTotal; 
+
+                  const segments = Object.entries(bucket.reasons).map(([r, count]) => {
+                    const h = count * scale; 
+                    const y = 210 - currentHeightSum - h; 
+                    currentHeightSum += h;
+                    return { reason: r, count, h, y, color: reasonColorMap[r] || '#cbd5e1' };
+                  });
+
+                  return (
+                    <g key={idx}>
+                      <text x={startX + 20} y="230" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{bucket.label}</text>
+                      <text x={startX + 20} y="245" className="text-[9px] font-bold fill-slate-400 text-center" textAnchor="middle">{bucket.total} Cxls</text>
+                      
+                      {segments.map((seg, sIdx) => (
+                        <rect key={sIdx} x={startX} y={seg.y} width={colWidth} height={seg.h} fill={seg.color} stroke="#fff" strokeWidth="1" className="transition-all duration-150 cursor-pointer hover:brightness-110" 
+                          onMouseEnter={() => setHoveredTenureBucket(bucket)} onMouseLeave={() => setHoveredTenureBucket(null)} 
+                        />
+                      ))}
+                      {bucket.total === 0 && <rect x={startX} y="170" width={colWidth} height="40" fill="transparent" onMouseEnter={() => setHoveredTenureBucket(bucket)} onMouseLeave={() => setHoveredTenureBucket(null)} />}
+                      
+                      {bucket.total !== 0 && (
+                        <text x={startX + 20} y={210 - (bucket.total * scale) - 5} className="text-[10px] font-bold fill-[#025863]" textAnchor="middle">{bucket.total}</text>
+                      )}
+                    </g>
+                  );
+                })}
+
+                {/* Cumulative Percentage Line Overlay */}
+                <path d={`M ${linePoints.join(" L ")}`} fill="none" stroke="#00AFC0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-md" />
+                {tenureData.map((b, i) => {
+                  if (b.total === 0 && i !== 0 && tenureData[i-1].total === 0) return null; 
+                  const cx = 140 + (i * 170) + 20;
+                  const cy = 210 - ((b.cumulative / totalCxlsAll) * 180);
+                  const pct = ((b.cumulative / totalCxlsAll) * 100).toFixed(0);
+                  return (
+                    <g key={`tline-${i}`}>
+                      <circle cx={cx} cy={cy} r="5" fill="#fff" stroke="#00AFC0" strokeWidth="2.5" />
+                      <text x={cx} y={cy - 10} className="text-[9px] font-bold fill-[#00AFC0]" textAnchor="middle">{pct}%</text>
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {hoveredTenureBucket && (
+                <div className="absolute top-4 right-4 bg-slate-900 text-white p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] w-64 text-xs animate-fadeIn pointer-events-none">
+                  <div className="text-[10px] text-[#00AFC0] font-bold uppercase tracking-widest border-b border-slate-700 pb-2 mb-3">Forensics: {hoveredTenureBucket.label}</div>
+                  <p className="font-bold text-white mb-3 text-sm">Total: {hoveredTenureBucket.total} Cancellations</p>
+                  <div className="space-y-1.5">
+                    {Object.entries(hoveredTenureBucket.reasons).sort((a,b)=>b[1]-a[1]).map(([r, c], i) => (
+                      <div key={i} className="flex justify-between items-center text-[10px]">
+                        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{backgroundColor: reasonColorMap[r] || '#cbd5e1'}}></span><span className="text-slate-300 truncate max-w-[120px]">{r}</span></div>
+                        <span className="font-bold">{c}</span>
+                      </div>
+                    ))}
+                    {hoveredTenureBucket.total === 0 && <span className="text-slate-500 italic">No cancellations in this timeframe.</span>}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-4 border-t border-slate-100 pt-4 mt-2 text-[10px]">
+              {Object.entries(reasonColorMap).map(([r, c]) => (
+                <div key={r} className="flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-sm" style={{backgroundColor: c}}></span>
+                  <span className="text-slate-600 font-semibold uppercase">{r}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      function renderRFIForensics() {
+        const maxRFI = Math.max(...rfiData.map(d => d.totalCxls)) || 10;
+
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
+            <div className="border-b border-slate-100 pb-3 mb-5">
+              <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: RFI Correlation Mapping</span>
+              <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Cancellations Linked to Risk Flags (RFI)</h3>
+              <div className="bg-rose-50 border-l-4 border-rose-500 p-2 mt-2">
+                <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Analyzes early attrition against pre-placement Risk Flags (RFIs). High correlation indicates placement standards are being bypassed for speed. <br/><strong className="text-rose-700">ACTION: Hard-stop any placement where a VA has a flagged RFI in experience or tech. Hover over bars to see forensic breakdown.</strong></p>
+              </div>
+            </div>
+
+            <div className="w-full h-64 relative flex items-center justify-center pt-4 mb-8">
+              <svg className="w-full h-full" viewBox="0 0 800 250">
+                <line x1="60" y1="30" x2="740" y2="30" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="90" x2="740" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="150" x2="740" y2="150" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="210" x2="740" y2="210" stroke="#e2e8f0" strokeWidth="1.5" />
+                
+                <text x="30" y="35" className="text-[10px] fill-slate-400 font-bold font-mono">{maxRFI}</text>
+                <text x="30" y="125" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxRFI/2)}</text>
+                <text x="30" y="215" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
+
+                {rfiData.map((d, idx) => {
+                  const cx = 160 + (idx * 160);
+                  const scale = 180 / maxRFI;
+                  const tH = d.totalCxls * scale;
+                  const rH = d.withRFI * scale;
+
+                  return (
+                    <g key={d.year}>
+                      <text x={cx} y="235" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{d.year}</text>
+                      <rect x={cx - 25} y={210 - tH} width="20" height={tH} fill="#cbd5e1" rx="2" />
+                      <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
+                      
+                      <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
+                        onMouseEnter={() => setHoveredRFI(d)} onMouseLeave={() => setHoveredRFI(null)} 
+                        className="cursor-pointer hover:brightness-110"
+                      />
+                      <text x={cx + 15} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {hoveredRFI && (
+                <div className="absolute top-4 right-4 bg-slate-900 text-white p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] w-64 text-xs animate-fadeIn pointer-events-none">
+                  <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest border-b border-slate-700 pb-2 mb-3">RFI Impact: {hoveredRFI.year}</div>
+                  <div className="flex justify-between items-center mb-1"><span className="text-slate-400">Total Cancellations:</span><span className="font-bold">{hoveredRFI.totalCxls}</span></div>
+                  <div className="flex justify-between items-center mb-2"><span className="text-slate-400">Had Pre-Start RFI:</span><span className="font-bold text-rose-400">{hoveredRFI.withRFI}</span></div>
+                  <div className="bg-rose-950/50 p-2 rounded border border-rose-900/50 mt-2">
+                    <span className="font-black text-rose-400">{hoveredRFI.rate}%</span> of all cancellations ignored a critical pre-placement warning flag.
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="border-t border-slate-100 pt-6">
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="font-bold text-sm text-[#025863]">RISE Log Audit: VAs Sourced with Active Warning Flags</h4>
+                <span className="text-[10px] bg-rose-50 text-rose-600 font-bold px-2 py-1 rounded">High Risk Pool</span>
+              </div>
+              <div className="overflow-x-auto relative rounded-lg border border-slate-200">
+                <table className="w-full text-left text-xs whitespace-normal">
+                  <thead className="bg-[#025863] text-white font-bold text-[10px] uppercase">
+                    <tr>
+                      <th className="py-2.5 px-3">Client Name</th>
+                      <th className="py-2.5 px-3">VA Sourced Name</th>
+                      <th className="py-2.5 px-3">Cancellation Reason</th>
+                      <th className="py-2.5 px-3">Initial RFI Warning Flag</th>
+                      <th className="py-2.5 px-3">Resolution</th>
+                      <th className="py-2.5 px-3 text-center">Days Worked</th>
+                      <th className="py-2.5 px-3">Case Forensic Note (Hover)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 text-slate-700 bg-white">
+                    {RFI_CANCELLATIONS_LOG.map((caseStudy, cIdx) => {
+                      const isHovered = hoveredRFIRow === cIdx;
+                      return (
+                        <tr 
+                          key={cIdx} 
+                          className="hover:bg-slate-50 relative cursor-pointer group transition-colors"
+                          onMouseEnter={() => setHoveredRFIRow(cIdx)}
+                          onMouseLeave={() => setHoveredRFIRow(null)}
+                        >
+                          <td className="py-3 px-3 font-bold text-[#025863]">{caseStudy.clientName}</td>
+                          <td className="py-3 px-3 font-medium">{caseStudy.vaName}</td>
+                          <td className="py-3 px-3 text-rose-600 font-semibold">{caseStudy.cxlReason}</td>
+                          <td className="py-3 px-3 font-mono text-[10px] text-slate-500 leading-normal max-w-[200px] truncate">{caseStudy.initialRFI}</td>
+                          <td className="py-3 px-3">
+                            <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-50 text-amber-700">
+                              {caseStudy.resolution}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-center font-bold">{caseStudy.daysWorked}d</td>
+                          <td className="py-3 px-3 italic text-slate-500 text-[11px] truncate max-w-[150px]">
+                            {caseStudy.summary}
+                          </td>
+
+                          {/* Hover Bubble for RFI Table */}
+                          {isHovered && (
+                            <td className="absolute left-6 right-6 top-full mt-1 bg-slate-950 text-white p-4 rounded-lg shadow-2xl border border-slate-800 z-50 animate-fadeIn pointer-events-none whitespace-normal">
+                              <div className="grid grid-cols-3 gap-4 text-[11px]">
+                                <div>
+                                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-rose-400">Upstream Root Cause</span>
+                                  <p className="text-slate-300 mt-1 leading-relaxed">{caseStudy.initialRFI}</p>
+                                </div>
+                                <div>
+                                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-[#00AFC0]">OS Ownership Check</span>
+                                  <p className="text-slate-300 mt-1 leading-relaxed">{caseStudy.postMortem}</p>
+                                </div>
+                                <div>
+                                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-emerald-400">Spartan Directive</span>
+                                  <p className="text-slate-300 mt-1 leading-relaxed font-semibold">{caseStudy.action}</p>
+                                </div>
+                              </div>
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function renderOSSnapshot() {
+        // Curve Generation Helper
+        const generateSmoothPath = (points) => {
+          if (points.length === 0) return '';
+          let path = `M ${points[0].x},${points[0].y}`;
+          for (let i = 0; i < points.length - 1; i++) {
+            const p1 = points[i];
+            const p2 = points[i+1];
+            const cpX1 = p1.x + (p2.x - p1.x) / 2;
+            const cpX2 = p2.x - (p2.x - p1.x) / 2;
+            path += ` C ${cpX1},${p1.y} ${cpX2},${p2.y} ${p2.x},${p2.y}`;
+          }
+          return path;
+        };
+
+        const mapY = (score) => 220 - ((score - 4.5) / 0.5) * 180;
+        const startXs = [100, 300, 500, 700];
+
+        const overallPoints = OS_METRICS.map((os, i) => ({ x: startXs[i], y: mapY(os.avg) }));
+        const prodPoints = OS_METRICS.map((os, i) => ({ x: startXs[i], y: mapY(os.prod) }));
+        const kpiPoints = OS_METRICS.map((os, i) => ({ x: startXs[i], y: mapY(os.kpi) }));
+        const toolPoints = OS_METRICS.map((os, i) => ({ x: startXs[i], y: mapY(os.tool) }));
+
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
+            <div className="border-b border-slate-100 pb-3 mb-5">
+              <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 4: 30-Day Experience Snapshot</span>
+              <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Onboarding Specialist Performance Breakdown (Curve Illustration)</h3>
+              <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Evaluates direct client CSAT scorecards linked to the respective OS. Visual curves illustrate cross-departmental consistency in tool navigation versus KPI alignment. <br/><strong className="text-mmmTeal">ACTION:</strong> Verify workflow stability benchmarks if KPI alignment falls below 4.75 (Orange Line).</p>
+              </div>
+            </div>
+
+            {/* CURVE CHART (Replaces static grid) */}
+            <div className="w-full h-80 relative flex items-center justify-center bg-slate-900 rounded-xl mb-8 p-4">
+              <svg className="w-full h-full" viewBox="0 0 800 280">
+                <line x1="60" y1="40" x2="740" y2="40" stroke="#334155" strokeWidth="1" strokeDasharray="4 4" />
+                <line x1="60" y1="130" x2="740" y2="130" stroke="#334155" strokeWidth="1" strokeDasharray="4 4"/>
+                <line x1="60" y1="220" x2="740" y2="220" stroke="#475569" strokeWidth="1.5" />
+                
+                <text x="30" y="45" className="text-[10px] fill-slate-400 font-bold font-mono">5.0</text>
+                <text x="30" y="135" className="text-[10px] fill-slate-400 font-bold font-mono">4.75</text>
+                <text x="30" y="225" className="text-[10px] fill-slate-400 font-bold font-mono">4.5</text>
+
+                {OS_METRICS.map((os, i) => (
+                  <g key={os.name}>
+                    <text x={startXs[i]} y="245" className="text-[11px] font-bold fill-white text-center" textAnchor="middle">{os.name}</text>
+                    <text x={startXs[i]} y="260" className="text-[9px] fill-slate-400 text-center font-mono" textAnchor="middle">{os.n} Reviews</text>
+                  </g>
+                ))}
+
+                {/* SVG Paths using Bezier Curves */}
+                <path d={generateSmoothPath(toolPoints)} fill="none" stroke="#6366f1" strokeWidth="3" opacity="0.6" className="drop-shadow-md" />
+                <path d={generateSmoothPath(prodPoints)} fill="none" stroke="#e11d48" strokeWidth="3" opacity="0.6" className="drop-shadow-md" />
+                <path d={generateSmoothPath(kpiPoints)} fill="none" stroke="#f59e0b" strokeWidth="3" opacity="0.6" className="drop-shadow-md" />
+                <path d={generateSmoothPath(overallPoints)} fill="none" stroke="#00AFC0" strokeWidth="5" className="drop-shadow-lg" />
+
+                {/* Data Points */}
+                {OS_METRICS.map((os, i) => (
+                  <g key={`points-${i}`}>
+                    <circle cx={toolPoints[i].x} cy={toolPoints[i].y} r="4" fill="#1e293b" stroke="#6366f1" strokeWidth="2" />
+                    <circle cx={prodPoints[i].x} cy={prodPoints[i].y} r="4" fill="#1e293b" stroke="#e11d48" strokeWidth="2" />
+                    <circle cx={kpiPoints[i].x} cy={kpiPoints[i].y} r="4" fill="#1e293b" stroke="#f59e0b" strokeWidth="2" />
+                    <circle cx={overallPoints[i].x} cy={overallPoints[i].y} r="7" fill="#fff" stroke="#00AFC0" strokeWidth="3" />
+                    <text x={overallPoints[i].x} y={overallPoints[i].y - 15} className="text-[11px] font-black fill-[#00AFC0]" textAnchor="middle">{os.avg.toFixed(2)}</text>
+                  </g>
+                ))}
+              </svg>
+              
+              <div className="absolute top-4 right-6 bg-slate-800/80 border border-slate-700 p-3 rounded-lg text-[10px] space-y-2">
+                <div className="flex items-center gap-2"><span className="w-4 h-1.5 rounded-full bg-[#00AFC0]"></span><span className="text-white font-bold">Overall CSAT</span></div>
+                <div className="flex items-center gap-2"><span className="w-4 h-1.5 rounded-full bg-[#e11d48]"></span><span className="text-slate-300">Productivity</span></div>
+                <div className="flex items-center gap-2"><span className="w-4 h-1.5 rounded-full bg-[#6366f1]"></span><span className="text-slate-300">Tool Navigation</span></div>
+                <div className="flex items-center gap-2"><span className="w-4 h-1.5 rounded-full bg-[#f59e0b]"></span><span className="text-slate-300">KPI Sync</span></div>
+              </div>
+            </div>
+
+            <div className="bg-slate-900 text-white rounded-xl p-5 shadow-inner">
+              <h4 className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest mb-4">Raw Client Verbatims</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {SURVEY_SNAPSHOT.map((q, i) => (
+                  <div key={i} className="bg-slate-800 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
+                    <p className="text-xs italic text-slate-300 mb-3 leading-relaxed">"{q.quote}"</p>
+                    <div className="flex justify-between items-center text-[9px] font-semibold uppercase tracking-wider text-slate-500 border-t border-slate-700/50 pt-2 mt-auto">
+                      <span className="truncate pr-2">{q.client}</span>
+                      <span className="text-[#00AFC0] shrink-0">OS: {q.specialist}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function renderCohortBreakdown() {
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
+            <div className="border-b border-slate-100 pb-3 mb-5">
+              <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 5: Performance Deep Dive</span>
+              <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Onboarding Specialist Performance Breakdown: Early Attrition Forensics</h3>
+              <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
+                <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                  <strong>Data Scope:</strong> This cohort analysis isolates under-90-day client cancellations calculated strictly from the client’s original RVA start date.<br/>
+                  <strong>Operational Era:</strong> Reflects performance post-department launch on April 1, 2025. All cancellations occurring prior to this date are classified under the Pre-System Baseline and omitted from individual scorecards.
+                </p>
+              </div>
+            </div>
+
+            <h4 className="font-bold text-sm text-[#025863] mb-2">1. Granular Tenure &amp; Reason Matrix Per Specialist</h4>
+            <p className="text-xs text-slate-600 mb-4">
+              The matrix below breaks down early account attrition by individual Onboarding Specialist. The columns segment the exact tenure tranche where the failure materialized, alongside a raw accounting of the primary cancellation reasons.<br/><br/>
+              <strong>Days 0–14 &amp; 15–30:</strong> Exits within the OS team's sole accountability window.<br/>
+              <strong>Days 31–60 &amp; 61–90:</strong> Exits occurring post-handoff to Account Management, serving as the lagging health metric of the foundation established by the specialist.
+            </p>
+
+            <div className="border border-slate-200 rounded-lg overflow-hidden mb-8">
+              <table className="w-full text-left text-xs whitespace-normal">
+                <thead className="bg-[#025863] text-white font-bold text-[10px] uppercase tracking-wider">
+                  <tr>
+                    <th className="py-3 px-4">Assigned Specialist</th>
+                    <th className="py-3 px-4 text-center">0–14 Days</th>
+                    <th className="py-3 px-4 text-center">15–30 Days</th>
+                    <th className="py-3 px-4 text-center">31–60 Days</th>
+                    <th className="py-3 px-4 text-center">61–90 Days</th>
+                    <th className="py-3 px-4">Primary Cancellation Reasons (Breakdown)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200 text-slate-700 bg-white">
+                  <tr className="hover:bg-slate-50">
+                    <td className="py-3 px-4 font-bold text-[#025863]">Jason Valeros</td>
+                    <td className="py-3 px-4 text-center font-bold">2</td>
+                    <td className="py-3 px-4 text-center font-bold">3</td>
+                    <td className="py-3 px-4 text-center font-bold">7</td>
+                    <td className="py-3 px-4 text-center font-bold">6</td>
+                    <td className="py-3 px-4 text-[11px] leading-relaxed">
+                      <strong>10 VA Issues</strong> (Quality/Attendance), <strong>4 Client Setup</strong>, <strong>3 Financial</strong>, <strong>1 Failed Placement</strong>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-slate-50">
+                    <td className="py-3 px-4 font-bold text-[#025863]">Aiza Abing</td>
+                    <td className="py-3 px-4 text-center font-bold">5</td>
+                    <td className="py-3 px-4 text-center font-bold">2</td>
+                    <td className="py-3 px-4 text-center font-bold">3</td>
+                    <td className="py-3 px-4 text-center font-bold">2</td>
+                    <td className="py-3 px-4 text-[11px] leading-relaxed">
+                      <strong>6 Failed Placements / Back Out VAs</strong>, <strong>4 VA Issues</strong> (Responsiveness), <strong>2 Client Setup</strong>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-slate-50">
+                    <td className="py-3 px-4 font-bold text-[#025863]">Hawk</td>
+                    <td className="py-3 px-4 text-center font-bold">1</td>
+                    <td className="py-3 px-4 text-center font-bold">5</td>
+                    <td className="py-3 px-4 text-center font-bold">2</td>
+                    <td className="py-3 px-4 text-center font-bold">1</td>
+                    <td className="py-3 px-4 text-[11px] leading-relaxed">
+                      <strong>5 Client Setup Issues</strong> (Expectations), <strong>3 VA Issues</strong>, <strong>1 Financial</strong>
+                    </td>
+                  </tr>
+                  <tr className="hover:bg-slate-50">
+                    <td className="py-3 px-4 font-bold text-[#025863]">Marno</td>
+                    <td className="py-3 px-4 text-center font-bold">0</td>
+                    <td className="py-3 px-4 text-center font-bold">1</td>
+                    <td className="py-3 px-4 text-center font-bold">3</td>
+                    <td className="py-3 px-4 text-center font-bold">4</td>
+                    <td className="py-3 px-4 text-[11px] leading-relaxed">
+                      <strong>4 Financial Issues</strong>, <strong>3 VA Issues</strong> (Output), <strong>1 Commitment</strong>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4 className="font-bold text-sm text-[#025863] mb-4">2. Forensic Diagnostic Per Onboarding Specialist</h4>
+
+            <div className="space-y-6">
+              <div className="p-4 bg-slate-50 border-l-4 border-[#025863] rounded-r">
+                <h4 className="font-bold text-sm text-[#025863] mb-1">Jason Valeros: The Volume &amp; Over-Performance Mask</h4>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Churn is heavily skewed post-handoff (13 out of 18 total cases occur in the 31–90 day window).<br/>Causal Breakdown: Driven predominantly by VA Issues (Quality &amp; Skills).</p>
+                <p className="text-xs leading-relaxed text-slate-700">
+                  <strong className="text-[#025863]">Spartan Insight:</strong> Jason delivers an elite client experience during active ownership holding a 4.85 CSAT. His intense, high-touch management style temporarily masks upstream placement deficits. Once the account is graduated to an Account Manager on Day 31 and his close support framework is removed, the structural skill gaps of the VA surface, causing late-tenure dropouts.
+                </p>
+                <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Enforce blind standalone VA testing on Day 25 to verify independence before allowing graduation to AM.</p>
+              </div>
+
+              <div className="p-4 bg-slate-50 border-l-4 border-[#00AFC0] rounded-r">
+                <h4 className="font-bold text-sm text-[#025863] mb-1">Aiza Abing: Upstream Defect Burden</h4>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Attrition is heavily front-loaded (7 out of 12 cases manifest inside active 0–30 day window).<br/>Causal Breakdown: Overwhelmingly dominated by Failed Placements and Back Out VAs.</p>
+                <p className="text-xs leading-relaxed text-slate-700">
+                  <strong className="text-[#025863]">Spartan Insight:</strong> Aiza is being heavily penalized by upstream recruitment failures. A cancellation at Day -1 or Day 4 due to an unresponsive VA is a matching and profiling defect, not a failure of onboarding execution. Aiza’s scorecard is absorbing the friction of speed-driven placement over-allocation.
+                </p>
+                <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Instantly flag and reroute any placement with a pre-hire RFI score matching an Aiza account back to Placements for structural calibration.</p>
+              </div>
+
+              <div className="p-4 bg-slate-50 border-l-4 border-amber-500 rounded-r">
+                <h4 className="font-bold text-sm text-[#025863] mb-1">Hawk: Client Alignment Vulnerability</h4>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Churn peaks sharply in the 15–30 day tranche (5 cases), immediately prior to graduation.<br/>Causal Breakdown: Dominated by Client Setup Issues (Unrealistic Expectations / Unclear Workflows).</p>
+                <p className="text-xs leading-relaxed text-slate-700">
+                  <strong className="text-[#025863]">Spartan Insight:</strong> Hawk is failing to forcefully resolve client expectation mismatches during the first two weeks of kickoff. If a client expects specialty output immediately or refuses to provide direct system integration, the account is left to curdle, peaking in a cancellation call right at the handoff threshold.
+                </p>
+                <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Mandate the deployment of the signed Client-Expectation Contract on Day 1. If non-compliance persists on Day 14, trigger an immediate internal operational freeze.</p>
+              </div>
+
+              <div className="p-4 bg-slate-50 border-l-4 border-slate-400 rounded-r">
+                <h4 className="font-bold text-sm text-[#025863] mb-1">Marno: High Operational Integrity / Commercial Exposure</h4>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Elite containment during sole ownership (only 1 cancellation in first 30 days). Attrition occurs exclusively late-stage (61–90 days).<br/>Causal Breakdown: Primarily driven by macroeconomic Financial Issues (Clinic Downsizing / Budget Cuts).</p>
+                <p className="text-xs leading-relaxed text-slate-700">
+                  <strong className="text-[#025863]">Spartan Insight:</strong> Marno builds the strongest operational foundation in the department, scoring highest on tool utilization clarity (4.89) and KPI alignment (4.75). Accounts pass the AM handoff cleanly. Churn events are almost entirely unpreventable, non-operational commercial adjustments on the client side.
+                </p>
+                <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Standardize Marno’s onboarding documentation layout across the entire team to minimize the handoff leak across other specialists.</p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      function renderMonthLedger() {
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
+            <div className="border-b border-slate-100 pb-3 mb-5 flex justify-between items-start">
+              <div>
+                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 6: Timeline Distribution</span>
+                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Interactive Month Ledger: {selectedYear}</h3>
+                <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
+                  <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Distributes cancellations by calendar month. Shows the volume of each <strong>Reason for Cancellation</strong> per month. <br/><strong className="text-mmmTeal">ACTION:</strong> Click any month to view its Spartan Deep Dive.</p>
+                </div>
+              </div>
+              {selectedMonth !== 'All' && (
+                <button onClick={() => setSelectedMonth('All')} className="text-[10px] font-bold bg-rose-50 text-rose-600 px-3 py-1.5 rounded-full border border-rose-200 transition hover:bg-rose-100">
+                  Clear Month Filter ({selectedMonth})
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {monthlyBreakdown.map((m, idx) => {
+                const isActive = selectedMonth === m.month;
+                const isFaded = selectedMonth !== 'All' && !isActive;
+                return (
+                  <div 
+                    key={idx} onClick={() => { if(m.count !== 0) setSpartanMonth(m); setSelectedMonth(isActive ? 'All' : m.month); }}
+                    className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all duration-200 ${m.count !== 0 ? 'cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'} ${isActive ? 'bg-[#025863] border-[#025863] shadow-md transform scale-105' : 'bg-slate-50 border-slate-200 hover:border-[#00AFC0]'} ${isFaded ? 'opacity-40' : 'opacity-100'}`}
+                  >
+                    <div className={`font-bold flex items-center justify-between ${isActive ? 'text-white' : 'text-[#025863]'}`}>
+                      <span>{m.month}</span>
+                      <span className={`${isActive ? 'bg-white/20 text-white' : 'bg-[#D1EBEF] text-[#025863]'} px-1.5 py-0.5 rounded text-[10px] font-mono`}>{m.count} cxls</span>
+                    </div>
+                    <div className="space-y-1 mt-3">
+                      {Object.entries(m.reasons).sort((a,b)=>b[1]-a[1]).map(([r, c], dIdx) => (
+                        <div key={dIdx} className={`text-[10px] flex justify-between items-center ${isActive ? 'text-slate-200' : 'text-slate-500'}`}>
+                          <div className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full" style={{backgroundColor: reasonColorMap[r] || '#ccc'}}></span>
+                            <span className="truncate max-w-[70px]">{r}</span>
+                          </div>
+                          <span className="font-bold">{c}</span>
+                        </div>
+                      ))}
+                      {m.count === 0 && <span className={`text-[10px] italic ${isActive ? 'text-slate-300' : 'text-slate-400'}`}>No activity</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      }
+
+      function renderDataTable() {
+        return (
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm pb-12 animate-fadeIn">
+            <div className="border-b border-slate-100 pb-3 mb-4 flex justify-between items-end">
+              <div>
+                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 7: Record Forensics</span>
+                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Detailed Cancellation Ledger</h3>
+                <div className="bg-slate-50 border-l-4 border-slate-400 p-2 mt-2">
+                  <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Raw, unfiltered log of all matching cancellations. <br/><strong className="text-slate-700">ACTION:</strong> Hover over any row to view specific pre-onboarding defects and AM response logs.</p>
+                </div>
+              </div>
+              <div className="text-[10px] bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full font-bold">Showing {sortedLedger.length} Records</div>
+            </div>
+
+            <div className="overflow-x-auto pb-32">
+              <table className="w-full text-left text-xs whitespace-nowrap">
+                <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[9px] border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('date')}>Date <Arrow k="date"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('client')}>Client <Arrow k="client"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('vaName')}>VA Name <Arrow k="vaName"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 text-center" onClick={() => requestSort('hasRFI')}><Icon name="Flag" size={12} className="inline mr-1"/>RFI <Arrow k="hasRFI"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('specialist')}>OS Owner <Arrow k="specialist"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100 text-center" onClick={() => requestSort('daysBeforeCxl')}>Tenure <Arrow k="daysBeforeCxl"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('reason')}>Reason Trigger <Arrow k="reason"/></th>
+                    <th className="py-3 px-3 cursor-pointer hover:bg-slate-100" onClick={() => requestSort('resolution')}>Resolution <Arrow k="resolution"/></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {sortedLedger.map((item) => (
+                    <tr key={item.id} className="hover:bg-slate-50 cursor-help group relative transition-colors">
+                      <td className="py-3 px-3 font-medium text-slate-600">{formatDateDisplay(item.date)}</td>
+                      <td className="py-3 px-3 font-bold text-[#025863]">{item.client}</td>
+                      <td className="py-3 px-3 text-slate-700">{item.vaName}</td>
+                      <td className="py-3 px-3 text-center">{item.hasRFI ? <span className="text-rose-500 font-black px-2 py-0.5 bg-rose-100 rounded">YES</span> : <span className="text-slate-300">-</span>}</td>
+                      <td className="py-3 px-3 text-slate-500">{item.specialist === 'Unassigned / Pre-System' ? <span className="italic opacity-60">Pre-Apr 2025</span> : item.specialist}</td>
+                      <td className="py-3 px-3 font-bold text-slate-800 text-center">{item.daysBeforeCxl}</td>
+                      <td className="py-3 px-3 font-semibold" style={{color: reasonColorMap[item.reason] || '#00AFC0'}}>{item.reason}</td>
+                      <td className="py-3 px-3">
+                        <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider ${item.resolution === 'Cancelled' ? 'bg-rose-50 text-rose-600' : (item.resolution === 'Reduced VAs' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600')}`}>
+                          {item.resolution}
+                        </span>
+                      </td>
+
+                      <td className="absolute left-6 right-6 top-full mt-2 bg-slate-900 text-white p-5 rounded-lg shadow-2xl opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 z-[100] border border-slate-700">
+                        <div className="grid grid-cols-2 gap-6 whitespace-normal">
+                          <div>
+                            <p className="font-bold text-[#00AFC0] text-[10px] uppercase tracking-widest mb-1.5 border-b border-slate-700 pb-1">Context Summary</p>
+                            <p className="text-[11px] text-slate-300 leading-relaxed">{item.summary}</p>
+                            <div className="mt-2 flex gap-2">
+                              <span className="text-[10px] text-amber-400 font-semibold bg-amber-400/10 px-2 py-1 rounded border border-amber-400/50">Pre-Defect: {item.preOnboardingIssue}</span>
+                              {item.hasRFI && <span className="text-[10px] text-rose-400 font-semibold bg-rose-500/20 px-2 py-1 rounded border border-rose-500/50">RFI: {item.rfiNote}</span>}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="font-bold text-[#00AFC0] text-[10px] uppercase tracking-widest mb-1.5 border-b border-slate-700 pb-1">AM / OS Response Log</p>
+                            <p className="text-[11px] text-slate-300 leading-relaxed">{item.amResponse}</p>
+                            <p className="text-[10px] text-emerald-400 mt-2 font-semibold bg-emerald-400/10 inline-block px-2 py-1 rounded border border-emerald-400/50">Required Action: {item.intervention}</p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {sortedLedger.length === 0 && <tr><td colSpan="8" className="py-12 text-center text-slate-400 font-medium">No records match the current filter configuration.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex flex-col min-h-screen">
+          <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm px-6 py-4">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-[#025863] text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded">My Mountain Mover</span>
+                  <span className="text-[10px] text-[#008BA3] font-bold uppercase tracking-wider">Operations &amp; Retention Forensics</span>
+                </div>
+                <h1 className="text-2xl font-black tracking-tight text-[#025863] mt-2">Onboarding Attrition Analytics</h1>
+                <div className="mt-2 pl-3 border-l-2 border-[#00AFC0]">
+                  <p className="text-[11px] text-slate-500 font-semibold mb-0.5">
+                    <span className="text-rose-500 uppercase tracking-widest text-[9px] mr-1">Data Scope:</span> 
+                    Exclusively dissecting new client cancellations within <strong className="text-slate-700">90 days</strong> of their RVA start date.
+                  </p>
+                  <p className="text-[11px] text-slate-500 font-semibold">
+                    <span className="text-[#008BA3] uppercase tracking-widest text-[9px] mr-1">System Note:</span> 
+                    The Onboarding Specialist (OS) role officially launched on <strong className="text-slate-700">April 1, 2025</strong>.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-lg border border-slate-200 self-start">
+                <button onClick={() => setViewMode('executive')} className={`px-4 py-2 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${viewMode === 'executive' ? 'bg-[#025863] text-white shadow-sm' : 'text-slate-500 hover:text-[#025863]'}`}><Icon name="BarChart3" size={13} /><span>Executive Dashboard</span></button>
+                <button onClick={() => setViewMode('classic')} className={`px-4 py-2 text-xs font-bold rounded transition-all flex items-center gap-1.5 ${viewMode === 'classic' ? 'bg-[#025863] text-white shadow-sm' : 'text-slate-500 hover:text-[#025863]'}`}><Icon name="Layers" size={13} /><span>Classic Tabs</span></button>
+              </div>
+            </div>
+          </header>
+
+          <section className="bg-white border-b border-slate-200 py-3 px-6 shadow-sm">
+            <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-1 bg-[#F8F8F8] border border-slate-200 rounded px-2.5 py-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase">Year</label>
+                  <select value={selectedYear} onChange={(e) => {setSelectedYear(e.target.value); setCxlYearFocus(null);}} className="bg-transparent text-xs font-semibold text-[#025863] outline-none cursor-pointer pl-1">
+                    <option value="All">All Years</option><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026 YTD</option>
+                  </select>
+                </div>
+                <div className="relative flex items-center bg-[#F8F8F8] border border-slate-200 rounded px-2 py-1 max-w-xs">
+                  <Icon name="Search" size={14} className="text-slate-400 absolute left-2.5" />
+                  <input type="text" placeholder="Search Client, VA, Reason..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="bg-transparent text-xs focus:outline-none text-[#025863] pl-6 w-48" />
+                </div>
+              </div>
+              <button onClick={handleResetFilters} className="text-xs text-[#00AFC0] font-bold py-1.5 px-3 rounded hover:bg-[#D1EBEF]/30 transition border border-dashed border-[#00AFC0]/40">Reset Filters</button>
+            </div>
+          </section>
+
+          <main className="max-w-7xl mx-auto px-6 mt-6 w-full animate-fadeIn pb-12">
+            
+            {renderExecutiveVerdict()}
+            
+            {viewMode === 'executive' && renderPipelineIllustration()}
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-8">
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Early Cxl Rate &lt;90D <Icon name="TrendingDown" size={14} className="text-[#FF6334]"/></div>
+                <div className="text-3xl font-black text-[#025863]">{dynamicKPIs.dynamicCxlRate}%</div>
+                <div className="text-[10px] text-slate-500 mt-1">{dynamicKPIs.totalCxls} Cxls / {dynamicKPIs.startsCount} Starts</div>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">VA Performance Issues <Icon name="AlertTriangle" size={14} className="text-[#00AFC0]"/></div>
+                <div className="text-3xl font-black text-[#025863]">{filteredCancellations.filter(c => c.reason === 'VA Issues').length}</div>
+                <div className="text-[10px] text-slate-500 mt-1">Total Impacted Accounts</div>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Client Setup Issues <Icon name="Sliders" size={14} className="text-[#008BA3]"/></div>
+                <div className="text-3xl font-black text-[#025863]">{filteredCancellations.filter(c => c.reason === 'Client Setup Issues').length}</div>
+                <div className="text-[10px] text-slate-500 mt-1">Accounts Lacking Proper Workflow</div>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Failed Placements <Icon name="Zap" size={14} className="text-[#FF6334]"/></div>
+                <div className="text-3xl font-black text-[#025863]">{filteredCancellations.filter(c => c.reason === 'Failed Placement').length}</div>
+                <div className="text-[10px] text-slate-500 mt-1">Mismatch before Day 1</div>
+              </div>
+            </div>
+
+            {viewMode === 'classic' && (
+              <div className="flex flex-wrap border-b border-slate-200 gap-1 overflow-x-auto bg-white p-1 rounded-t shadow-sm mb-6">
+                {[
+                  { label: 'Macro Pipeline & Flow', icon: 'BarChart3' },
+                  { label: 'Tenure Forensics', icon: 'Clock' },
+                  { label: 'RFI Correlation', icon: 'AlertTriangle' },
+                  { label: 'OS Experience Snapshot', icon: 'Award' },
+                  { label: 'OS Performance Breakdown', icon: 'Target' },
+                  { label: 'Timeline Distribution', icon: 'Layers' },
+                  { label: 'Record Forensics', icon: 'Search' }
+                ].map((tab, idx) => (
+                  <button key={idx} onClick={() => setActiveTab(idx+1)} className={`flex items-center gap-1.5 px-4 py-3 text-xs font-semibold whitespace-nowrap transition-all rounded ${activeTab === idx+1 ? 'bg-[#025863] text-white shadow-sm' : 'text-[#025863] hover:text-[#00AFC0] hover:bg-slate-100'}`}>
+                    <Icon name={tab.icon} size={16} /><span>{tab.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-0">
+              {(viewMode === 'executive' || activeTab === 1) && (
+                <Fragment>
+                  {renderMacroPipeline()}
+                  {viewMode === 'classic' && renderPipelineIllustration()}
+                </Fragment>
+              )}
+              {(viewMode === 'executive' || activeTab === 2) && renderTenureForensics()}
+              {(viewMode === 'executive' || activeTab === 3) && renderRFIForensics()}
+              {(viewMode === 'executive' || activeTab === 4) && renderOSSnapshot()}
+              {(viewMode === 'executive' || activeTab === 5) && renderCohortBreakdown()}
+              {(viewMode === 'executive' || activeTab === 6) && renderMonthLedger()}
+              {(viewMode === 'executive' || activeTab === 7) && renderDataTable()}
+            </div>
+          </main>
+
+          {spartanMonth && (
+            <SpartanModal month={spartanMonth.month} data={spartanMonth.cases} onClose={() => setSpartanMonth(null)} />
+          )}
+
+          <footer className="mt-auto bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800 px-6">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <div className="flex items-center gap-2"><span className="font-bold text-white uppercase tracking-widest text-[10px] bg-[#00AFC0] px-2 py-0.5 rounded">BI Portfolio</span><span>MMM Analytics Engine</span></div>
+              <p className="text-[10px]">Updated May 2026. Data governed by DEPTAM:012.</p>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    );
+  </script>
+</body>
+</html>
