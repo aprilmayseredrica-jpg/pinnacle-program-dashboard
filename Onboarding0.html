@@ -26,12 +26,49 @@ import {
   Calendar,
   Clock,
   DollarSign,
-  Flag
+  Flag,
+  Target
 } from 'lucide-react';
 
 // ==========================================
 // HOISTED HELPER COMPONENTS & CONFIGURATIONS
 // ==========================================
+
+function Icon({ name, size = 16, className = "" }) {
+  const LucideIcon = {
+    BarChart3,
+    TrendingDown,
+    Users,
+    CheckCircle2,
+    AlertTriangle,
+    ShieldAlert,
+    Award,
+    Filter,
+    RefreshCw,
+    Search,
+    Info,
+    ChevronRight,
+    Activity,
+    Zap,
+    Star,
+    Layers,
+    Skull,
+    Sliders,
+    Sparkles,
+    TrendingUp,
+    FileText,
+    HelpCircle,
+    BookOpen,
+    Calendar,
+    Clock,
+    DollarSign,
+    Flag,
+    Target
+  }[name];
+
+  if (!LucideIcon) return null;
+  return <LucideIcon size={size} className={className} />;
+}
 
 function InfoTooltip({ text }) {
   return (
@@ -2033,7 +2070,7 @@ export default function App() {
             </p>
           </div>
 
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded relative">
+          <div className="p-4 bg-slate-50 border-l-4 border-[#025863] rounded relative">
             <span className="absolute top-2 right-2 font-mono text-2xl font-black text-slate-200">02</span>
             <h4 className="font-bold text-xs text-[#025863] uppercase">Day 1: Expectation Kickoff</h4>
             <p className="text-xs text-slate-600 mt-2 leading-relaxed">
@@ -2041,7 +2078,7 @@ export default function App() {
             </p>
           </div>
 
-          <div className="p-4 bg-slate-50 border border-slate-200 rounded relative">
+          <div className="p-4 bg-slate-50 border-slate-200 rounded relative">
             <span className="absolute top-2 right-2 font-mono text-2xl font-black text-slate-200">03</span>
             <h4 className="font-bold text-xs text-[#025863] uppercase">Day 7 &amp; 14: Health Checks</h4>
             <p className="text-xs text-slate-600 mt-2 leading-relaxed">
