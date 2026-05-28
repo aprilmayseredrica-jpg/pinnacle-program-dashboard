@@ -46,7 +46,48 @@
     const { useState, useMemo, Fragment, Component } = React;
 
     // ==========================================
-    // DATA GENERATORS & CONSTANTS (Consolidated)
+    // UI HELPER COMPONENTS & FORMATTERS
+    // ==========================================
+    const Icon = ({ name, size = 16, className = "" }) => {
+      const paths = {
+        BarChart3: <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />,
+        Layers: <Fragment><path d="m12 3-10 5 10 5 10-5-10-5Z" /><path d="m2 17 10 5 10-5" /><path d="m2 12 10 5 10-5" /></Fragment>,
+        TrendingDown: <Fragment><polyline points="22 17 13.5 8.5 8.5 13.5 2 7" /><polyline points="16 17 22 17 22 11" /></Fragment>,
+        Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
+        Target: <Fragment><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Fragment>,
+        Search: <Fragment><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></Fragment>,
+        ShieldAlert: <Fragment><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></Fragment>,
+        AlertTriangle: <Fragment><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></Fragment>,
+        Clock: <Fragment><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></Fragment>,
+        Flag: <Fragment><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></Fragment>,
+        Award: <Fragment><circle cx="12" cy="8" r="7" /><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12" /></Fragment>
+      };
+      return (
+        <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {paths[name] || <circle cx="12" cy="12" r="10" />}
+        </svg>
+      );
+    };
+
+    function formatDateDisplay(dateStr) {
+      if (!dateStr) return 'N/A';
+      const [year, month, day] = dateStr.split('-');
+      const months = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+      return `${months[month]} ${parseInt(day, 10)}, ${year}`;
+    }
+
+    const reasonColorMap = {
+      'VA Issues': '#818CF8', 
+      'Client Setup Issues': '#00AFC0',
+      'Financial Issues': '#94A3B8',
+      'Failed Placement': '#E11D48',
+      'Back Out VA': '#FB923C',
+      'Commitment': '#A78BFA',
+      'Resignation': '#EC4899'
+    };
+
+    // ==========================================
+    // DATA GENERATORS & CONSTANTS 
     // ==========================================
     const HISTORICAL_SUMMARY = {
       '2023': { starts: 200, cxls: 75, rate: 37.5 },
@@ -69,20 +110,19 @@
       { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, avg: 4.86 }
     ];
 
-    const RFI_CANCELLATIONS = [
-      { client: 'Owen Family Dental', va: 'Joshua Edis', rfi: '⚠️ Shifter. First time VA / BPO Background.', reason: 'Back Out VA', date: '2026-04-01', tenure: 0, specialist: 'Aiza Abing', summary: 'VA became unresponsive prior to start date.' },
-      { client: 'Golden State Orthopedics', va: 'Trobel Sacayanan', rfi: '⚠️ Diagnosed with Hypertension / Health Risks', reason: 'VA Issues', date: '2026-02-09', tenure: 52, specialist: 'Hawk', summary: 'VA experienced sudden severe health outage.' },
-      { client: 'Jennie Wilson', va: 'Christian Klein', rfi: '⚠️ Lacked specialized medical software experience', reason: 'VA Issues', date: '2025-10-15', tenure: 45, specialist: 'Jason Valeros', summary: 'Discontinued due to insurance billing complexity.' },
-      { client: 'Coastal Dermatology', va: 'Bernadette Kimemia', rfi: '⚠️ Requested PT hours during screening', reason: 'Client Setup Issues', date: '2026-03-28', tenure: 28, specialist: 'Marno', summary: 'Clinic demanded full-time output on a PT-oriented profile.' },
-      { client: 'Pinnacle Pediatrics', va: 'John Carlo D.', rfi: '⚠️ Poor connectivity scores during vetting', reason: 'VA Issues', date: '2026-01-18', tenure: 18, specialist: 'Aiza Abing', summary: 'Constant local connectivity outages caused clinic disconnects.' }
-    ];
+    const RFI_MAPPINGS = {
+      'Owen Family Dental': '⚠️ Shifter. First time VA / BPO Background.',
+      'Golden State Orthopedics': '⚠️ Diagnosed with Hypertension / Health Risks',
+      'Jennie Wilson': '⚠️ Lacked specialized medical software experience',
+      'Coastal Dermatology': '⚠️ Requested PT hours during screening',
+      'Pinnacle Pediatrics': '⚠️ Poor connectivity scores during vetting'
+    };
 
     const RAW_CANCELLATIONS = (() => {
       const data = [];
       const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const monthMap = {'Jan':1,'Feb':2,'Mar':3,'Apr':4,'May':5,'Jun':6,'Jul':7,'Aug':8,'Sep':9,'Oct':10,'Nov':11,'Dec':12};
       const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
-      const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics'];
+      const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics', 'Owen Family Dental', 'Golden State Orthopedics'];
 
       const pickWeighted = (options) => {
         const totalWeight = options.reduce((sum, opt) => sum + opt.w, 0);
@@ -121,23 +161,22 @@
         'Back Out VA': [{ value: 'Ghosted pre-start', weight: 100 }]
       };
 
-      // STRICT MATH LOOPS - NO '<' OPERATORS USED IN JAVASCRIPT BLOCKS (Prevents XML/JSX parsing crash)
-      Array.from({ length: 4 }).forEach((_, yIdx) => {
-        const year = ['2023', '2024', '2025', '2026'][yIdx];
-        const count = HISTORICAL_SUMMARY[year].cxls;
+      const rfiNotesPool = Object.values(RFI_MAPPINGS);
 
-        Array.from({ length: count }).forEach((_, i) => {
+      ['2023', '2024', '2025', '2026'].forEach((yearStr) => {
+        const year = parseInt(yearStr);
+        const count = HISTORICAL_SUMMARY[yearStr].cxls;
+
+        for (let i = 0; i < count; i++) {
           const mIdx = i % 12;
           const monthStr = months[mIdx];
           const monthNum = (mIdx + 1).toString().padStart(2, '0');
           const day = ((i * 7) % 28) + 1;
-          const dateStr = `${year}-${monthNum}-${day.toString().padStart(2, '0')}`;
+          const dateStr = `${yearStr}-${monthNum}-${day.toString().padStart(2, '0')}`;
           
-          // Rule: No OS prior to April 1, 2025 (April is index 3)
-          const isPreOS = Math.min(parseInt(year), 2025) === parseInt(year) && (parseInt(year) !== 2025 || Math.min(mIdx, 2) === mIdx);
+          const isPreOS = Math.min(year, 2025) === year && (year !== 2025 || Math.min(mIdx, 2) === mIdx);
           const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
 
-          // Determine Reason
           let reason;
           if (isPreOS) {
             reason = pickWeighted([{v:'Client Setup Issues', w:45}, {v:'VA Issues', w:30}, {v:'Failed Placement', w:15}, {v:'Financial Issues', w:10}]);
@@ -145,39 +184,47 @@
             reason = pickWeighted([{v:'VA Issues', w:55}, {v:'Failed Placement', w:20}, {v:'Client Setup Issues', w:15}, {v:'Financial Issues', w:10}]);
           }
 
-          // Assign Sub-Issue
           const specificIssue = pickWeighted(subIssues[reason] || [{ value: 'Unknown', weight: 100 }]);
 
-          // Preventable Link
           let prevent = 'Uncontrollable / N/A';
           if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
           else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
 
           const resolution = pickWeighted(resolutions);
+          const clientName = clientPool[i % clientPool.length];
 
-          // Tenure Data Constraints (Must be <90 days)
+          let hasRFI = false;
+          let rfiNote = "None";
+          
+          if (RFI_MAPPINGS[clientName]) {
+            hasRFI = true;
+            rfiNote = RFI_MAPPINGS[clientName];
+          } else if ((reason === 'VA Issues' || reason === 'Failed Placement') && i % 3 === 0) {
+            hasRFI = true;
+            rfiNote = rfiNotesPool[i % rfiNotesPool.length];
+          }
+
           let daysBeforeCxl;
           if (reason === 'Failed Placement' || reason === 'Back Out VA') {
-            daysBeforeCxl = Math.floor(Math.random() * 14); // 0-13 days
+            daysBeforeCxl = Math.floor(Math.random() * 14); 
           } else if (reason === 'Client Setup Issues') {
-            daysBeforeCxl = Math.floor(Math.random() * 16) + 15; // 15-30 days
+            daysBeforeCxl = Math.floor(Math.random() * 16) + 15; 
           } else if (reason === 'VA Issues' && specificIssue === 'Quality / Skills') {
-            daysBeforeCxl = Math.floor(Math.random() * 30) + 31; // 31-60 days
+            daysBeforeCxl = Math.floor(Math.random() * 30) + 31; 
           } else {
-            daysBeforeCxl = Math.floor(Math.random() * 29) + 61; // 61-90 days
+            daysBeforeCxl = Math.floor(Math.random() * 29) + 61; 
           }
 
           data.push({
-            id: `cxl-${year}-${i}`, year: String(year), month: monthStr, date: dateStr,
-            client: clientPool[i % clientPool.length], vaName: `VA Candidate ${i+1}`,
+            id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
+            client: clientName, vaName: `VA Candidate ${i+1}`,
             specialist, reason, specificIssue, controllability: (prevent !== 'Uncontrollable / N/A') ? 'Controllable' : 'Partially controllable', resolution, daysBeforeCxl, preOnboardingIssue: prevent,
-            hasRFI: (reason === 'VA Issues' || reason === 'Failed Placement') && i % 3 === 0,
-            rfiNote: '⚠️ Flagged pre-hire matching RFI matches cancellation reason.',
+            hasRFI, rfiNote,
             summary: `Ended in ${resolution}. Driver: ${reason} (${specificIssue}).`,
             amResponse: "Processed standard operational save protocols.",
             intervention: `Require structural gate for ${specificIssue}.`
           });
-        });
+        }
       });
       return data;
     })();
@@ -203,6 +250,56 @@
     }
 
     // ==========================================
+    // SPARTAN MODAL (DEEP DIVE)
+    // ==========================================
+    const SpartanModal = ({ month, data, onClose }) => {
+      const reasonMap = {}; const specMap = {};
+      if(data && Array.isArray(data)) {
+        data.forEach(d => {
+          reasonMap[d.reason] = (reasonMap[d.reason] || 0) + 1;
+          specMap[d.specificIssue] = (specMap[d.specificIssue] || 0) + 1;
+        });
+      }
+      
+      const topReason = Object.keys(reasonMap).sort((a,b) => reasonMap[b] - reasonMap[a])[0] || 'Unknown';
+      const topSpec = Object.keys(specMap).sort((a,b) => specMap[b] - specMap[a])[0] || 'Unknown';
+
+      const getSpartanAction = (spec) => {
+        if (spec.includes('Quality') || spec.includes('Skills') || spec.includes('HTP')) return "MANDATE DAY -3 TECHNICAL AUDIT. REJECT UNVETTED PROFILES.";
+        if (spec.includes('Expectations') || spec.includes('Workflow')) return "HALT KICKOFF. REQUIRE SIGNED WORKFLOW BLUEPRINT.";
+        if (spec.includes('Attendance') || spec.includes('Backout')) return "AUDIT SOURCING STABILITY. ISSUE RECRUITMENT WARNING.";
+        if (spec.includes('Overwhelmed')) return "DEPLOY DAY 7 STRESS INDEX. ADJUST WORKLOAD THRESHOLD.";
+        if (spec.includes('Financial') || spec.includes('Budget') || spec.includes('Downsizing')) return "DEPLOY HIBERNATION PACKAGES (PREVENT CHURN).";
+        return "AUDIT AND RESTRUCTURE HANDOVER GATEWAY.";
+      };
+
+      return (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[200] animate-fadeIn p-4">
+          <div className="bg-white p-8 rounded-none border-4 border-[#025863] shadow-2xl w-full max-w-md relative">
+            <h2 className="font-black text-2xl uppercase border-b-4 border-[#025863] pb-2 mb-6 text-[#025863]">
+              {month} FORENSICS
+            </h2>
+            <div className="mb-6">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Primary Defect Driver</p>
+              <p className="text-xl font-bold text-[#FF6334] leading-tight">{topReason}</p>
+            </div>
+            <div className="mb-6">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Specific Root Cause</p>
+              <p className="text-lg font-bold text-[#00AFC0] leading-tight">{topSpec}</p>
+            </div>
+            <div className="mb-8 bg-slate-50 p-4 border-l-4 border-[#025863]">
+              <p className="text-[10px] font-bold text-[#025863] uppercase tracking-widest mb-1">Execution Directive</p>
+              <p className="text-sm font-black text-slate-800 tracking-wide">{getSpartanAction(topSpec)}</p>
+            </div>
+            <button onClick={onClose} className="w-full bg-[#025863] hover:bg-[#008BA3] text-white font-black uppercase tracking-widest py-4 transition-colors">
+              Acknowledge
+            </button>
+          </div>
+        </div>
+      );
+    };
+
+    // ==========================================
     // MAIN APP COMPONENT
     // ==========================================
     function App() {
@@ -218,7 +315,6 @@
       const [hoveredRFI, setHoveredRFI] = useState(null);
       const [spartanMonth, setSpartanMonth] = useState(null);
 
-      // Hierarchical Drill-down State
       const [focusResolution, setFocusResolution] = useState('Cancelled');
       const [focusReason, setFocusReason] = useState('VA Issues');
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
@@ -253,7 +349,7 @@
       const requestSort = key => setLedgerSortConfig({ key, direction: ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc' ? 'desc' : 'asc' });
       const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>;
 
-      // Month Ledger Aggregation (Ignores month filter to show full calendar)
+      // Month Ledger Aggregation 
       const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear]);
       const monthlyBreakdown = useMemo(() => {
         const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -290,7 +386,6 @@
         if (!cxlYearFocus) return null;
         const focusData = RAW_CANCELLATIONS.filter(c => c.year === cxlYearFocus);
         
-        // 1. Resolutions
         const resMap = {};
         focusData.forEach(c => {
           resMap[c.resolution] = resMap[c.resolution] || { count: 0, days: 0 };
@@ -300,7 +395,6 @@
 
         const activeRes = resMap[focusResolution] ? focusResolution : (resList[0]?.name || '');
 
-        // 2. Reasons 
         const reasonMap = {};
         focusData.filter(c => c.resolution === activeRes).forEach(c => {
           reasonMap[c.reason] = reasonMap[c.reason] || { count: 0, days: 0 };
@@ -310,7 +404,6 @@
 
         const activeReas = reasonMap[focusReason] ? focusReason : (reasonList[0]?.name || '');
 
-        // 3. Sub Issues
         const specMap = {};
         focusData.filter(c => c.resolution === activeRes && c.reason === activeReas).forEach(c => {
           specMap[c.specificIssue] = specMap[c.specificIssue] || { count: 0, days: 0 };
@@ -323,7 +416,7 @@
           totalFocus: focusData.length,
           activeRes, activeReas 
         };
-      }, [cxlYearFocus, focusResolution, focusReason, filteredCancellations]);
+      }, [cxlYearFocus, focusResolution, focusReason]);
 
       // Tenure Buckets Logic
       const tenureData = useMemo(() => {
@@ -354,6 +447,17 @@
           return { year: y, totalCxls, withRFI, rate: totalCxls > 0 ? ((withRFI/totalCxls)*100).toFixed(0) : 0 };
         });
       }, []);
+
+      // Dynamic YoY Stats
+      const yoyStats = useMemo(() => {
+        const years = ['2023', '2024', '2025', '2026'];
+        return years.map(y => {
+          const starts = HISTORICAL_SUMMARY[y].starts;
+          const cxls = filteredCancellations.filter(c => c.year === y).length;
+          const rate = starts > 0 ? ((cxls / starts) * 100).toFixed(1) : 0;
+          return { year: y, starts, cxls, rate: parseFloat(rate) };
+        });
+      }, [filteredCancellations]);
 
       // RENDERERS
       function renderExecutiveVerdict() {
@@ -387,7 +491,7 @@
                 <div>
                   <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Action</p>
                   <p className="text-sm font-bold text-[#00AFC0] leading-relaxed">
-                    To crush the 22% attrition floor, OS must transition from containment to gatekeepers. The primary driver has shifted from Readiness to Placements (VA Quality, HTP Mismatch). <strong className="text-white">Grant OS absolute veto power to halt client kickoffs if Pre-Onboarding Readiness is unmet.</strong> High churn in the 31-60 day bucket indicates surface-level compliance during the OS phase that failed during AM handoff—mandate a stricter 30-day graduation gate.
+                    To crush the 22% attrition floor, OS must transition from containment to gatekeepers. The primary driver has shifted from Readiness to Placements (VA Quality, HTP Mismatch). <strong className="text-white">Grant OS absolute veto power to halt client kickoffs if Pre-Onboarding Readiness is unmet.</strong> High churn in the 31-60 day bucket indicates surface-level compliance during the OS phase that failed during AM handoff.
                   </p>
                 </div>
               </div>
@@ -435,7 +539,7 @@
                       <rect 
                         x={cx + 2} y={200 - cH} width="18" height={cH} 
                         fill={isFocused ? "#E11D48" : "#FF6334"} rx="2" 
-                        className="cursor-pointer transition-all duration-200 hover:brightness-110" 
+                        className="cursor-pointer transition-all duration-200 hover:brightness-110 hover:stroke-2 hover:stroke-rose-900" 
                         onClick={() => setCxlYearFocus(isFocused ? null : stat.year)} 
                       />
                       <text x={cx + 11} y={195 - cH} className="text-[9px] font-bold fill-[#FF6334]" textAnchor="middle">{stat.cxls}</text>
@@ -741,7 +845,7 @@
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {osMetricsTableData.map(os => (
+              {DATA.OS_METRICS.map(os => (
                 <div key={os.name} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
                   <div className="flex justify-between items-center border-b border-slate-200 pb-2 mb-3">
                     <h4 className="font-bold text-[#025863] truncate">{os.name}</h4>
@@ -765,7 +869,7 @@
             <div className="bg-slate-900 text-white rounded-xl p-5 shadow-inner">
               <h4 className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest mb-4">Raw Client Verbatims</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {SURVEY_SNAPSHOT.map((q, i) => (
+                {DATA.SURVEY_SNAPSHOT.map((q, i) => (
                   <div key={i} className="bg-slate-800 p-4 rounded-lg border border-slate-700">
                     <p className="text-xs italic text-slate-300 mb-3">"{q.quote}"</p>
                     <div className="flex justify-between items-center text-[9px] font-semibold uppercase tracking-wider text-slate-500 border-t border-slate-700 pt-2">
@@ -780,10 +884,6 @@
         );
       }
 
-      // ==========================================
-      // SPECIFIC COHORT BREAKDOWN SECTION
-      // ==========================================
-      const osMetricsTableData = OS_METRICS;
       function renderCohortBreakdown() {
         return (
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
@@ -860,7 +960,7 @@
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Jason Valeros: The Volume &amp; Over-Performance Mask</h4>
                 <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure: Churn skewed post-handoff (13 of 18 cases occur in 31–90 day window) | Cause: VA Issues (Quality &amp; Skills)</p>
                 <p className="text-xs leading-relaxed text-slate-700">
-                  Jason delivers an elite client experience during active ownership holding a 4.85 CSAT ([Source: OS 30-Day Experience Snapshot](os_30-day_experience_snapshot.csv)). His intense, high-touch management style temporarily masks upstream placement deficits. Once the account is graduated to an Account Manager on Day 31 and his close support framework is removed, the structural skill gaps of the VA surface, causing late-tenure dropouts.
+                  Jason delivers an elite client experience during active ownership holding a 4.85 CSAT ([Source: OS 30-Day Experience Snapshot](OS_30_Day_Experience_Snapshot_1779813474.xlsx - os 30-day experience snapshot.csv)). His intense, high-touch management style temporarily masks upstream placement deficits. Once the account is graduated to an Account Manager on Day 31 and his close support framework is removed, the structural skill gaps of the VA surface, causing late-tenure dropouts.
                 </p>
                 <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Enforce blind standalone VA testing on Day 25 to verify independence before allowing graduation to AM.</p>
               </div>
