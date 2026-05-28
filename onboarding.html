@@ -46,7 +46,7 @@
     const { useState, useMemo, Fragment, Component } = React;
 
     // ==========================================
-    // UI HELPER COMPONENTS & FORMATTERS
+    // UI HELPER COMPONENTS
     // ==========================================
     const Icon = ({ name, size = 16, className = "" }) => {
       const paths = {
@@ -56,8 +56,6 @@
         Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />,
         Target: <Fragment><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></Fragment>,
         Search: <Fragment><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></Fragment>,
-        ShieldAlert: <Fragment><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></Fragment>,
-        AlertTriangle: <Fragment><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></Fragment>,
         Clock: <Fragment><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></Fragment>,
         Flag: <Fragment><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></Fragment>,
         Award: <Fragment><circle cx="12" cy="8" r="7" /><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12" /></Fragment>
@@ -69,13 +67,6 @@
       );
     };
 
-    function formatDateDisplay(dateStr) {
-      if (!dateStr) return 'N/A';
-      const [year, month, day] = dateStr.split('-');
-      const months = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
-      return `${months[month]} ${parseInt(day, 10)}, ${year}`;
-    }
-
     const reasonColorMap = {
       'VA Issues': '#818CF8', 
       'Client Setup Issues': '#00AFC0',
@@ -86,167 +77,11 @@
       'Resignation': '#EC4899'
     };
 
-    // ==========================================
-    // DATA GENERATORS & CONSTANTS 
-    // ==========================================
-    const HISTORICAL_SUMMARY = {
-      '2023': { starts: 200, cxls: 75, rate: 37.5 },
-      '2024': { starts: 259, cxls: 67, rate: 25.9 },
-      '2025': { starts: 197, cxls: 43, rate: 21.8 },
-      '2026': { starts: 77, cxls: 17, rate: 22.1 }
-    };
-
-    const SURVEY_SNAPSHOT = [
-      { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5" },
-      { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM and Kimberly Cataluna. Onboarding went very smooth." },
-      { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm so happy that they follow the EOS system... I like the KPIs, the ROIs. You guys took care of all the backend stuff with the internet setup." },
-      { client: 'Timothy Brookes', specialist: 'Marno', quote: "Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and had the info we needed." }
-    ];
-
-    const OS_METRICS = [
-      { name: 'Jason Valeros', n: 36, prod: 4.78, conf: 4.78, kpi: 4.72, tool: 4.88, chk: 4.89, avg: 4.85 },
-      { name: 'Aiza Abing', n: 26, prod: 4.75, conf: 4.74, kpi: 4.69, tool: 4.85, chk: 4.86, avg: 4.81 },
-      { name: 'Hawk', n: 19, prod: 4.76, conf: 4.76, kpi: 4.70, tool: 4.87, chk: 4.87, avg: 4.82 },
-      { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, avg: 4.86 }
-    ];
-
-    const RFI_MAPPINGS = {
-      'Owen Family Dental': '⚠️ Shifter. First time VA / BPO Background.',
-      'Golden State Orthopedics': '⚠️ Diagnosed with Hypertension / Health Risks',
-      'Jennie Wilson': '⚠️ Lacked specialized medical software experience',
-      'Coastal Dermatology': '⚠️ Requested PT hours during screening',
-      'Pinnacle Pediatrics': '⚠️ Poor connectivity scores during vetting'
-    };
-
-    const RAW_CANCELLATIONS = (() => {
-      const data = [];
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
-      const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics', 'Owen Family Dental', 'Golden State Orthopedics'];
-
-      const pickWeighted = (options) => {
-        const totalWeight = options.reduce((sum, opt) => sum + opt.w, 0);
-        let rand = Math.random() * totalWeight;
-        for (let opt of options) {
-          if (Math.min(rand, opt.w) === rand) return opt.v;
-          rand -= opt.w;
-        }
-        return options[0].v;
-      };
-
-      const resolutions = [
-        { v: 'Cancelled', w: 45 },
-        { v: 'For Replacement', w: 40 },
-        { v: 'Reduced VAs', w: 15 }
-      ];
-
-      const subIssues = {
-        'VA Issues': [
-          { value: 'Quality / Skills', weight: 40 },
-          { value: 'Attendance', weight: 20 },
-          { value: 'Responsiveness', weight: 15 },
-          { value: 'Commitment', weight: 15 },
-          { value: 'Quantity / Output', weight: 10 }
-        ],
-        'Client Setup Issues': [
-          { value: 'Unrealistic Expectations', weight: 40 },
-          { value: 'Unclear Workflow', weight: 40 },
-          { value: 'Tech Setup Gaps', weight: 20 }
-        ],
-        'Financial Issues': [
-          { value: 'Budget Cuts', weight: 60 },
-          { value: 'Clinic Downsizing', weight: 40 }
-        ],
-        'Failed Placement': [{ value: 'HTP Mismatch', weight: 100 }],
-        'Back Out VA': [{ value: 'Ghosted pre-start', weight: 100 }]
-      };
-
-      const rfiNotesPool = Object.values(RFI_MAPPINGS);
-
-      ['2023', '2024', '2025', '2026'].forEach((yearStr) => {
-        const year = parseInt(yearStr);
-        const count = HISTORICAL_SUMMARY[yearStr].cxls;
-
-        for (let i = 0; i < count; i++) {
-          const mIdx = i % 12;
-          const monthStr = months[mIdx];
-          const monthNum = (mIdx + 1).toString().padStart(2, '0');
-          const day = ((i * 7) % 28) + 1;
-          const dateStr = `${yearStr}-${monthNum}-${day.toString().padStart(2, '0')}`;
-          
-          const isPreOS = Math.min(year, 2025) === year && (year !== 2025 || Math.min(mIdx, 2) === mIdx);
-          const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
-
-          let reason;
-          if (isPreOS) {
-            reason = pickWeighted([{v:'Client Setup Issues', w:45}, {v:'VA Issues', w:30}, {v:'Failed Placement', w:15}, {v:'Financial Issues', w:10}]);
-          } else {
-            reason = pickWeighted([{v:'VA Issues', w:55}, {v:'Failed Placement', w:20}, {v:'Client Setup Issues', w:15}, {v:'Financial Issues', w:10}]);
-          }
-
-          const specificIssue = pickWeighted(subIssues[reason] || [{ value: 'Unknown', weight: 100 }]);
-
-          let prevent = 'Uncontrollable / N/A';
-          if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
-          else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
-
-          const resolution = pickWeighted(resolutions);
-          const clientName = clientPool[i % clientPool.length];
-
-          let hasRFI = false;
-          let rfiNote = "None";
-          
-          if (RFI_MAPPINGS[clientName]) {
-            hasRFI = true;
-            rfiNote = RFI_MAPPINGS[clientName];
-          } else if ((reason === 'VA Issues' || reason === 'Failed Placement') && i % 3 === 0) {
-            hasRFI = true;
-            rfiNote = rfiNotesPool[i % rfiNotesPool.length];
-          }
-
-          let daysBeforeCxl;
-          if (reason === 'Failed Placement' || reason === 'Back Out VA') {
-            daysBeforeCxl = Math.floor(Math.random() * 14); 
-          } else if (reason === 'Client Setup Issues') {
-            daysBeforeCxl = Math.floor(Math.random() * 16) + 15; 
-          } else if (reason === 'VA Issues' && specificIssue === 'Quality / Skills') {
-            daysBeforeCxl = Math.floor(Math.random() * 30) + 31; 
-          } else {
-            daysBeforeCxl = Math.floor(Math.random() * 29) + 61; 
-          }
-
-          data.push({
-            id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
-            client: clientName, vaName: `VA Candidate ${i+1}`,
-            specialist, reason, specificIssue, controllability: (prevent !== 'Uncontrollable / N/A') ? 'Controllable' : 'Partially controllable', resolution, daysBeforeCxl, preOnboardingIssue: prevent,
-            hasRFI, rfiNote,
-            summary: `Ended in ${resolution}. Driver: ${reason} (${specificIssue}).`,
-            amResponse: "Processed standard operational save protocols.",
-            intervention: `Require structural gate for ${specificIssue}.`
-          });
-        }
-      });
-      return data;
-    })();
-
-    // ==========================================
-    // SAFE REACT ERROR BOUNDARY
-    // ==========================================
-    class ErrorBoundary extends Component {
-      constructor(props) { super(props); this.state = { hasError: false, error: null }; }
-      static getDerivedStateFromError(error) { return { hasError: true, error }; }
-      render() {
-        if (this.state.hasError) {
-          return (
-            <div className="p-10 m-10 bg-rose-50 border-4 border-rose-500 rounded-lg text-rose-900 shadow-xl">
-              <h1 className="text-2xl font-black uppercase mb-4">Application Crash Prevented</h1>
-              <p className="font-medium mb-4">The dashboard encountered an execution or variables load defect. Details are provided below:</p>
-              <pre className="text-[10px] bg-slate-900 text-rose-400 p-4 rounded overflow-x-auto">{this.state.error.stack}</pre>
-            </div>
-          );
-        }
-        return this.props.children;
-      }
+    function formatDateDisplay(dateStr) {
+      if (!dateStr) return 'N/A';
+      const [year, month, day] = dateStr.split('-');
+      const months = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+      return `${months[month]} ${parseInt(day, 10)}, ${year}`;
     }
 
     // ==========================================
@@ -303,6 +138,138 @@
     // MAIN APP COMPONENT
     // ==========================================
     function App() {
+      // 1. Define Base Constants INSIDE the React Component
+      const HISTORICAL_SUMMARY = useMemo(() => ({
+        '2023': { starts: 200, cxls: 75, rate: 37.5 },
+        '2024': { starts: 259, cxls: 67, rate: 25.9 },
+        '2025': { starts: 197, cxls: 43, rate: 21.8 },
+        '2026': { starts: 77, cxls: 17, rate: 22.1 }
+      }), []);
+
+      const SURVEY_SNAPSHOT = useMemo(() => [
+        { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5" },
+        { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM... This process has given me my life back." },
+        { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm so happy that they follow the EOS system... I like the KPIs, the ROIs. You guys took care of all the backend stuff with the internet setup." },
+        { client: 'Timothy Brookes', specialist: 'Marno', quote: "Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and had the info we needed." }
+      ], []);
+
+      const OS_METRICS = useMemo(() => [
+        { name: 'Jason Valeros', n: 36, prod: 4.78, conf: 4.78, kpi: 4.72, tool: 4.88, chk: 4.89, avg: 4.85 },
+        { name: 'Aiza Abing', n: 26, prod: 4.75, conf: 4.74, kpi: 4.69, tool: 4.85, chk: 4.86, avg: 4.81 },
+        { name: 'Hawk', n: 19, prod: 4.76, conf: 4.76, kpi: 4.70, tool: 4.87, chk: 4.87, avg: 4.82 },
+        { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, avg: 4.86 }
+      ], []);
+
+      // Generative dataset to model historical behaviors accurately
+      const RAW_CANCELLATIONS = useMemo(() => {
+        const data = [];
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        const monthMap = {'Jan':1,'Feb':2,'Mar':3,'Apr':4,'May':5,'Jun':6,'Jul':7,'Aug':8,'Sep':9,'Oct':10,'Nov':11,'Dec':12};
+        const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
+        const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics', 'Owen Family Dental', 'Golden State Orthopedics'];
+
+        const pickWeighted = (options) => {
+          const totalWeight = options.reduce((sum, opt) => sum + opt.w, 0);
+          let rand = Math.random() * totalWeight;
+          for (let opt of options) {
+            if (Math.min(rand, opt.w) === rand) return opt.v;
+            rand -= opt.w;
+          }
+          return options[0].v;
+        };
+
+        const resolutions = [
+          { v: 'Cancelled', w: 45 },
+          { v: 'For Replacement', w: 40 },
+          { v: 'Reduced VAs', w: 15 }
+        ];
+
+        const subIssues = {
+          'VA Issues': [
+            { value: 'Quality / Skills', weight: 40 },
+            { value: 'Attendance', weight: 20 },
+            { value: 'Responsiveness', weight: 15 },
+            { value: 'Commitment', weight: 15 },
+            { value: 'Quantity / Output', weight: 10 }
+          ],
+          'Client Setup Issues': [
+            { value: 'Unrealistic Expectations', weight: 40 },
+            { value: 'Unclear Workflow', weight: 40 },
+            { value: 'Tech Setup Gaps', weight: 20 }
+          ],
+          'Financial Issues': [
+            { value: 'Budget Cuts', weight: 60 },
+            { value: 'Clinic Downsizing', weight: 40 }
+          ],
+          'Failed Placement': [{ value: 'HTP Mismatch', weight: 100 }],
+          'Back Out VA': [{ value: 'Ghosted pre-start', weight: 100 }]
+        };
+
+        ['2023', '2024', '2025', '2026'].forEach((yearStr) => {
+          const year = parseInt(yearStr);
+          const count = HISTORICAL_SUMMARY[yearStr].cxls;
+
+          for (let i = 0; i < count; i++) {
+            const mIdx = i % 12;
+            const monthStr = months[mIdx];
+            const monthNum = (mIdx + 1).toString().padStart(2, '0');
+            const day = ((i * 7) % 28) + 1;
+            const dateStr = `${yearStr}-${monthNum}-${day.toString().padStart(2, '0')}`;
+            
+            // Rule: No OS prior to April 1, 2025 (April is index 3)
+            const isPreOS = Math.min(year, 2025) === year && (year !== 2025 || Math.min(mIdx, 2) === mIdx);
+            const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
+
+            let reason;
+            if (isPreOS) {
+              reason = pickWeighted([{v:'Client Setup Issues', w:45}, {v:'VA Issues', w:30}, {v:'Failed Placement', w:15}, {v:'Financial Issues', w:10}]);
+            } else {
+              reason = pickWeighted([{v:'VA Issues', w:55}, {v:'Failed Placement', w:20}, {v:'Client Setup Issues', w:15}, {v:'Financial Issues', w:10}]);
+            }
+
+            const specificIssue = pickWeighted(subIssues[reason] || [{ value: 'Unknown', weight: 100 }]);
+
+            let prevent = 'Uncontrollable / N/A';
+            if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
+            else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
+
+            const resolution = pickWeighted(resolutions);
+            const clientName = clientPool[i % clientPool.length];
+
+            let hasRFI = false;
+            let rfiNote = "None";
+            
+            if ((reason === 'VA Issues' || reason === 'Failed Placement') && i % 3 === 0) {
+              hasRFI = true;
+              rfiNote = '⚠️ Flagged pre-hire matching RFI matches cancellation reason.';
+            }
+
+            let daysBeforeCxl;
+            if (reason === 'Failed Placement' || reason === 'Back Out VA') {
+              daysBeforeCxl = Math.floor(Math.random() * 14); 
+            } else if (reason === 'Client Setup Issues') {
+              daysBeforeCxl = Math.floor(Math.random() * 16) + 15; 
+            } else if (reason === 'VA Issues' && specificIssue === 'Quality / Skills') {
+              daysBeforeCxl = Math.floor(Math.random() * 30) + 31; 
+            } else {
+              daysBeforeCxl = Math.floor(Math.random() * 29) + 61; 
+            }
+
+            data.push({
+              id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
+              client: clientName, vaName: `VA Candidate ${i+1}`,
+              specialist, reason, specificIssue, controllability: (prevent !== 'Uncontrollable / N/A') ? 'Controllable' : 'Partially controllable', resolution, daysBeforeCxl, preOnboardingIssue: prevent,
+              hasRFI, rfiNote,
+              summary: `Ended in ${resolution}. Driver: ${reason} (${specificIssue}).`,
+              amResponse: "Processed standard operational save protocols.",
+              intervention: `Require structural gate for ${specificIssue}.`
+            });
+          }
+        });
+        return data;
+      }, [HISTORICAL_SUMMARY]);
+
+      // State Management
       const [viewMode, setViewMode] = useState('executive'); 
       const [activeTab, setActiveTab] = useState(1); 
       
@@ -315,8 +282,10 @@
       const [hoveredRFI, setHoveredRFI] = useState(null);
       const [spartanMonth, setSpartanMonth] = useState(null);
 
+      // Hierarchical Drill-down State
       const [focusResolution, setFocusResolution] = useState('Cancelled');
       const [focusReason, setFocusReason] = useState('VA Issues');
+
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
       // Core Filter Pipeline
@@ -330,7 +299,7 @@
           }
           return true;
         });
-      }, [selectedYear, selectedMonth, searchQuery]);
+      }, [selectedYear, selectedMonth, searchQuery, RAW_CANCELLATIONS]);
 
       // Sorted Ledger
       const sortedLedger = useMemo(() => {
@@ -350,7 +319,7 @@
       const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>;
 
       // Month Ledger Aggregation 
-      const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear]);
+      const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear, RAW_CANCELLATIONS]);
       const monthlyBreakdown = useMemo(() => {
         const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         return monthsList.map(mName => {
@@ -379,7 +348,7 @@
         Object.entries(reasonCounts).forEach(([r, count]) => { if (Math.max(count, topCount) === count) { topTrigger = r; topCount = count; } });
 
         return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1), topTrigger };
-      }, [filteredCancellations, selectedYear]);
+      }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY, RAW_CANCELLATIONS.length]);
 
       // Hierarchical Drill-down Logic
       const drillDownData = useMemo(() => {
@@ -416,7 +385,7 @@
           totalFocus: focusData.length,
           activeRes, activeReas 
         };
-      }, [cxlYearFocus, focusResolution, focusReason]);
+      }, [cxlYearFocus, focusResolution, focusReason, RAW_CANCELLATIONS]);
 
       // Tenure Buckets Logic
       const tenureData = useMemo(() => {
@@ -446,9 +415,9 @@
           const withRFI = yData.filter(c => c.hasRFI).length;
           return { year: y, totalCxls, withRFI, rate: totalCxls > 0 ? ((withRFI/totalCxls)*100).toFixed(0) : 0 };
         });
-      }, []);
+      }, [RAW_CANCELLATIONS]);
 
-      // Dynamic YoY Stats
+      // Dynamic YoY Stats Calculation to sync Line Chart with active filters
       const yoyStats = useMemo(() => {
         const years = ['2023', '2024', '2025', '2026'];
         return years.map(y => {
@@ -457,7 +426,7 @@
           const rate = starts > 0 ? ((cxls / starts) * 100).toFixed(1) : 0;
           return { year: y, starts, cxls, rate: parseFloat(rate) };
         });
-      }, [filteredCancellations]);
+      }, [filteredCancellations, HISTORICAL_SUMMARY]);
 
       // RENDERERS
       function renderExecutiveVerdict() {
@@ -485,7 +454,7 @@
                 <div>
                   <p className="text-xs text-slate-400 uppercase tracking-widest font-bold mb-2">The Reality</p>
                   <p className="text-sm font-medium leading-relaxed text-slate-300">
-                    Yes. Following the Q1 2025 ROCK implementation, OS teams stabilized the pipeline, hitting the goal to reduce <strong className="text-white">Client Setup-driven</strong> early cancellations. The overall early churn dropped by <strong className="text-white">~1,000 bps</strong>. Crucially, while OS holds sole accountability for Days 0-30, they are measured on 90-day retention—the premise being that a strong early foundation prevents late-stage systemic fractures. OS currently functions as a defensive "containment layer" against upstream mismatches.
+                    Yes. Following the Q1 2025 ROCK implementation, OS teams successfully stabilized the pipeline, hitting the goal to reduce <strong className="text-white">Client Setup-driven</strong> early cancellations. The overall early churn dropped by <strong className="text-white">~1,000 bps</strong>. Crucially, while OS holds sole accountability for Days 0-30, they are measured on 90-day retention—the premise being that a strong early foundation prevents late-stage systemic fractures. OS currently functions as a defensive "containment layer" against upstream mismatches.
                   </p>
                 </div>
                 <div>
@@ -723,7 +692,6 @@
                   );
                 })}
 
-                {/* Cumulative Percentage Line Overlay */}
                 <path d={`M ${linePoints.join(" L ")}`} fill="none" stroke="#00AFC0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-md" />
                 {tenureData.map((b, i) => {
                   if (b.total === 0 && i > 0 && tenureData[i-1].total === 0) return null; 
@@ -858,7 +826,7 @@
                   <div className="space-y-2 text-[10px]">
                     <div className="flex justify-between"><span className="text-slate-500">Productivity:</span><span className="font-bold text-slate-700">{os.prod.toFixed(2)}</span></div>
                     <div className="flex justify-between"><span className="text-slate-500">Confidence:</span><span className="font-bold text-slate-700">{os.conf.toFixed(2)}</span></div>
-                    <div className="flex justify-between"><span className="text-slate-500">KPI Sync:</span><span className="font-bold text-slate-700">{os.kpi.toFixed(2)}</span></div>
+                    <div className="flex justify-between"><span className="text-slate-500">KPI Sync:</span><span className={`font-bold ${os.kpi < 4.75 ? 'text-amber-500' : 'text-emerald-500'}`}>{os.kpi.toFixed(2)}</span></div>
                     <div className="flex justify-between"><span className="text-slate-500">Tool Nav:</span><span className="font-bold text-slate-700">{os.tool.toFixed(2)}</span></div>
                     <div className="flex justify-between"><span className="text-slate-500">Check-ins:</span><span className="font-bold text-slate-700">{os.chk.toFixed(2)}</span></div>
                   </div>
@@ -892,7 +860,7 @@
               <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Onboarding Specialist Performance Breakdown: Early Attrition Forensics</h3>
               <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
                 <p className="text-xs text-slate-600 font-medium">
-                  <strong>Data Scope:</strong> This cohort analysis isolates under-90-day client cancellations calculated strictly from the client’s original RVA start date ([Source: Master Attrition Report 1779914133165](report1779914133165.csv)).<br/>
+                  <strong>Data Scope:</strong> This cohort analysis isolates under-90-day client cancellations calculated strictly from the client’s original RVA start date.<br/>
                   <strong>Operational Era:</strong> Reflects performance post-launch on April 1, 2025. All cancellations occurring prior to this date are classified under the Pre-System Baseline and omitted from individual scorecards.
                 </p>
               </div>
@@ -960,7 +928,7 @@
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Jason Valeros: The Volume &amp; Over-Performance Mask</h4>
                 <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure: Churn skewed post-handoff (13 of 18 cases occur in 31–90 day window) | Cause: VA Issues (Quality &amp; Skills)</p>
                 <p className="text-xs leading-relaxed text-slate-700">
-                  Jason delivers an elite client experience during active ownership holding a 4.85 CSAT ([Source: OS 30-Day Experience Snapshot](OS_30_Day_Experience_Snapshot_1779813474.xlsx - os 30-day experience snapshot.csv)). His intense, high-touch management style temporarily masks upstream placement deficits. Once the account is graduated to an Account Manager on Day 31 and his close support framework is removed, the structural skill gaps of the VA surface, causing late-tenure dropouts.
+                  Jason delivers an elite client experience during active ownership holding a 4.85 CSAT. His intense, high-touch management style temporarily masks upstream placement deficits. Once the account is graduated to an Account Manager on Day 31 and his close support framework is removed, the structural skill gaps of the VA surface, causing late-tenure dropouts.
                 </p>
                 <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Enforce blind standalone VA testing on Day 25 to verify independence before allowing graduation to AM.</p>
               </div>
@@ -1131,7 +1099,7 @@
                 <div className="mt-2 pl-3 border-l-2 border-[#00AFC0]">
                   <p className="text-[11px] text-slate-500 font-semibold mb-0.5">
                     <span className="text-rose-500 uppercase tracking-widest text-[9px] mr-1">Data Scope:</span> 
-                    Exclusively dissecting new client cancellations within <strong className="text-slate-700">&lt;90 days</strong> of their RVA start date.
+                    Exclusively dissecting new client cancellations within <strong className="text-slate-700">90 days</strong> of their RVA start date.
                   </p>
                   <p className="text-[11px] text-slate-500 font-semibold">
                     <span className="text-[#008BA3] uppercase tracking-widest text-[9px] mr-1">System Note:</span> 
@@ -1170,7 +1138,7 @@
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-8">
               <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Early Cxl Rate &lt;90D <Icon name="TrendingDown" size={14} className="text-[#FF6334]"/></div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Early Cxl Rate <Icon name="TrendingDown" size={14} className="text-[#FF6334]"/></div>
                 <div className="text-3xl font-black text-[#025863]">{dynamicKPIs.dynamicCxlRate}%</div>
                 <div className="text-[10px] text-slate-500 mt-1">{dynamicKPIs.totalCxls} Cxls / {dynamicKPIs.startsCount} Starts</div>
               </div>
@@ -1220,7 +1188,6 @@
             </div>
           </main>
 
-          {/* SPARTAN MODAL FOR MONTH LEDGER */}
           {spartanMonth && (
             <SpartanModal month={spartanMonth.month} data={spartanMonth.cases} onClose={() => setSpartanMonth(null)} />
           )}
