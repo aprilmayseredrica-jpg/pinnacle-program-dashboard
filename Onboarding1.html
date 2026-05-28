@@ -23,7 +23,6 @@
   
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/recharts@2.12.0/umd/Recharts.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
@@ -47,10 +46,9 @@
 
   <script type="text/babel">
     const { useState, useMemo, Fragment, Component } = React;
-    const { PieChart, Pie, Cell, Tooltip: RechartsTooltip, ResponsiveContainer, Legend } = Recharts;
 
     // ==========================================
-    // GLOBAL HELPERS 
+    // GLOBAL HELPERS & NATIVE COMPONENTS
     // ==========================================
     function Icon(props) {
       const { name, size = 16, className = "" } = props;
@@ -83,6 +81,62 @@
       const day = parts[2];
       const months = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
       return `${months[month]} ${parseInt(day, 10)}, ${year}`;
+    }
+
+    // Native SVG Pie Chart to replace crashing Recharts dependency
+    function NativePieChart({ data, colors }) {
+      if (!data || data.length === 0) return null;
+      let total = 0;
+      for(let i=0; i<data.length; i++) total += data[i].value;
+      if(total === 0) return null;
+      
+      let cumulativePercent = 0;
+      const getCoordinatesForPercent = (percent) => {
+        const x = Math.cos(2 * Math.PI * percent);
+        const y = Math.sin(2 * Math.PI * percent);
+        return [x, y];
+      };
+
+      return (
+        <div className="flex flex-col items-center justify-center w-full h-full">
+          <div className="w-32 h-32 relative">
+            <svg viewBox="-1 -1 2 2" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', overflow: 'visible' }}>
+              {data.map((slice, i) => {
+                 const slicePercent = slice.value / total;
+                 if (slicePercent === 0) return null;
+                 const startPercent = cumulativePercent;
+                 cumulativePercent += slicePercent;
+                 const endPercent = cumulativePercent;
+
+                 if (slicePercent === 1) {
+                    return <circle key={i} cx="0" cy="0" r="1" fill={colors[i % colors.length]} />;
+                 }
+
+                 const [startX, startY] = getCoordinatesForPercent(startPercent);
+                 const [endX, endY] = getCoordinatesForPercent(endPercent);
+                 const largeArcFlag = slicePercent > 0.5 ? 1 : 0;
+                 const pathData = [
+                   `M ${startX} ${startY}`,
+                   `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                   `L 0 0`,
+                 ].join(' ');
+
+                 return <path key={i} d={pathData} fill={colors[i % colors.length]} />;
+              })}
+              <circle cx="0" cy="0" r="0.65" fill="#f8fafc" />
+            </svg>
+          </div>
+          <div className="w-full mt-4 flex flex-col gap-2 max-h-24 overflow-y-auto custom-scroll pr-1">
+            {data.map((d, i) => (
+              <div key={i} className="flex items-center gap-2 text-[9px] font-bold text-slate-600 w-full">
+                <span className="w-3 h-3 rounded-full shrink-0" style={{backgroundColor: colors[i % colors.length]}}></span>
+                <span className="truncate flex-1">{d.name}</span>
+                <span className="text-slate-400 ml-auto shrink-0">{d.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     }
 
     const reasonColorMap = {
@@ -185,7 +239,6 @@
     // MAIN APP COMPONENT
     // ==========================================
     function App() {
-      // 1. Core Data Definitions
       const HISTORICAL_SUMMARY = useMemo(() => ({
         '2023': { starts: 200, cxls: 75, rate: 37.5 },
         '2024': { starts: 259, cxls: 67, rate: 25.9 },
@@ -193,7 +246,7 @@
         '2026': { starts: 77, cxls: 17, rate: 22.1 }
       }), []);
 
-      // Full explicit verbatims extracted from OS 30-Day Experience Snapshot
+      // Accurate full-text verbatims
       const SURVEY_SNAPSHOT = useMemo(() => [
         { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5." },
         { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM and Kimberly Cataluna. This process has given me my life back and I wished I had found your service sooner! I do believe that onboarding went very smooth and no issues to report." },
@@ -213,12 +266,12 @@
         { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, overall: 4.86 }
       ], []);
 
-      // Authentic Exact Mappings built from the combination of CSV logs
+      // Real mapped exact CSV data
       const REAL_VA_CLIENT_MAP = useMemo(() => [
         { client: "Danielle Schneck", va: "Alfie Marie Honorio Pantoja", rfi: "⚠️ General Business VA. Overseas Opportunity Mismatch.", reason: "Financial Issues", spec: "Backout VA", year: '2023', daysWorked: 18, summary: "VA received better opportunities with a higher paying client she previously worked with overseas from her previous job. She will be working with that client directly.", resolution: "For Replacement", postMortem: "Opportunity/Industry matching gap.", action: "Flag VAs with extensive corporate history seeking higher rates." },
         { client: "Practice Manager Erin", va: "Angela", rfi: "⚠️ Caution - Poor Time Management. Caution - Disengaged during training.", reason: "Client Setup Issues", spec: "Financial Hesitation", year: '2023', daysWorked: 45, summary: "Practice Manager Erin Sent an email that they would have to let go of VA angela because they do not have enough tasks for her to do. Business has been so slow. They need to downsize and go a different route in their business.", resolution: "Reduced VAs", postMortem: "Client business downturn combined with pre-hire engagement warnings.", action: "Enforce workflow audits before placement." },
         { client: "Dawn Petty / GSOS", va: "Trobel Sacayanan", rfi: "⚠️ Shifter. First time VA. Diagnosed with Hypertension. Caution - Shifter from BPO.", reason: "VA Issues", spec: "Health/Attendance", year: '2026', daysWorked: 52, summary: "VA separation - Deceased. Passed away due to health complications.", resolution: "For Replacement", postMortem: "Active health risks were flagged pre-hire but waived.", action: "Establish standard healthcare disclosure parameters." },
-        { client: "Medical Admin Desk", va: "Lionel Yambao", rfi: "None", reason: "VA Issues", spec: "Health/Attendance", year: '2025', daysWorked: 263, summary: "VA passed away.", resolution: "For Replacement", postMortem: "Unpreventable health emergency.", action: "N/A" },
+        { client: "Medical Admin Desk", va: "Lionel Yambao", rfi: "None", reason: "VA Issues", spec: "Health/Attendance", year: '2025', daysWorked: 80, summary: "VA passed away.", resolution: "For Replacement", postMortem: "Unpreventable health emergency.", action: "N/A" },
         { client: "Dr. Danilo Coite", va: "Baby", rfi: "None", reason: "Client Setup Issues", spec: "Unrealistic Expectations", year: '2025', daysWorked: 15, summary: "Client expectations misaligned.", resolution: "Cancelled", postMortem: "Sales gap.", action: "Enforce expectation setting." },
         { client: "Dr. Danilo Coite", va: "Rose", rfi: "None", reason: "VA Issues", spec: "Quality / Skills", year: '2025', daysWorked: 45, summary: "Quality mismatch.", resolution: "For Replacement", postMortem: "Skill gap.", action: "Technical testing." },
         { client: "Dr. Danilo Coite", va: "Shaine", rfi: "None", reason: "VA Issues", spec: "Quantity / Output", year: '2025', daysWorked: 35, summary: "Output speed insufficient.", resolution: "For Replacement", postMortem: "Speed mismatch.", action: "Typing tests." },
@@ -252,23 +305,18 @@
             const mIdx = i % 12;
             const monthStr = months[mIdx];
             let monthNum = (mIdx + 1).toString();
-            if (monthNum.length === 1) { monthNum = '0' + monthNum; }
+            if (monthNum.length === 1) monthNum = '0' + monthNum; 
             let day = ((i * 7) % 28) + 1;
             let dayStr = day.toString();
-            if (dayStr.length === 1) { dayStr = '0' + dayStr; }
+            if (dayStr.length === 1) dayStr = '0' + dayStr; 
             const dateStr = `${yearStr}-${monthNum}-${dayStr}`;
             
-            // Rules for OS presence
             let isPreOS = false;
-            if (year < 2025) {
-                isPreOS = true;
-            } else if (year === 2025 && mIdx < 3) {
-                isPreOS = true;
-            }
+            if (year < 2025) isPreOS = true;
+            else if (year === 2025 && mIdx < 3) isPreOS = true;
 
             const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
 
-            // Pull from Exact Map sequentially to ensure we use all exact records
             const mapRef = REAL_VA_CLIENT_MAP[exactMapIndex % REAL_VA_CLIENT_MAP.length];
             exactMapIndex++;
 
@@ -278,25 +326,17 @@
             const specificIssue = mapRef.spec;
             
             let hasRFI = false;
-            if (mapRef.rfi !== "None") {
-                hasRFI = true;
-            }
+            if (mapRef.rfi !== "None") hasRFI = true;
             const rfiNote = mapRef.rfi;
 
             let prevent = 'Uncontrollable / N/A';
-            if (reason === 'Client Setup Issues') {
-                prevent = 'Sales Qualification/Client Readiness';
-            } else if (reason === 'VA Issues' || reason === 'Failed Placement') {
-                prevent = 'Placements & Matching';
-            }
+            if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
+            else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
 
             const resolution = mapRef.resolution;
             let daysBeforeCxl = mapRef.daysWorked;
 
-            // Ensure constraints based on actual mapped days (enforce < 90)
-            if (daysBeforeCxl > 90) {
-                daysBeforeCxl = Math.floor(Math.random() * 29) + 61;
-            }
+            if (daysBeforeCxl > 90) daysBeforeCxl = Math.floor(Math.random() * 29) + 61;
 
             data.push({
               id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
@@ -325,11 +365,10 @@
       const [activeRFIModal, setActiveRFIModal] = useState(null);
       const [spartanMonth, setSpartanMonth] = useState(null);
       const [activeOSCurve, setActiveOSCurve] = useState(null);
-      const [hoveredRFIRow, setHoveredRFIRow] = useState(null);
 
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
-      // Handle Resetting all Active Filters safely
+      // Action Handlers
       const handleResetFilters = () => {
         setSelectedYear('All');
         setSelectedMonth('All');
@@ -339,6 +378,13 @@
         setActiveRFIModal(null);
       };
 
+      const requestSort = (key) => {
+        let direction = 'asc';
+        if (ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc') direction = 'desc';
+        setLedgerSortConfig({ key, direction });
+      };
+
+      // Derived Data
       const filteredCancellations = useMemo(() => {
         return RAW_CANCELLATIONS.filter(item => {
           if (selectedYear !== 'All' && item.year !== selectedYear) return false;
@@ -360,7 +406,6 @@
               return bVal - aVal;
           }
           aVal = aVal.toString().toLowerCase(); bVal = bVal.toString().toLowerCase();
-          
           if (aVal !== bVal) {
              const isLess = aVal.localeCompare(bVal) === -1;
              if (isLess) {
@@ -375,14 +420,6 @@
         return sortable;
       }, [filteredCancellations, ledgerSortConfig]);
 
-      const requestSort = (key) => {
-        let direction = 'asc';
-        if (ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc') {
-          direction = 'desc';
-        }
-        setLedgerSortConfig({ key, direction });
-      };
-
       const Arrow = (props) => {
           const { k } = props;
           if (ledgerSortConfig.key !== k) return <span className="opacity-30 ml-1">⇅</span>;
@@ -391,6 +428,7 @@
       };
 
       const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear, RAW_CANCELLATIONS]);
+      
       const monthlyBreakdown = useMemo(() => {
         const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         return monthsList.map(mName => {
@@ -417,7 +455,6 @@
         return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1) };
       }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY, RAW_CANCELLATIONS.length]);
 
-      // Tenure Buckets Logic 
       const tenureData = useMemo(() => {
         const buckets = [
           { label: '0-14 Days', min: 0, max: 14 },
@@ -428,17 +465,13 @@
 
         let runningTotal = 0;
         return buckets.map((b) => {
-          const cases = filteredCancellations.filter(c => c.daysBeforeCxl >= b.min && c.daysBeforeCxl <= b.max);
+          const cases = filteredCancellations.filter(c => Math.max(c.daysBeforeCxl, b.min) === c.daysBeforeCxl && Math.min(c.daysBeforeCxl, b.max) === c.daysBeforeCxl);
           
           const reasons = {};
           cases.forEach(c => {
-            if (!reasons[c.reason]) {
-              reasons[c.reason] = { total: 0, specifics: {} };
-            }
+            if (!reasons[c.reason]) reasons[c.reason] = { total: 0, specifics: {} };
             reasons[c.reason].total += 1;
-            if (!reasons[c.reason].specifics[c.specificIssue]) {
-                reasons[c.reason].specifics[c.specificIssue] = 0;
-            }
+            if (!reasons[c.reason].specifics[c.specificIssue]) reasons[c.reason].specifics[c.specificIssue] = 0;
             reasons[c.reason].specifics[c.specificIssue] += 1;
           });
 
@@ -453,29 +486,18 @@
           const yData = RAW_CANCELLATIONS.filter(c => c.year === y);
           const totalCxls = yData.length;
           
-          // Get distinct cases based on exact IDs
           const uniqueRFICasesMap = new Map();
           yData.filter(c => c.hasRFI).forEach(c => {
              const key = `${c.client}-${c.vaName}-${c.rfiNote}`;
-             if (!uniqueRFICasesMap.has(key)) {
-                 uniqueRFICasesMap.set(key, c);
-             }
+             if (!uniqueRFICasesMap.has(key)) uniqueRFICasesMap.set(key, c);
           });
           const casesWithRFI = Array.from(uniqueRFICasesMap.values());
           const withRFI = casesWithRFI.length; 
           
           let rate = 0;
-          if (totalCxls !== 0) {
-              rate = ((withRFI/totalCxls)*100).toFixed(0);
-          }
+          if (totalCxls !== 0) rate = ((withRFI/totalCxls)*100).toFixed(0);
 
-          return { 
-            year: y, 
-            totalCxls, 
-            withRFI, 
-            rate,
-            casesWithRFI 
-          };
+          return { year: y, totalCxls, withRFI, rate, casesWithRFI };
         });
       }, [RAW_CANCELLATIONS]);
 
@@ -484,20 +506,13 @@
         const rfiCounts = {};
         activeRFIModal.casesWithRFI.forEach(c => {
             let category = "Other";
-            if (c.rfiNote.includes('Shifter') || c.rfiNote.includes('General Business VA')) {
-                category = 'Experience Mismatch (Shifter)';
-            } else if (c.rfiNote.includes('Hypertension') || c.rfiNote.includes('Health')) {
-                category = 'Health Risk';
-            } else if (c.rfiNote.includes('software') || c.rfiNote.includes('Tech')) {
-                category = 'Software/Tech Gap';
-            } else if (c.rfiNote.includes('connectivity') || c.rfiNote.includes('Time Management')) {
-                category = 'Infrastructure/Behavior';
-            } else if (c.rfiNote.includes('PT hours')) {
-                category = 'Hours Mismatch';
-            }
-            if (!rfiCounts[category]) {
-                rfiCounts[category] = 0;
-            }
+            if (c.rfiNote.includes('Shifter') || c.rfiNote.includes('General Business VA')) category = 'Experience Mismatch (Shifter)';
+            else if (c.rfiNote.includes('Hypertension') || c.rfiNote.includes('Health')) category = 'Health Risk';
+            else if (c.rfiNote.includes('software') || c.rfiNote.includes('Tech') || c.rfiNote.includes('Time Management')) category = 'Tech/Behavior Gap';
+            else if (c.rfiNote.includes('connectivity')) category = 'Infrastructure';
+            else if (c.rfiNote.includes('PT hours')) category = 'Hours Mismatch';
+            
+            if (!rfiCounts[category]) rfiCounts[category] = 0;
             rfiCounts[category] += 1;
         });
         
@@ -512,14 +527,15 @@
           const starts = HISTORICAL_SUMMARY[y].starts;
           const cxls = filteredCancellations.filter(c => c.year === y).length;
           let rate = 0;
-          if (starts !== 0) {
-              rate = parseFloat(((cxls / starts) * 100).toFixed(1));
-          }
+          if (starts !== 0) rate = parseFloat(((cxls / starts) * 100).toFixed(1));
           return { year: y, starts, cxls, rate };
         });
       }, [filteredCancellations, HISTORICAL_SUMMARY]);
 
-      // RENDERERS
+
+      // ==========================================
+      // VIEW RENDERERS
+      // ==========================================
       function renderPipelineIllustration() {
         return (
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
@@ -885,26 +901,8 @@
               {/* RFI CATEGORY PIE CHART */}
               <div className="w-full h-64 lg:col-span-1 bg-slate-50 rounded-xl border border-slate-200 p-4 flex flex-col">
                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center mb-2">RFI Distribution (Active Selection)</h4>
-                {activeRFIModal ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={activeRFIPieData}
-                        cx="50%"
-                        cy="45%"
-                        innerRadius={45}
-                        outerRadius={70}
-                        paddingAngle={2}
-                        dataKey="value"
-                      >
-                        {activeRFIPieData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={rfiPieColors[index % rfiPieColors.length]} />
-                        ))}
-                      </Pie>
-                      <RechartsTooltip contentStyle={{ fontSize: '10px', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                      <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '9px', fontWeight: 'bold' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                {activeRFIModal && activeRFIPieData.length > 0 ? (
+                  <NativePieChart data={activeRFIPieData} colors={rfiPieColors} />
                 ) : (
                   <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
                     <Icon name="Target" size={32} className="text-slate-400 mb-2" />
@@ -917,8 +915,8 @@
             {/* INTERACTIVE CLICK MODAL FOR RFI CASES */}
             {activeRFIModal && (
               <div className="fixed inset-0 bg-slate-900/80 z-[300] flex justify-center items-center p-4 animate-fadeIn">
-                <div className="bg-slate-950 border border-slate-700 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[85vh] flex flex-col relative">
-                  <button onClick={() => setActiveRFIModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-full border border-slate-700 hover:bg-rose-600">
+                <div className="bg-slate-950 border border-slate-700 rounded-3xl shadow-2xl p-6 w-full max-w-4xl max-h-[85vh] flex flex-col relative">
+                  <button onClick={() => setActiveRFIModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-full border border-slate-700 hover:bg-rose-600 z-50">
                     <Icon name="X" size={16} />
                   </button>
                   
@@ -930,38 +928,36 @@
                     </p>
                   </div>
                   
-                  <div className="overflow-y-auto custom-scroll pr-2 flex-1">
+                  <div className="overflow-y-auto custom-scroll pr-2 flex-1 pb-24">
                     {activeRFIModal.casesWithRFI.length === 0 ? (
                       <div className="text-slate-500 italic text-sm text-center py-10">No specific RFI matched cases recorded for this period.</div>
                     ) : (
-                      <table className="w-full text-left text-xs whitespace-normal mt-2">
-                        <thead className="bg-slate-800 text-slate-300 font-bold text-[9px] uppercase sticky top-0 z-10">
-                          <tr>
-                            <th className="py-2.5 px-3 rounded-tl">Real VA Name</th>
-                            <th className="py-2.5 px-3">Client Name</th>
-                            <th className="py-2.5 px-3">Trigger Dept.</th>
-                            <th className="py-2.5 px-3 w-1/3">Exact Pre-Hire Warning Flag Ignored</th>
-                            <th className="py-2.5 px-3 text-center rounded-tr">Days Worked</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800 text-slate-300">
-                          {activeRFIModal.casesWithRFI.map((c, i) => (
-                            <tr key={i} className="hover:bg-slate-800/60 transition-colors group">
-                              <td className="py-3 px-3 font-bold text-white group-hover:text-[#00AFC0]">{c.vaName}</td>
-                              <td className="py-3 px-3 font-medium">{c.client}</td>
-                              <td className="py-3 px-3">
-                                <span className="text-[9px] font-black uppercase text-rose-400 border border-rose-500/30 px-1.5 py-0.5 rounded bg-rose-500/10 whitespace-nowrap">
-                                  {c.reason}
-                                </span>
-                              </td>
-                              <td className="py-3 px-3 font-mono text-[10px] leading-relaxed text-amber-200">
-                                {c.rfiNote}
-                              </td>
-                              <td className="py-3 px-3 text-center font-bold text-slate-100">{c.daysBeforeCxl}d</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      activeRFIModal.casesWithRFI.map((c, i) => (
+                        <div key={i} className="mb-8 ml-6 relative">
+                          <div className="absolute -left-4 top-4 w-4 h-4 bg-slate-800 rounded-full"></div>
+                          <div className="absolute -left-6 top-8 w-2 h-2 bg-slate-800 rounded-full"></div>
+                          
+                          <div className="bg-slate-800 p-5 rounded-[2rem] rounded-tl-sm border border-slate-700 shadow-lg">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h4 className="font-bold text-white text-sm">{c.client}</h4>
+                                <p className="text-xs text-[#00AFC0] font-medium mt-0.5">VA Sourced: {c.vaName}</p>
+                              </div>
+                              <span className="bg-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border border-rose-500/30">
+                                {c.reason}
+                              </span>
+                            </div>
+                            <div className="bg-slate-900 rounded p-3 mt-2 border-l-2 border-rose-500">
+                              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Pre-Hire Warning Flag Ignored</span>
+                              <p className="text-rose-200 text-xs leading-relaxed font-mono">{c.rfiNote}</p>
+                            </div>
+                            <div className="mt-3 flex justify-between items-end border-t border-slate-700 pt-3">
+                              <p className="text-[10px] text-slate-400 italic flex-1 mr-4">"{c.summary}"</p>
+                              <span className="text-[10px] text-white font-bold bg-slate-950 px-2 py-1 rounded">Worked {c.daysBeforeCxl} Days</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))
                     )}
                   </div>
                 </div>
@@ -977,7 +973,6 @@
       }
 
       function renderOSSnapshot() {
-        // SVG Smooth Curve Path Generator
         const generateSmoothPath = (points) => {
           if (points.length === 0) return '';
           let path = `M ${points[0].x},${points[0].y}`;
@@ -992,10 +987,10 @@
         };
 
         const osColors = {
-          'Jason Valeros': '#00AFC0', // Teal
-          'Aiza Abing': '#6366f1',    // Indigo
-          'Hawk': '#f59e0b',          // Amber
-          'Marno': '#e11d48'          // Rose
+          'Jason Valeros': '#00AFC0', 
+          'Aiza Abing': '#6366f1',    
+          'Hawk': '#f59e0b',          
+          'Marno': '#e11d48'          
         };
 
         const curveMetrics = [
@@ -1007,7 +1002,6 @@
           { key: 'chk', label: 'Check-ins' }
         ];
 
-        // Layout mapping variables for SVG Curve Chart
         const startXs = [80, 200, 320, 440, 560, 680];
         const mapY = (score) => 220 - ((score - 4.5) / 0.5) * 180;
 
