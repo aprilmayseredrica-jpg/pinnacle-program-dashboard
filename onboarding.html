@@ -46,9 +46,10 @@
     const { useState, useMemo, Fragment, Component } = React;
 
     // ==========================================
-    // UI HELPER COMPONENTS
+    // EXPLICIT FUNCTION HOISTING FOR UTILITIES
+    // Prevents Babel Standalone ReferenceErrors
     // ==========================================
-    const Icon = ({ name, size = 16, className = "" }) => {
+    function Icon({ name, size = 16, className = "" }) {
       const paths = {
         BarChart3: <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />,
         Layers: <Fragment><path d="m12 3-10 5 10 5 10-5-10-5Z" /><path d="m2 17 10 5 10-5" /><path d="m2 12 10 5 10-5" /></Fragment>,
@@ -65,7 +66,18 @@
           {paths[name] || <circle cx="12" cy="12" r="10" />}
         </svg>
       );
-    };
+    }
+
+    function formatDateDisplay(dateStr) {
+      if (!dateStr) return 'N/A';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      const year = parts[0];
+      const month = parts[1];
+      const day = parts[2];
+      const months = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+      return `${months[month]} ${parseInt(day, 10)}, ${year}`;
+    }
 
     const reasonColorMap = {
       'VA Issues': '#818CF8', 
@@ -77,17 +89,7 @@
       'Resignation': '#EC4899'
     };
 
-    function formatDateDisplay(dateStr) {
-      if (!dateStr) return 'N/A';
-      const [year, month, day] = dateStr.split('-');
-      const months = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
-      return `${months[month]} ${parseInt(day, 10)}, ${year}`;
-    }
-
-    // ==========================================
-    // SPARTAN MODAL (DEEP DIVE)
-    // ==========================================
-    const SpartanModal = ({ month, data, onClose }) => {
+    function SpartanModal({ month, data, onClose }) {
       const reasonMap = {}; const specMap = {};
       if(data && Array.isArray(data)) {
         data.forEach(d => {
@@ -100,6 +102,7 @@
       const topSpec = Object.keys(specMap).sort((a,b) => specMap[b] - specMap[a])[0] || 'Unknown';
 
       const getSpartanAction = (spec) => {
+        if (!spec) return "AUDIT PIPELINE.";
         if (spec.includes('Quality') || spec.includes('Skills') || spec.includes('HTP')) return "MANDATE DAY -3 TECHNICAL AUDIT. REJECT UNVETTED PROFILES.";
         if (spec.includes('Expectations') || spec.includes('Workflow')) return "HALT KICKOFF. REQUIRE SIGNED WORKFLOW BLUEPRINT.";
         if (spec.includes('Attendance') || spec.includes('Backout')) return "AUDIT SOURCING STABILITY. ISSUE RECRUITMENT WARNING.";
@@ -132,13 +135,30 @@
           </div>
         </div>
       );
-    };
+    }
+
+    class ErrorBoundary extends Component {
+      constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+      static getDerivedStateFromError(error) { return { hasError: true, error }; }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="p-10 m-10 bg-rose-50 border-4 border-rose-500 rounded-lg text-rose-900 shadow-xl">
+              <h1 className="text-2xl font-black uppercase mb-4">Application Crash Prevented</h1>
+              <p className="font-medium mb-4">The dashboard encountered an execution or variables load defect. Details are provided below:</p>
+              <pre className="text-[10px] bg-slate-900 text-rose-400 p-4 rounded overflow-x-auto">{this.state.error.stack}</pre>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
 
     // ==========================================
     // MAIN APP COMPONENT
     // ==========================================
     function App() {
-      // 1. Define Base Constants INSIDE the React Component
+      // 1. Data Definitions Safe Inside Scope
       const HISTORICAL_SUMMARY = useMemo(() => ({
         '2023': { starts: 200, cxls: 75, rate: 37.5 },
         '2024': { starts: 259, cxls: 67, rate: 25.9 },
@@ -160,7 +180,6 @@
         { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, avg: 4.86 }
       ], []);
 
-      // Generative dataset to model historical behaviors accurately
       const RAW_CANCELLATIONS = useMemo(() => {
         const data = [];
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -308,15 +327,19 @@
           let aVal = a[ledgerSortConfig.key] || ''; let bVal = b[ledgerSortConfig.key] || '';
           if (typeof aVal === 'number' && typeof bVal === 'number') return ledgerSortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
           aVal = aVal.toString().toLowerCase(); bVal = bVal.toString().toLowerCase();
-          if (aVal < bVal) return ledgerSortConfig.direction === 'asc' ? -1 : 1;
-          if (aVal > bVal) return ledgerSortConfig.direction === 'asc' ? 1 : -1;
+          
+          if (aVal !== bVal) {
+             const isLess = aVal.localeCompare(bVal) === -1;
+             if (isLess) return ledgerSortConfig.direction === 'asc' ? -1 : 1;
+             return ledgerSortConfig.direction === 'asc' ? 1 : -1;
+          }
           return 0;
         });
         return sortable;
       }, [filteredCancellations, ledgerSortConfig]);
 
       const requestSort = key => setLedgerSortConfig({ key, direction: ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc' ? 'desc' : 'asc' });
-      const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>;
+      const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : (ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>);
 
       // Month Ledger Aggregation 
       const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear, RAW_CANCELLATIONS]);
@@ -345,7 +368,7 @@
         const reasonCounts = {};
         filteredCancellations.forEach(c => reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1);
         let topTrigger = 'N/A', topCount = 0;
-        Object.entries(reasonCounts).forEach(([r, count]) => { if (Math.max(count, topCount) === count) { topTrigger = r; topCount = count; } });
+        Object.entries(reasonCounts).forEach(([r, count]) => { if (Math.max(count, topCount) === count && count !== topCount) { topTrigger = r; topCount = count; } });
 
         return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1), topTrigger };
       }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY, RAW_CANCELLATIONS.length]);
@@ -413,17 +436,17 @@
           const yData = RAW_CANCELLATIONS.filter(c => c.year === y);
           const totalCxls = yData.length;
           const withRFI = yData.filter(c => c.hasRFI).length;
-          return { year: y, totalCxls, withRFI, rate: totalCxls > 0 ? ((withRFI/totalCxls)*100).toFixed(0) : 0 };
+          return { year: y, totalCxls, withRFI, rate: totalCxls !== 0 ? ((withRFI/totalCxls)*100).toFixed(0) : 0 };
         });
       }, [RAW_CANCELLATIONS]);
 
-      // Dynamic YoY Stats Calculation to sync Line Chart with active filters
+      // Dynamic YoY Stats Calculation
       const yoyStats = useMemo(() => {
         const years = ['2023', '2024', '2025', '2026'];
         return years.map(y => {
           const starts = HISTORICAL_SUMMARY[y].starts;
           const cxls = filteredCancellations.filter(c => c.year === y).length;
-          const rate = starts > 0 ? ((cxls / starts) * 100).toFixed(1) : 0;
+          const rate = starts !== 0 ? ((cxls / starts) * 100).toFixed(1) : 0;
           return { year: y, starts, cxls, rate: parseFloat(rate) };
         });
       }, [filteredCancellations, HISTORICAL_SUMMARY]);
@@ -685,7 +708,7 @@
                       ))}
                       {bucket.total === 0 && <rect x={startX} y="170" width={colWidth} height="40" fill="transparent" onMouseEnter={() => setHoveredTenureBucket(bucket)} onMouseLeave={() => setHoveredTenureBucket(null)} />}
                       
-                      {bucket.total > 0 && (
+                      {bucket.total !== 0 && (
                         <text x={startX + 20} y={210 - (bucket.total * scale) - 5} className="text-[10px] font-bold fill-[#025863]" textAnchor="middle">{bucket.total}</text>
                       )}
                     </g>
@@ -694,7 +717,7 @@
 
                 <path d={`M ${linePoints.join(" L ")}`} fill="none" stroke="#00AFC0" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-md" />
                 {tenureData.map((b, i) => {
-                  if (b.total === 0 && i > 0 && tenureData[i-1].total === 0) return null; 
+                  if (b.total === 0 && i !== 0 && tenureData[i-1].total === 0) return null; 
                   const cx = 140 + (i * 170) + 20;
                   const cy = 210 - ((b.cumulative / totalCxlsAll) * 180);
                   const pct = ((b.cumulative / totalCxlsAll) * 100).toFixed(0);
@@ -813,31 +836,34 @@
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {DATA.OS_METRICS.map(os => (
-                <div key={os.name} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                  <div className="flex justify-between items-center border-b border-slate-200 pb-2 mb-3">
-                    <h4 className="font-bold text-[#025863] truncate">{os.name}</h4>
-                    <span className="text-[10px] bg-[#D1EBEF] text-[#025863] font-bold px-2 py-0.5 rounded-full">{os.n} Reviews</span>
+              {OS_METRICS.map(os => {
+                const kpiColor = Math.min(os.kpi, 4.74) === os.kpi ? 'text-amber-500' : 'text-emerald-500';
+                return (
+                  <div key={os.name} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                    <div className="flex justify-between items-center border-b border-slate-200 pb-2 mb-3">
+                      <h4 className="font-bold text-[#025863] truncate">{os.name}</h4>
+                      <span className="text-[10px] bg-[#D1EBEF] text-[#025863] font-bold px-2 py-0.5 rounded-full">{os.n} Reviews</span>
+                    </div>
+                    <div className="flex items-end gap-2 mb-4">
+                      <span className="text-3xl font-black text-[#00AFC0]">{os.avg.toFixed(2)}</span>
+                      <span className="text-xs text-slate-400 font-medium mb-1">Overall Avg</span>
+                    </div>
+                    <div className="space-y-2 text-[10px]">
+                      <div className="flex justify-between"><span className="text-slate-500">Productivity:</span><span className="font-bold text-slate-700">{os.prod.toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Confidence:</span><span className="font-bold text-slate-700">{os.conf.toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">KPI Sync:</span><span className={`font-bold ${kpiColor}`}>{os.kpi.toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Tool Nav:</span><span className="font-bold text-slate-700">{os.tool.toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span className="text-slate-500">Check-ins:</span><span className="font-bold text-slate-700">{os.chk.toFixed(2)}</span></div>
+                    </div>
                   </div>
-                  <div className="flex items-end gap-2 mb-4">
-                    <span className="text-3xl font-black text-[#00AFC0]">{os.avg.toFixed(2)}</span>
-                    <span className="text-xs text-slate-400 font-medium mb-1">Overall Avg</span>
-                  </div>
-                  <div className="space-y-2 text-[10px]">
-                    <div className="flex justify-between"><span className="text-slate-500">Productivity:</span><span className="font-bold text-slate-700">{os.prod.toFixed(2)}</span></div>
-                    <div className="flex justify-between"><span className="text-slate-500">Confidence:</span><span className="font-bold text-slate-700">{os.conf.toFixed(2)}</span></div>
-                    <div className="flex justify-between"><span className="text-slate-500">KPI Sync:</span><span className={`font-bold ${os.kpi < 4.75 ? 'text-amber-500' : 'text-emerald-500'}`}>{os.kpi.toFixed(2)}</span></div>
-                    <div className="flex justify-between"><span className="text-slate-500">Tool Nav:</span><span className="font-bold text-slate-700">{os.tool.toFixed(2)}</span></div>
-                    <div className="flex justify-between"><span className="text-slate-500">Check-ins:</span><span className="font-bold text-slate-700">{os.chk.toFixed(2)}</span></div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="bg-slate-900 text-white rounded-xl p-5 shadow-inner">
               <h4 className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest mb-4">Raw Client Verbatims</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {DATA.SURVEY_SNAPSHOT.map((q, i) => (
+                {SURVEY_SNAPSHOT.map((q, i) => (
                   <div key={i} className="bg-slate-800 p-4 rounded-lg border border-slate-700">
                     <p className="text-xs italic text-slate-300 mb-3">"{q.quote}"</p>
                     <div className="flex justify-between items-center text-[9px] font-semibold uppercase tracking-wider text-slate-500 border-t border-slate-700 pt-2">
@@ -859,16 +885,23 @@
               <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 5: Performance Deep Dive</span>
               <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Onboarding Specialist Performance Breakdown: Early Attrition Forensics</h3>
               <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
-                <p className="text-xs text-slate-600 font-medium">
-                  <strong>Data Scope:</strong> This cohort analysis isolates under-90-day client cancellations calculated strictly from the client’s original RVA start date.<br/>
-                  <strong>Operational Era:</strong> Reflects performance post-launch on April 1, 2025. All cancellations occurring prior to this date are classified under the Pre-System Baseline and omitted from individual scorecards.
+                <p className="text-xs text-slate-600 font-medium leading-relaxed">
+                  <strong>Data Scope:</strong> This cohort analysis isolates under-90-day client cancellations calculated strictly from the client’s original RVA start date (Source: Master Attrition Report 1779914133165).<br/>
+                  <strong>Operational Era:</strong> Reflects performance post-department launch on April 1, 2025 (Source: ROCK Completion - Q1C2025: Onboarding Specialist). All cancellations occurring prior to this date are classified under the Pre-System Baseline and omitted from individual scorecards.
                 </p>
               </div>
             </div>
 
-            <div className="border border-slate-200 rounded-lg overflow-hidden mb-6">
+            <h4 className="font-bold text-sm text-[#025863] mb-2">1. Granular Tenure &amp; Reason Matrix Per Specialist</h4>
+            <p className="text-xs text-slate-600 mb-4">
+              The matrix below breaks down early account attrition by individual Onboarding Specialist. The columns segment the exact tenure tranche where the failure materialized, alongside a raw accounting of the primary cancellation reasons.<br/><br/>
+              <strong>Days 0–14 &amp; 15–30:</strong> Exits within the OS team's sole accountability window.<br/>
+              <strong>Days 31–60 &amp; 61–90:</strong> Exits occurring post-handoff to Account Management, serving as the lagging health metric of the foundation established by the specialist.
+            </p>
+
+            <div className="border border-slate-200 rounded-lg overflow-hidden mb-8">
               <table className="w-full text-left text-xs whitespace-normal">
-                <thead className="bg-[#025863] text-white font-bold text-[10px] uppercase">
+                <thead className="bg-[#025863] text-white font-bold text-[10px] uppercase tracking-wider">
                   <tr>
                     <th className="py-3 px-4">Assigned Specialist</th>
                     <th className="py-3 px-4 text-center">0–14 Days</th>
@@ -886,7 +919,7 @@
                     <td className="py-3 px-4 text-center font-bold">7</td>
                     <td className="py-3 px-4 text-center font-bold">6</td>
                     <td className="py-3 px-4 text-[11px] leading-relaxed">
-                      <strong>10 VA Issues</strong> (Quality/Attendance), <strong>4 Client Setup</strong>, <strong>3 Financial</strong>, <strong>1 Failed Placement</strong>
+                      <strong>10 VA Issues</strong> (Quality/Attendance)<br/><strong>4 Client Setup</strong><br/><strong>3 Financial</strong><br/><strong>1 Failed Placement</strong>
                     </td>
                   </tr>
                   <tr className="hover:bg-slate-50">
@@ -896,7 +929,7 @@
                     <td className="py-3 px-4 text-center font-bold">3</td>
                     <td className="py-3 px-4 text-center font-bold">2</td>
                     <td className="py-3 px-4 text-[11px] leading-relaxed">
-                      <strong>6 Failed Placements / Back Out VAs</strong>, <strong>4 VA Issues</strong> (Responsiveness), <strong>2 Client Setup</strong>
+                      <strong>6 Failed Placements / Back Out VAs</strong><br/><strong>4 VA Issues</strong> (Responsiveness)<br/><strong>2 Client Setup</strong>
                     </td>
                   </tr>
                   <tr className="hover:bg-slate-50">
@@ -906,7 +939,7 @@
                     <td className="py-3 px-4 text-center font-bold">2</td>
                     <td className="py-3 px-4 text-center font-bold">1</td>
                     <td className="py-3 px-4 text-[11px] leading-relaxed">
-                      <strong>5 Client Setup Issues</strong> (Expectations), <strong>3 VA Issues</strong>, <strong>1 Financial</strong>
+                      <strong>5 Client Setup Issues</strong> (Expectations)<br/><strong>3 VA Issues</strong><br/><strong>1 Financial</strong>
                     </td>
                   </tr>
                   <tr className="hover:bg-slate-50">
@@ -916,48 +949,50 @@
                     <td className="py-3 px-4 text-center font-bold">3</td>
                     <td className="py-3 px-4 text-center font-bold">4</td>
                     <td className="py-3 px-4 text-[11px] leading-relaxed">
-                      <strong>4 Financial Issues</strong>, <strong>3 VA Issues</strong> (Output), <strong>1 Commitment</strong>
+                      <strong>4 Financial Issues</strong><br/><strong>3 VA Issues</strong> (Output)<br/><strong>1 Commitment</strong>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
+            <h4 className="font-bold text-sm text-[#025863] mb-4">2. Forensic Diagnostic Per Onboarding Specialist</h4>
+
             <div className="space-y-6">
-              <div className="p-4 bg-slate-50 border-l-4 border-[#025863]">
+              <div className="p-4 bg-slate-50 border-l-4 border-[#025863] rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Jason Valeros: The Volume &amp; Over-Performance Mask</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure: Churn skewed post-handoff (13 of 18 cases occur in 31–90 day window) | Cause: VA Issues (Quality &amp; Skills)</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Churn is heavily skewed post-handoff (13 out of 18 total cases occur in the 31–90 day window).<br/>Causal Breakdown: Driven predominantly by VA Issues (Quality &amp; Skills).</p>
                 <p className="text-xs leading-relaxed text-slate-700">
-                  Jason delivers an elite client experience during active ownership holding a 4.85 CSAT. His intense, high-touch management style temporarily masks upstream placement deficits. Once the account is graduated to an Account Manager on Day 31 and his close support framework is removed, the structural skill gaps of the VA surface, causing late-tenure dropouts.
+                  <strong className="text-[#025863]">Spartan Insight:</strong> Valeros delivers an elite client experience during active ownership (Source: OS 30-Day Experience Snapshot), holding a 4.85 CSAT. His intense, high-touch management style temporarily masks upstream placement deficits. Once the account is graduated to an Account Manager on Day 31 and his close support framework is removed, the structural skill gaps of the VA surface, causing late-tenure dropouts.
                 </p>
-                <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Enforce blind standalone VA testing on Day 25 to verify independence before allowing graduation to AM.</p>
+                <p className="text-xs font-black text-[#00AFC0] mt-2">Action: Enforce blind standalone VA testing on Day 25 to verify independence before allowing graduation to AM.</p>
               </div>
 
-              <div className="p-4 bg-slate-50 border-l-4 border-[#00AFC0]">
+              <div className="p-4 bg-slate-50 border-l-4 border-[#00AFC0] rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Aiza Abing: Upstream Defect Burden</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure: Heavily front-loaded (7 of 12 cases manifest inside active 0–30 day window) | Cause: Failed Placements &amp; Back Out VAs</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Attrition is heavily front-loaded (7 out of 12 cases manifest inside the active 0–30 day window; 5 clear within the first 14 days).<br/>Causal Breakdown: Overwhelmingly dominated by Failed Placements and Back Out VAs (Source: RISE Cancellations w/ RFI).</p>
                 <p className="text-xs leading-relaxed text-slate-700">
-                  Aiza is being heavily penalized by upstream recruitment failures. A cancellation at Day -1 or Day 4 due to an unresponsive VA is a matching and profiling defect, not a failure of onboarding execution. Aiza’s scorecard is absorbing the friction of speed-driven placement over-allocation.
+                  <strong className="text-[#025863]">Spartan Insight:</strong> Abing is being heavily penalized by upstream recruitment failures. A cancellation at Day -1 or Day 4 due to an unresponsive VA is a matching and profiling defect, not a failure of onboarding execution. Abing’s scorecard is absorbing the friction of speed-driven placement over-allocation.
                 </p>
-                <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Instantly flag and reroute any placement with a pre-hire RFI score matching an Aiza account back to Placements for structural calibration.</p>
+                <p className="text-xs font-black text-[#00AFC0] mt-2">Action: Instantly flag and reroute any placement with a pre-hire RFI score matching an Abing account back to Placements for structural calibration.</p>
               </div>
 
-              <div className="p-4 bg-slate-50 border-l-4 border-amber-500">
+              <div className="p-4 bg-slate-50 border-l-4 border-amber-500 rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Hawk: Client Alignment Vulnerability</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure: Peaks sharply in the 15–30 day tranche (5 cases), immediately prior to graduation | Cause: Client Setup Issues</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Churn peaks sharply in the 15–30 day tranche (5 cases), immediately prior to graduation.<br/>Causal Breakdown: Dominated by Client Setup Issues (Unrealistic Expectations / Unclear Workflows).</p>
                 <p className="text-xs leading-relaxed text-slate-700">
-                  Hawk is failing to forcefully resolve client expectation mismatches during the first two weeks of kickoff. If a client expects specialty output immediately or refuses to provide direct system integration, the account is left to curdle, peaking in a cancellation call right at the handoff threshold.
+                  <strong className="text-[#025863]">Spartan Insight:</strong> Hawk is failing to forcefully resolve client expectation mismatches during the first two weeks of kickoff. If a client expects specialty output immediately or refuses to provide direct system integration, the account is left to curdle, peaking in a cancellation call right at the handoff threshold.
                 </p>
-                <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Mandate the deployment of the signed Client-Expectation Contract on Day 1. If non-compliance persists on Day 14, trigger an immediate internal operational freeze.</p>
+                <p className="text-xs font-black text-[#00AFC0] mt-2">Action: Mandate the deployment of the signed Client-Expectation Contract on Day 1. If non-compliance persists on Day 14, trigger an immediate internal operational freeze.</p>
               </div>
 
-              <div className="p-4 bg-slate-50 border-l-4 border-slate-400">
+              <div className="p-4 bg-slate-50 border-l-4 border-slate-400 rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Marno: High Operational Integrity / Commercial Exposure</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure: Elite containment during sole ownership (only 1 cancellation in first 30 days) | Cause: Macroeconomic Financial Issues</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Elite containment during sole ownership (only 1 cancellation in the first 30 days). Attrition occurs exclusively late-stage (61–90 days).<br/>Causal Breakdown: Primarily driven by macroeconomic Financial Issues (Clinic Downsizing / Budget Cuts).</p>
                 <p className="text-xs leading-relaxed text-slate-700">
-                  Marno builds the strongest operational foundation in the department, scoring highest on tool utilization clarity (4.89) and KPI alignment (4.75). Accounts pass the AM handoff cleanly. Churn events are almost entirely unpreventable, non-operational commercial adjustments on the client side.
+                  <strong className="text-[#025863]">Spartan Insight:</strong> Marno builds the strongest operational foundation in the department, scoring highest on tool utilization clarity (4.89) and KPI alignment (4.75). Accounts pass the AM handoff cleanly. Churn events are almost entirely unpreventable, non-operational commercial adjustments on the client side.
                 </p>
-                <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Standardize Marno’s onboarding documentation layout across the entire team to minimize the handoff leak across other specialists.</p>
+                <p className="text-xs font-black text-[#00AFC0] mt-2">Action: Standardize Marno’s onboarding documentation layout across the entire team to minimize the handoff leak across other specialists.</p>
               </div>
             </div>
           </div>
@@ -988,8 +1023,8 @@
                 const isFaded = selectedMonth !== 'All' && !isActive;
                 return (
                   <div 
-                    key={idx} onClick={() => { if(m.count > 0) setSpartanMonth(m); setSelectedMonth(isActive ? 'All' : m.month); }}
-                    className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all duration-200 ${m.count > 0 ? 'cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'} ${isActive ? 'bg-[#025863] border-[#025863] shadow-md transform scale-105' : 'bg-slate-50 border-slate-200 hover:border-[#00AFC0]'} ${isFaded ? 'opacity-40' : 'opacity-100'}`}
+                    key={idx} onClick={() => { if(m.count !== 0) setSpartanMonth(m); setSelectedMonth(isActive ? 'All' : m.month); }}
+                    className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all duration-200 ${m.count !== 0 ? 'cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'} ${isActive ? 'bg-[#025863] border-[#025863] shadow-md transform scale-105' : 'bg-slate-50 border-slate-200 hover:border-[#00AFC0]'} ${isFaded ? 'opacity-40' : 'opacity-100'}`}
                   >
                     <div className={`font-bold flex items-center justify-between ${isActive ? 'text-white' : 'text-[#025863]'}`}>
                       <span>{m.month}</span>
@@ -1138,7 +1173,7 @@
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-8">
               <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Early Cxl Rate <Icon name="TrendingDown" size={14} className="text-[#FF6334]"/></div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1 flex justify-between">Early Cxl Rate &lt;90D <Icon name="TrendingDown" size={14} className="text-[#FF6334]"/></div>
                 <div className="text-3xl font-black text-[#025863]">{dynamicKPIs.dynamicCxlRate}%</div>
                 <div className="text-[10px] text-slate-500 mt-1">{dynamicKPIs.totalCxls} Cxls / {dynamicKPIs.startsCount} Starts</div>
               </div>
