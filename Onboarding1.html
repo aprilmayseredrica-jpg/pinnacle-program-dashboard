@@ -312,6 +312,15 @@
 
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
+      // Handle Resetting all Active Filters safely
+      const handleResetFilters = () => {
+        setSelectedYear('All');
+        setSelectedMonth('All');
+        setSearchQuery('');
+        setCxlYearFocus(null);
+        setSpartanMonth(null);
+      };
+
       // Core Filter Pipeline
       const filteredCancellations = useMemo(() => {
         return RAW_CANCELLATIONS.filter(item => {
@@ -379,7 +388,7 @@
 
         let runningTotal = 0;
         return buckets.map((b) => {
-          const cases = filteredCancellations.filter(c => c.daysBeforeCxl >= b.min && c.daysBeforeCxl <= b.max);
+          const cases = filteredCancellations.filter(c => Math.max(c.daysBeforeCxl, b.min) === c.daysBeforeCxl && Math.min(c.daysBeforeCxl, b.max) === c.daysBeforeCxl);
           const reasons = {};
           cases.forEach(c => reasons[c.reason] = (reasons[c.reason] || 0) + 1);
           runningTotal += cases.length;
@@ -842,7 +851,7 @@
         const mapY = (score) => 220 - ((score - 4.5) / 0.5) * 180;
         const startXs = [100, 300, 500, 700];
 
-        const overallPoints = OS_METRICS.map((os, i) => ({ x: startXs[i], y: mapY(os.avg) }));
+        const overallPoints = OS_METRICS.map((os, i) => ({ x: startXs[i], y: mapY(os.overall) }));
         const prodPoints = OS_METRICS.map((os, i) => ({ x: startXs[i], y: mapY(os.prod) }));
         const kpiPoints = OS_METRICS.map((os, i) => ({ x: startXs[i], y: mapY(os.kpi) }));
         const toolPoints = OS_METRICS.map((os, i) => ({ x: startXs[i], y: mapY(os.tool) }));
@@ -888,7 +897,7 @@
                     <circle cx={prodPoints[i].x} cy={prodPoints[i].y} r="4" fill="#1e293b" stroke="#e11d48" strokeWidth="2" />
                     <circle cx={kpiPoints[i].x} cy={kpiPoints[i].y} r="4" fill="#1e293b" stroke="#f59e0b" strokeWidth="2" />
                     <circle cx={overallPoints[i].x} cy={overallPoints[i].y} r="7" fill="#fff" stroke="#00AFC0" strokeWidth="3" />
-                    <text x={overallPoints[i].x} y={overallPoints[i].y - 15} className="text-[11px] font-black fill-[#00AFC0]" textAnchor="middle">{os.avg.toFixed(2)}</text>
+                    <text x={overallPoints[i].x} y={overallPoints[i].y - 15} className="text-[11px] font-black fill-[#00AFC0]" textAnchor="middle">{os.overall.toFixed(2)}</text>
                   </g>
                 ))}
               </svg>
@@ -927,8 +936,8 @@
               <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Onboarding Specialist Performance Breakdown: Early Attrition Forensics</h3>
               <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
                 <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                  <strong>Data Scope:</strong> This cohort analysis isolates under-90-day client cancellations calculated strictly from the client’s original RVA start date.<br/>
-                  <strong>Operational Era:</strong> Reflects performance post-department launch on April 1, 2025. All cancellations occurring prior to this date are classified under the Pre-System Baseline and omitted from individual scorecards.
+                  <strong>Data Scope:</strong> This cohort analysis isolates under-90-day client cancellations calculated strictly from the client’s original RVA start date (Source: Master Attrition Report 1779914133165).<br/>
+                  <strong>Operational Era:</strong> Reflects performance post-department launch on April 1, 2025 (Source: ROCK Completion - Q1C2025: Onboarding Specialist). All cancellations occurring prior to this date are classified under the Pre-System Baseline and omitted from individual scorecards.
                 </p>
               </div>
             </div>
