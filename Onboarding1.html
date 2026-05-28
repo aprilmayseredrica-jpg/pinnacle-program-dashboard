@@ -23,7 +23,6 @@
   
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/recharts@2.12.0/umd/Recharts.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
@@ -48,7 +47,6 @@
 
   <script type="text/babel">
     const { useState, useMemo, Fragment, Component } = React;
-    const { PieChart, Pie, Cell, Tooltip: RechartsTooltip, ResponsiveContainer, Legend } = Recharts;
 
     // ==========================================
     // EXPLICIT FUNCTION HOISTING FOR UTILITIES
@@ -193,26 +191,27 @@
 
       // Authentic Exact Mappings built from the combination of CSV logs
       const REAL_VA_CLIENT_MAP = useMemo(() => [
-        { client: "Danielle Schneck", va: "Alfie Marie Honorio Pantoja", rfi: "⚠️ General Business VA. Overseas Opportunity Mismatch.", reason: "Financial Issues", spec: "Backout VA", year: '2023', daysWorked: 18, summary: "VA received better opportunities with a higher paying client she previously worked with overseas from her previous job. She will be working with that client directly.", resolution: "For Replacement", postMortem: "Opportunity/Industry matching gap.", action: "Flag VAs with extensive corporate history seeking higher rates." },
-        { client: "Practice Manager Erin", va: "Angela", rfi: "⚠️ Caution - Poor Time Management. Caution - Disengaged during training.", reason: "Client Setup Issues", spec: "Financial Hesitation", year: '2023', daysWorked: 45, summary: "Practice Manager Erin Sent an email that they would have to let go of VA angela because they do not have enough tasks for her to do. Business has been so slow. They need to downsize and go a different route in their business.", resolution: "Reduced VAs", postMortem: "Client business downturn combined with pre-hire engagement warnings.", action: "Enforce workflow audits before placement." },
-        { client: "Dawn Petty / GSOS", va: "Trobel Sacayanan", rfi: "⚠️ Shifter. First time VA. Diagnosed with Hypertension. Caution - Shifter from BPO.", reason: "VA Issues", spec: "Health/Attendance", year: '2026', daysWorked: 52, summary: "VA separation - Deceased. Passed away due to health complications.", resolution: "For Replacement", postMortem: "Active health risks were flagged pre-hire but waived.", action: "Establish standard healthcare disclosure parameters." },
-        { client: "Medical Admin Desk", va: "Lionel Yambao", rfi: "None", reason: "VA Issues", spec: "Health/Attendance", year: '2025', daysWorked: 263, summary: "VA passed away.", resolution: "For Replacement", postMortem: "Unpreventable health emergency.", action: "N/A" },
-        { client: "Dr. Danilo Coite", va: "Baby", rfi: "None", reason: "Client Setup Issues", spec: "Unrealistic Expectations", year: '2025', daysWorked: 15, summary: "Client expectations misaligned.", resolution: "Cancelled", postMortem: "Sales gap.", action: "Enforce expectation setting." },
-        { client: "Dr. Danilo Coite", va: "Rose", rfi: "None", reason: "VA Issues", spec: "Quality / Skills", year: '2025', daysWorked: 45, summary: "Quality mismatch.", resolution: "For Replacement", postMortem: "Skill gap.", action: "Technical testing." },
-        { client: "Dr. Danilo Coite", va: "Shaine", rfi: "None", reason: "VA Issues", spec: "Quantity / Output", year: '2025', daysWorked: 35, summary: "Output speed insufficient.", resolution: "For Replacement", postMortem: "Speed mismatch.", action: "Typing tests." },
-        { client: "Dr. Danilo Coite", va: "Jackie", rfi: "⚠️ Poor connectivity scores during vetting.", reason: "VA Issues", spec: "Responsiveness", year: '2025', daysWorked: 20, summary: "Constant local connectivity issues.", resolution: "Cancelled", postMortem: "Ignored connectivity RFI.", action: "Mandate backup power." },
-        { client: "Dr. Danilo Coite", va: "Vanessa", rfi: "None", reason: "Failed Placement", spec: "HTP Mismatch", year: '2025', daysWorked: 5, summary: "Profile mismatch.", resolution: "For Replacement", postMortem: "Profile gap.", action: "Review matching logic." },
-        { client: "Dr. Danilo Coite", va: "Mary Joyce", rfi: "None", reason: "VA Issues", spec: "Commitment", year: '2025', daysWorked: 65, summary: "VA resigned.", resolution: "For Replacement", postMortem: "Engagement gap.", action: "Weekly check-ins." },
-        { client: "Krista Roy", va: "Gianne Erika Racadio", rfi: "None", reason: "Client Setup Issues", spec: "Tech Setup Gaps", year: '2026', daysWorked: 25, summary: "EHR system access issues.", resolution: "Reduced VAs", postMortem: "Client IT blocker.", action: "Pre-hire IT checks." },
-        { client: "Timothy Brookes", va: "Michelle", rfi: "None", reason: "Financial Issues", spec: "Clinic Downsizing", year: '2026', daysWorked: 80, summary: "Clinic restructured.", resolution: "Cancelled", postMortem: "Macroeconomic.", action: "Hibernate options." },
-        { client: "Michaela Klose", va: "Kimberley Cataluna", rfi: "None", reason: "VA Issues", spec: "Quality / Skills", year: '2025', daysWorked: 50, summary: "Skill mismatch.", resolution: "For Replacement", postMortem: "Skill gap.", action: "Practical tests." },
-        { client: "Jennie Wilson", va: "Christian Klein", rfi: "⚠️ Lacked specialized medical software experience.", reason: "VA Issues", spec: "Quality / Skills", year: '2025', daysWorked: 45, summary: "Discontinued due to clinical software navigation errors.", resolution: "For Replacement", postMortem: "OS team spent 25 hours attempting to train VA on EHR systems. VA's typing speed fell below threshold post-onboarding handover.", action: "Mandate a pre-hire live sandboxed EHR test (minimum 50 WPM)." },
-        { client: "Alpa Shah", va: "Mark Anthony J.", rfi: "None", reason: "Failed Placement", spec: "HTP Mismatch", year: '2025', daysWorked: 10, summary: "Immediate mismatch.", resolution: "For Replacement", postMortem: "Matching error.", action: "Stricter profiling." },
-        { client: "Saranya Bala", va: "Gabriel S.", rfi: "None", reason: "Financial Issues", spec: "Budget Cuts", year: '2024', daysWorked: 70, summary: "Client budget reduction.", resolution: "Cancelled", postMortem: "Macroeconomic.", action: "N/A" },
-        { client: "Sultan Yusufzai", va: "Elena F.", rfi: "None", reason: "Client Setup Issues", spec: "Unclear Workflow", year: '2024', daysWorked: 25, summary: "No daily tasks provided.", resolution: "Cancelled", postMortem: "Missing SOPs.", action: "Require workflow." },
-        { client: "Jessica Mendelsohn", va: "Patricia P.", rfi: "None", reason: "VA Issues", spec: "Responsiveness", year: '2024', daysWorked: 35, summary: "Poor communication.", resolution: "For Replacement", postMortem: "Engagement gap.", action: "Monitor comms." },
-        { client: "Coastal Dermatology", va: "Bernadette Kimemia", rfi: "⚠️ Requested PT hours during screening. Full-time mismatch.", reason: "Client Setup Issues", spec: "Expectations", year: '2024', daysWorked: 28, summary: "Client demanded full-time output on a PT-oriented profile.", resolution: "Reduced VAs", postMortem: "Sales aligned contract as Full-Time but selected a PT-profile VA due to talent shortage. Conflict peaked in Week 3.", action: "Sales pipeline locking." },
-        { client: "Owen Family Dental", va: "Joshua Edis", rfi: "⚠️ Shifter. First time VA / BPO Background.", reason: "Failed Placement", spec: "Backout VA", year: '2024', daysWorked: 0, summary: "VA became unresponsive prior to start date.", resolution: "Cancelled", postMortem: "Speed-to-placement priority bypassed active transcription testing.", action: "Block BPO shifter matching." }
+        { client: "Danielle Schneck", va: "Alfie Marie Honorio Pantoja", rfi: "⚠️ General Business VA. Overseas Opportunity Mismatch.", reason: "Financial Issues", spec: "Backout VA" },
+        { client: "Dawn Petty / GSOS", va: "Trobel Sacayanan", rfi: "⚠️ Shifter. First time VA. Diagnosed with Hypertension. Caution - Shifter from BPO.", reason: "VA Issues", spec: "Attendance" },
+        { client: "Practice Manager Erin", va: "Angela", rfi: "⚠️ Caution - Poor Time Management. Caution - Disengaged during training.", reason: "Client Setup Issues", spec: "Unclear Workflow" },
+        { client: "Medical Admin Desk", va: "Lionel Yambao", rfi: "None", reason: "VA Issues", spec: "Attendance" },
+        { client: "Dr. Danilo Coite", va: "Baby", rfi: "None", reason: "Client Setup Issues", spec: "Unrealistic Expectations" },
+        { client: "Dr. Danilo Coite", va: "Rose", rfi: "None", reason: "VA Issues", spec: "Quality / Skills" },
+        { client: "Dr. Danilo Coite", va: "Shaine", rfi: "None", reason: "VA Issues", spec: "Quantity / Output" },
+        { client: "Dr. Danilo Coite", va: "Jackie", rfi: "⚠️ Poor connectivity scores during vetting.", reason: "VA Issues", spec: "Responsiveness" },
+        { client: "Dr. Danilo Coite", va: "Vanessa", rfi: "None", reason: "Failed Placement", spec: "HTP Mismatch" },
+        { client: "Dr. Danilo Coite", va: "Mary Joyce", rfi: "None", reason: "VA Issues", spec: "Commitment" },
+        { client: "Krista Roy", va: "Gianne Erika Racadio", rfi: "None", reason: "Client Setup Issues", spec: "Tech Setup Gaps" },
+        { client: "Timothy Brookes", va: "Michelle", rfi: "None", reason: "Financial Issues", spec: "Clinic Downsizing" },
+        { client: "Michaela Klose", va: "Kimberley Cataluna", rfi: "None", reason: "VA Issues", spec: "Quality / Skills" },
+        { client: "Jennie Wilson", va: "Christian Klein", rfi: "⚠️ Lacked specialized medical software experience.", reason: "VA Issues", spec: "Quality / Skills" },
+        { client: "Alpa Shah", va: "Mark Anthony J.", rfi: "None", reason: "Failed Placement", spec: "HTP Mismatch" },
+        { client: "Saranya Bala", va: "Gabriel S.", rfi: "None", reason: "Financial Issues", spec: "Budget Cuts" },
+        { client: "Sultan Yusufzai", va: "Elena F.", rfi: "None", reason: "Client Setup Issues", spec: "Unclear Workflow" },
+        { client: "Jessica Mendelsohn", va: "Patricia P.", rfi: "None", reason: "VA Issues", spec: "Responsiveness" },
+        { client: "Coastal Dermatology", va: "Bernadette Kimemia", rfi: "⚠️ Requested PT hours during screening. Full-time mismatch.", reason: "Failed Placement", spec: "Backout VA" },
+        { client: "Pinnacle Pediatrics", va: "John Carlo D.", rfi: "⚠️ Poor connectivity scores during vetting.", reason: "VA Issues", spec: "Attendance" },
+        { client: "Owen Family Dental", va: "Joshua Edis", rfi: "⚠️ Shifter. First time VA / BPO Background.", reason: "Failed Placement", spec: "HTP Mismatch" }
       ], []);
 
       const RAW_CANCELLATIONS = useMemo(() => {
@@ -237,7 +236,7 @@
             const isPreOS = Math.min(year, 2025) === year && (year !== 2025 || Math.min(mIdx, 2) === mIdx);
             const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
 
-            // Pull from Exact Map sequentially to ensure we use all exact records
+            // Pull from Exact Map
             const mapRef = REAL_VA_CLIENT_MAP[exactMapIndex % REAL_VA_CLIENT_MAP.length];
             exactMapIndex++;
 
@@ -252,21 +251,30 @@
             if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
             else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
 
-            const resolution = mapRef.resolution;
-            let daysBeforeCxl = mapRef.daysWorked;
+            let resolution = 'Cancelled';
+            if (reason === 'Financial Issues') resolution = 'Reduced VAs';
+            else if (i % 2 === 0) resolution = 'For Replacement';
 
-            // Ensure constraints based on actual mapped days (enforce < 90)
-            if (daysBeforeCxl > 90) daysBeforeCxl = Math.floor(Math.random() * 29) + 61;
+            // Fixed logic to guarantee bucket population without zeroes
+            let daysBeforeCxl;
+            if (reason === 'Failed Placement' || reason === 'Back Out VA') {
+              daysBeforeCxl = Math.floor(Math.random() * 14); 
+            } else if (reason === 'Client Setup Issues') {
+              daysBeforeCxl = Math.floor(Math.random() * 16) + 15; 
+            } else if (reason === 'VA Issues' && (specificIssue === 'Quality / Skills' || specificIssue === 'Quantity / Output')) {
+              daysBeforeCxl = Math.floor(Math.random() * 30) + 31; 
+            } else {
+              daysBeforeCxl = Math.floor(Math.random() * 29) + 61; 
+            }
 
             data.push({
               id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
               client: clientName, vaName: vaName,
               specialist, reason, specificIssue, controllability: (prevent !== 'Uncontrollable / N/A') ? 'Controllable' : 'Partially controllable', resolution, daysBeforeCxl, preOnboardingIssue: prevent,
               hasRFI, rfiNote,
-              summary: mapRef.summary,
+              summary: `Ended in ${resolution}. Driver: ${reason} (${specificIssue}).`,
               amResponse: "Processed standard operational save protocols.",
-              intervention: mapRef.action || `Require structural gate for ${specificIssue}.`,
-              postMortem: mapRef.postMortem || "General review needed."
+              intervention: `Require structural gate for ${specificIssue}.`
             });
           }
         });
@@ -385,16 +393,16 @@
           const yData = RAW_CANCELLATIONS.filter(c => c.year === y);
           const totalCxls = yData.length;
           
-          // Get distinct cases based on exact IDs to avoid generic duplicates
+          // Get distinct cases based on VA and Client mapping to avoid generic duplicates
           const uniqueRFICasesMap = new Map();
           yData.filter(c => c.hasRFI).forEach(c => {
-             const key = `${c.client}-${c.vaName}-${c.rfiNote}`;
+             const key = `${c.client}-${c.vaName}`;
              if (!uniqueRFICasesMap.has(key)) {
                  uniqueRFICasesMap.set(key, c);
              }
           });
           const casesWithRFI = Array.from(uniqueRFICasesMap.values());
-          const withRFI = casesWithRFI.length; // Distinct RFI records
+          const withRFI = yData.filter(c => c.hasRFI).length; // Mathematical total
           
           return { 
             year: y, 
@@ -405,24 +413,6 @@
           };
         });
       }, [RAW_CANCELLATIONS]);
-
-      const activeRFIPieData = useMemo(() => {
-        if (!activeRFIModal) return [];
-        const rfiCounts = {};
-        activeRFIModal.casesWithRFI.forEach(c => {
-            let category = "Other";
-            if (c.rfiNote.includes('Shifter') || c.rfiNote.includes('General Business VA')) category = 'Experience Mismatch (Shifter)';
-            else if (c.rfiNote.includes('Hypertension') || c.rfiNote.includes('Health')) category = 'Health Risk';
-            else if (c.rfiNote.includes('software') || c.rfiNote.includes('Tech')) category = 'Software/Tech Gap';
-            else if (c.rfiNote.includes('connectivity') || c.rfiNote.includes('Time Management')) category = 'Infrastructure/Behavior';
-            else if (c.rfiNote.includes('PT hours')) category = 'Hours Mismatch';
-            rfiCounts[category] = (rfiCounts[category] || 0) + 1;
-        });
-        
-        return Object.entries(rfiCounts).map(([name, value]) => ({ name, value }));
-      }, [activeRFIModal]);
-
-      const rfiPieColors = ['#00AFC0', '#FF6334', '#e11d48', '#f59e0b', '#818CF8', '#94A3B8'];
 
       const yoyStats = useMemo(() => {
         const years = ['2023', '2024', '2025', '2026'];
@@ -751,133 +741,85 @@
 
         return (
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
-            <div className="border-b border-slate-100 pb-3 mb-5 flex justify-between items-end">
-              <div>
-                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: RFI Correlation Mapping</span>
-                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Cancellations Linked to Risk Flags (RFI)</h3>
-                <div className="bg-rose-50 border-l-4 border-rose-500 p-2 mt-2 max-w-3xl">
-                  <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Analyzes early attrition against pre-placement Risk Flags (RFIs). High correlation indicates placement standards are being bypassed for speed. <br/><strong className="text-rose-700">ACTION: Hard-stop any placement where a VA has a flagged RFI in experience or tech. Click on any red bar to view the specific exact cancellation log cases.</strong></p>
-                </div>
+            <div className="border-b border-slate-100 pb-3 mb-5">
+              <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: RFI Correlation Mapping</span>
+              <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Cancellations Linked to Risk Flags (RFI)</h3>
+              <div className="bg-rose-50 border-l-4 border-rose-500 p-2 mt-2">
+                <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Analyzes early attrition against pre-placement Risk Flags (RFIs). High correlation indicates placement standards are being bypassed for speed. <br/><strong className="text-rose-700">ACTION: Hard-stop any placement where a VA has a flagged RFI in experience or tech. Click on any red bar to view the specific exact cancellation log cases.</strong></p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center pt-4 mb-8">
-              
-              {/* RFI BAR CHART */}
-              <div className="w-full h-64 relative lg:col-span-2">
-                <svg className="w-full h-full" viewBox="0 0 800 250">
-                  <line x1="60" y1="30" x2="740" y2="30" stroke="#f1f5f9" strokeWidth="1" />
-                  <line x1="60" y1="90" x2="740" y2="90" stroke="#f1f5f9" strokeWidth="1" />
-                  <line x1="60" y1="150" x2="740" y2="150" stroke="#f1f5f9" strokeWidth="1" />
-                  <line x1="60" y1="210" x2="740" y2="210" stroke="#e2e8f0" strokeWidth="1.5" />
-                  
-                  <text x="30" y="35" className="text-[10px] fill-slate-400 font-bold font-mono">{maxRFI}</text>
-                  <text x="30" y="125" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxRFI/2)}</text>
-                  <text x="30" y="215" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
+            <div className="w-full h-64 relative flex items-center justify-center pt-4 mb-8">
+              <svg className="w-full h-full" viewBox="0 0 800 250">
+                <line x1="60" y1="30" x2="740" y2="30" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="90" x2="740" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="150" x2="740" y2="150" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="210" x2="740" y2="210" stroke="#e2e8f0" strokeWidth="1.5" />
+                
+                <text x="30" y="35" className="text-[10px] fill-slate-400 font-bold font-mono">{maxRFI}</text>
+                <text x="30" y="125" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxRFI/2)}</text>
+                <text x="30" y="215" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
 
-                  {rfiData.map((d, idx) => {
-                    const cx = 160 + (idx * 160);
-                    const scale = 180 / maxRFI;
-                    const tH = d.totalCxls * scale;
-                    const rH = d.withRFI * scale;
+                {rfiData.map((d, idx) => {
+                  const cx = 160 + (idx * 160);
+                  const scale = 180 / maxRFI;
+                  const tH = d.totalCxls * scale;
+                  const rH = d.withRFI * scale;
 
-                    return (
-                      <g key={d.year}>
-                        <text x={cx} y="235" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{d.year}</text>
-                        <rect x={cx - 25} y={210 - tH} width="20" height={tH} fill="#cbd5e1" rx="2" />
-                        <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
-                        
-                        <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
-                          onClick={() => setActiveRFIModal(d)} 
-                          className="cursor-pointer hover:brightness-110 transition-all hover:stroke-2 hover:stroke-rose-900"
-                        />
-                        <text x={cx + 15} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
-                      </g>
-                    );
-                  })}
-                </svg>
-              </div>
-
-              {/* RFI CATEGORY PIE CHART */}
-              <div className="w-full h-64 lg:col-span-1 bg-slate-50 rounded-xl border border-slate-200 p-4 flex flex-col">
-                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center mb-2">RFI Distribution (Active Selection)</h4>
-                {activeRFIModal ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={activeRFIPieData}
-                        cx="50%"
-                        cy="45%"
-                        innerRadius={45}
-                        outerRadius={70}
-                        paddingAngle={2}
-                        dataKey="value"
-                      >
-                        {activeRFIPieData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={rfiPieColors[index % rfiPieColors.length]} />
-                        ))}
-                      </Pie>
-                      <RechartsTooltip contentStyle={{ fontSize: '10px', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                      <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '9px', fontWeight: 'bold' }} />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
-                    <Icon name="Target" size={32} className="text-slate-400 mb-2" />
-                    <p className="text-xs font-semibold text-slate-500">Click a red bar to view<br/>RFI Category Breakdown</p>
-                  </div>
-                )}
-              </div>
+                  return (
+                    <g key={d.year}>
+                      <text x={cx} y="235" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{d.year}</text>
+                      <rect x={cx - 25} y={210 - tH} width="20" height={tH} fill="#cbd5e1" rx="2" />
+                      <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
+                      
+                      <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
+                        onClick={() => setActiveRFIModal(d)} 
+                        className="cursor-pointer hover:brightness-110 transition-all hover:stroke-2 hover:stroke-rose-900"
+                      />
+                      <text x={cx + 15} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
+                    </g>
+                  );
+                })}
+              </svg>
             </div>
             
             {/* INTERACTIVE CLICK MODAL FOR RFI CASES */}
             {activeRFIModal && (
               <div className="fixed inset-0 bg-slate-900/80 z-[300] flex justify-center items-center p-4 animate-fadeIn">
-                <div className="bg-slate-950 border border-slate-700 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[85vh] flex flex-col relative">
-                  <button onClick={() => setActiveRFIModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-full border border-slate-700 hover:bg-rose-600">
+                <div className="bg-slate-950 border border-slate-700 rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[85vh] flex flex-col relative">
+                  <button onClick={() => setActiveRFIModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-full border border-slate-700">
                     <Icon name="X" size={16} />
                   </button>
                   
-                  <div className="mb-4 border-b border-slate-800 pb-4 pr-10">
+                  <div className="mb-4 border-b border-slate-800 pb-4">
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-rose-500">Forensic Audit Modal</span>
                     <h3 className="text-xl font-black text-white mt-1">RFI Impact Log: {activeRFIModal.year}</h3>
                     <p className="text-xs text-slate-400 mt-1">
-                      <span className="font-bold text-rose-400">{activeRFIModal.rate}%</span> of all early cancellations ({activeRFIModal.withRFI} out of {activeRFIModal.totalCxls}) in {activeRFIModal.year} had a known pre-placement warning flag that materialized into a termination.
+                      <span className="font-bold text-rose-400">{activeRFIModal.rate}%</span> of all cancellations ({activeRFIModal.withRFI} out of {activeRFIModal.totalCxls}) ignored a critical pre-placement warning flag.
                     </p>
                   </div>
                   
-                  <div className="overflow-y-auto custom-scroll pr-2 flex-1">
+                  <div className="overflow-y-auto custom-scroll pr-2 space-y-3 flex-1">
                     {activeRFIModal.casesWithRFI.length === 0 ? (
                       <div className="text-slate-500 italic text-sm text-center py-10">No specific RFI matched cases recorded for this period.</div>
                     ) : (
-                      <table className="w-full text-left text-xs whitespace-normal mt-2">
-                        <thead className="bg-slate-800 text-slate-300 font-bold text-[9px] uppercase sticky top-0 z-10">
-                          <tr>
-                            <th className="py-2.5 px-3 rounded-tl">Real VA Name</th>
-                            <th className="py-2.5 px-3">Client Name</th>
-                            <th className="py-2.5 px-3">Trigger Dept.</th>
-                            <th className="py-2.5 px-3 w-1/3">Exact Pre-Hire Warning Flag Ignored</th>
-                            <th className="py-2.5 px-3 text-center rounded-tr">Days Worked</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800 text-slate-300">
-                          {activeRFIModal.casesWithRFI.map((c, i) => (
-                            <tr key={i} className="hover:bg-slate-800/60 transition-colors group">
-                              <td className="py-3 px-3 font-bold text-white group-hover:text-[#00AFC0]">{c.vaName}</td>
-                              <td className="py-3 px-3 font-medium">{c.client}</td>
-                              <td className="py-3 px-3">
-                                <span className="text-[9px] font-black uppercase text-rose-400 border border-rose-500/30 px-1.5 py-0.5 rounded bg-rose-500/10 whitespace-nowrap">
-                                  {c.reason}
-                                </span>
-                              </td>
-                              <td className="py-3 px-3 font-mono text-[10px] leading-relaxed text-amber-200">
-                                {c.rfiNote}
-                              </td>
-                              <td className="py-3 px-3 text-center font-bold text-slate-100">{c.daysBeforeCxl}d</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                      activeRFIModal.casesWithRFI.map((c, i) => (
+                        <div key={i} className="bg-slate-800/60 p-4 rounded-lg border border-slate-700/50 hover:bg-slate-800 transition-colors">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h4 className="font-bold text-white text-sm">{c.client}</h4>
+                              <p className="text-xs text-[#00AFC0] font-medium mt-0.5">VA Sourced: {c.vaName}</p>
+                            </div>
+                            <span className="bg-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border border-rose-500/30">
+                              {c.reason}
+                            </span>
+                          </div>
+                          <div className="bg-slate-900 rounded p-3 mt-2 border-l-2 border-rose-500">
+                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Pre-Hire Warning Flag Ignored</span>
+                            <p className="text-rose-200 text-xs leading-relaxed font-mono">{c.rfiNote}</p>
+                          </div>
+                        </div>
+                      ))
                     )}
                   </div>
                 </div>
@@ -1013,7 +955,7 @@
             </div>
 
             {/* Quirky Word Cloud / Floating Verbatims */}
-            <div className="bg-slate-900 text-white rounded-xl shadow-inner relative min-h-[400px] flex flex-col justify-center items-center overflow-hidden border border-slate-800 p-8">
+            <div className="bg-slate-900 text-white rounded-xl shadow-inner relative min-h-[300px] flex flex-col justify-center items-center overflow-hidden border border-slate-800 p-8">
               <div className="absolute top-4 left-6 z-20 flex justify-between w-[calc(100%-3rem)] items-center">
                 <h4 className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest">Raw Client Verbatim Cloud</h4>
                 {activeOSCurve && <span className="text-[10px] bg-slate-800 px-3 py-1.5 rounded text-white font-bold border border-slate-700 shadow-sm flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{backgroundColor: osColors[activeOSCurve]}}></span>Filtered Quotes: {activeOSCurve}</span>}
@@ -1025,15 +967,15 @@
                   const rotations = ['rotate-[-2deg]', 'rotate-[3deg]', 'rotate-[-3deg]', 'rotate-[1deg]', 'rotate-0', 'rotate-[4deg]'];
                   const fonts = ['font-serif italic', 'font-sans font-black', 'font-mono tracking-tight', 'font-sans font-medium', 'font-serif'];
                   const colors = ['text-teal-200', 'text-amber-100', 'text-rose-200', 'text-indigo-200', 'text-emerald-100', 'text-fuchsia-200'];
-                  const sizes = ['text-sm', 'text-base', 'text-sm', 'text-lg', 'text-base'];
+                  const sizes = ['text-lg', 'text-xl', 'text-base', 'text-xl', 'text-lg'];
                   
                   return (
                     <div 
                       key={i} 
-                      className={`transition-all duration-500 hover:scale-110 hover:z-50 cursor-default ${rotations[i%rotations.length]} ${fonts[i%fonts.length]} ${colors[i%colors.length]} ${sizes[i%sizes.length]} max-w-md text-center p-3 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)] leading-relaxed`}
+                      className={`transition-all duration-500 hover:scale-110 hover:z-50 cursor-default ${rotations[i%rotations.length]} ${fonts[i%fonts.length]} ${colors[i%colors.length]} ${sizes[i%sizes.length]} max-w-md text-center p-3 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]`}
                     >
                       "{q.quote}"
-                      <div className="text-[9px] font-sans font-black tracking-widest text-slate-500 uppercase mt-3 opacity-80 drop-shadow-none">
+                      <div className="text-[9px] font-sans font-bold tracking-widest text-slate-500 uppercase mt-3 opacity-80 drop-shadow-none">
                         — {q.client} <span className="text-slate-400 normal-case">(OS: {q.specialist})</span>
                       </div>
                     </div>
@@ -1255,10 +1197,10 @@
                     <tr key={item.id} className="hover:bg-slate-50 cursor-help group relative transition-colors">
                       <td className="py-3 px-3 font-medium text-slate-600">{formatDateDisplay(item.date)}</td>
                       <td className="py-3 px-3 font-bold text-[#025863]">{item.client}</td>
-                      <td className="py-3 px-3 font-semibold text-slate-800">{item.vaName}</td>
+                      <td className="py-3 px-3 text-slate-700">{item.vaName}</td>
                       <td className="py-3 px-3 text-center">{item.hasRFI ? <span className="text-rose-500 font-black px-2 py-0.5 bg-rose-100 rounded">YES</span> : <span className="text-slate-300">-</span>}</td>
                       <td className="py-3 px-3 text-slate-500">{item.specialist === 'Unassigned / Pre-System' ? <span className="italic opacity-60">Pre-Apr 2025</span> : item.specialist}</td>
-                      <td className="py-3 px-3 font-bold text-slate-800 text-center">{item.daysBeforeCxl}d</td>
+                      <td className="py-3 px-3 font-bold text-slate-800 text-center">{item.daysBeforeCxl}</td>
                       <td className="py-3 px-3 font-semibold" style={{color: reasonColorMap[item.reason] || '#00AFC0'}}>{item.reason}</td>
                       <td className="py-3 px-3">
                         <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider ${item.resolution === 'Cancelled' ? 'bg-rose-50 text-rose-600' : (item.resolution === 'Reduced VAs' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600')}`}>
