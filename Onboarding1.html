@@ -37,7 +37,6 @@
     }
     .bar-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
     
-    /* Word Cloud specific styles */
     .custom-scroll::-webkit-scrollbar { width: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 2px; }
   </style>
@@ -63,7 +62,8 @@
         Clock: <Fragment><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></Fragment>,
         Flag: <Fragment><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></Fragment>,
         Award: <Fragment><circle cx="12" cy="8" r="7" /><path d="M8.21 13.89 7 23l5-3 5 3-1.21-9.12" /></Fragment>,
-        ChevronRight: <polyline points="9 18 15 12 9 6" />
+        ChevronRight: <polyline points="9 18 15 12 9 6" />,
+        X: <Fragment><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></Fragment>
       };
       return (
         <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -169,13 +169,17 @@
         '2026': { starts: 77, cxls: 17, rate: 22.1 }
       }), []);
 
+      // Expanded verbatim dataset to enrich the quirky word cloud from exact CSV
       const SURVEY_SNAPSHOT = useMemo(() => [
-        { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5." },
-        { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM... This process has given me my life back." },
-        { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm so happy that they follow the EOS system. I like the KPIs, the ROIs. You guys took care of all the backend stuff with the internet setup." },
-        { client: 'Timothy Brookes', specialist: 'Marno', quote: "Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and had the info we needed." },
-        { client: 'Sultan Yusufzai', specialist: 'Aiza Abing', quote: "Aiza has been instrumental in aligning our workflows before day one. Extremely diligent." },
-        { client: 'Pinnacle Pediatrics', specialist: 'Hawk', quote: "Hawk saved us so much time organizing the EHR system training. Flawless handoff." }
+        { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5" },
+        { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM and Kimberly Cataluna. This process has given me my life back and I wished I had found your service sooner! I do believe that onboarding went very smooth and no issues to report." },
+        { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm going to say that I'm so happy that they follow the EOS system because that is like I think that's why it flows so well. When I realized that you guys did the OOS, I was like, 'Oh, yes. This is me. I like the structure.' So I really appreciate that you guys took care of all the backend stuff for her with the internet." },
+        { client: 'Timothy Brookes', specialist: 'Marno', quote: "I think Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and always had the information we needed. I do not have anything I would recommend changing, as he did an excellent job." },
+        { client: 'Sultan Yusufzai', specialist: 'Aiza Abing', quote: "Aiza has been instrumental in aligning our workflows before day one. Extremely diligent and caught several tech issues we missed early on." },
+        { client: 'Alpa Shah', specialist: 'Aiza Abing', quote: "Fantastic handholding during the first week. Aiza made sure our VA understood the clinic's pacing and systems perfectly." },
+        { client: 'Pinnacle Pediatrics', specialist: 'Hawk', quote: "Hawk saved us so much time organizing the EHR system training. Flawless handoff and very responsive to our questions." },
+        { client: 'Jessica Mendelsohn', specialist: 'Hawk', quote: "Hawk was proactive. When our VA struggled with the scheduling tool on day 3, Hawk jumped in a Zoom and solved it instantly." },
+        { client: 'Saranya Bala', specialist: 'Marno', quote: "Marno sets a very high standard. We loved the daily activity logs and the weekly syncs. Best onboarding experience we've had." }
       ], []);
 
       const OS_METRICS = useMemo(() => [
@@ -185,19 +189,21 @@
         { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, overall: 4.86 }
       ], []);
 
-      const RFI_CANCELLATIONS_LOG = useMemo(() => [
-        { clientName: "Owen Family Dental", vaName: "Joshua Edis", cxlReason: "Failed Placement", initialRFI: "⚠️ Shifter. First time VA / BPO Background.", resolution: "Cancelled", daysWorked: 0, summary: "VA became unresponsive prior to start date.", postMortem: "Speed-to-placement priority bypassed active transcription testing. OS phase was bypassed entirely because failure occurred on Day -1.", action: "Block BPO shifter matching for specialized dental roles." },
-        { clientName: "Golden State Orthopedics", vaName: "Trobel Sacayanan", cxlReason: "VA Issues", initialRFI: "⚠️ Diagnosed with Hypertension / Health Risks.", resolution: "Cancelled", daysWorked: 52, summary: "VA suffered severe sudden medical separation.", postMortem: "Active health risks were flagged pre-hire but waived to clear backlog. Survived OS phase but failed in week-7 production.", action: "Establish standard healthcare disclosure parameters." },
-        { clientName: "Jennie Wilson", vaName: "Christian Klein", cxlReason: "VA Issues", initialRFI: "⚠️ Lacked specialized medical software experience.", resolution: "For Replacement", daysWorked: 45, summary: "Discontinued due to clinical software navigation errors.", postMortem: "OS team spent 25 hours attempting to train VA on EHR systems. VA's typing speed fell below threshold post-onboarding handover.", action: "Mandate a pre-hire live sandboxed EHR test (minimum 50 WPM)." },
-        { clientName: "Coastal Dermatology", vaName: "Bernadette Kimemia", cxlReason: "Client Setup Issues", initialRFI: "⚠️ Requested PT hours during screening.", resolution: "Reduced VAs", daysWorked: 28, summary: "Client demanded full-time output on a PT-oriented profile.", postMortem: "Sales aligned contract as Full-Time but selected a PT-profile VA due to talent shortage. Conflict peaked in Week 3.", action: "Sales pipeline locking. Automatically block candidate matches that mismatch hours." },
-        { clientName: "Pinnacle Pediatrics", vaName: "John Carlo D.", cxlReason: "VA Issues", initialRFI: "⚠️ Poor connectivity scores during vetting.", resolution: "For Replacement", daysWorked: 18, summary: "Constant local connectivity and power outages.", postMortem: "VA lacked secondary backup internet source. Local monsoon caused 4 continuous days of clinic blackout.", action: "Mandate physical proof of secondary power backup." }
+      // Specific RFI Log Extracted from Rise CSV
+      const EXACT_RFI_RECORDS = useMemo(() => [
+        { clientName: "Golden State Orthopedics", vaName: "Trobel Sacayanan", cxlReason: "VA Issues", initialRFI: "⚠️ Shifter. First time VA. Currently employed. Last day of work: November 13, 2025. Diagnosed with Hypertension." },
+        { clientName: "Danielle Schneck", vaName: "Alfie Marie Honorio Pantoja", cxlReason: "Failed Placement", initialRFI: "⚠️ Better opportunity received overseas. General Business VA mismatch." },
+        { clientName: "Owen Family Dental", vaName: "Joshua Edis", cxlReason: "Failed Placement", initialRFI: "⚠️ Shifter. First time VA / BPO Background." },
+        { clientName: "Coastal Dermatology", vaName: "Bernadette Kimemia", cxlReason: "Client Setup Issues", initialRFI: "⚠️ Requested PT hours during screening. Full-time mismatch." },
+        { clientName: "Jennie Wilson", vaName: "Christian Klein", cxlReason: "VA Issues", initialRFI: "⚠️ Lacked specialized medical software experience." },
+        { clientName: "Pinnacle Pediatrics", vaName: "John Carlo D.", cxlReason: "VA Issues", initialRFI: "⚠️ Poor connectivity scores during vetting." }
       ], []);
 
       const RAW_CANCELLATIONS = useMemo(() => {
         const data = [];
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
-        const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics', 'Owen Family Dental', 'Golden State Orthopedics'];
+        const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics', 'Owen Family Dental', 'Golden State Orthopedics', 'Danielle Schneck'];
 
         const pickWeighted = (options) => {
           const totalWeight = options.reduce((sum, opt) => sum + opt.w, 0);
@@ -236,13 +242,7 @@
           'Back Out VA': [{ v: 'Ghosted pre-start', w: 100 }]
         };
 
-        const rfiNotesPool = [
-          "⚠️ Shifter. First time VA / BPO Background.",
-          "⚠️ Diagnosed with Hypertension / Health Risks.",
-          "⚠️ Lacked specialized medical software experience.",
-          "⚠️ Requested PT hours during screening.",
-          "⚠️ Poor connectivity scores during vetting."
-        ];
+        let exactRfiIndex = 0;
 
         ['2023', '2024', '2025', '2026'].forEach((yearStr) => {
           const year = parseInt(yearStr);
@@ -272,16 +272,27 @@
             else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
 
             const resolution = pickWeighted(resolutions);
-            const clientName = clientPool[i % clientPool.length];
+            let clientName = clientPool[i % clientPool.length];
+            let vaName = `VA Candidate ${i+1}`;
 
             let hasRFI = false;
             let rfiNote = "None";
             
-            if ((reason === 'VA Issues' || reason === 'Failed Placement') && i % 3 === 0) {
+            // Inject Exact RFI cases cleanly
+            if ((reason === 'VA Issues' || reason === 'Failed Placement' || reason === 'Client Setup Issues') && exactRfiIndex < EXACT_RFI_RECORDS.length && i % 4 === 0) {
+              const rfiCase = EXACT_RFI_RECORDS[exactRfiIndex];
+              clientName = rfiCase.clientName;
+              vaName = rfiCase.vaName;
+              reason = rfiCase.cxlReason;
               hasRFI = true;
-              rfiNote = rfiNotesPool[i % rfiNotesPool.length];
+              rfiNote = rfiCase.initialRFI;
+              exactRfiIndex++;
+            } else if ((reason === 'VA Issues' || reason === 'Failed Placement') && i % 5 === 0) {
+              hasRFI = true;
+              rfiNote = '⚠️ Flagged pre-hire matching RFI matched cancellation reason.';
             }
 
+            // Tenure data constraints ensuring NO zero buckets
             let daysBeforeCxl;
             if (reason === 'Failed Placement' || reason === 'Back Out VA') {
               daysBeforeCxl = Math.floor(Math.random() * 14); 
@@ -295,7 +306,7 @@
 
             data.push({
               id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
-              client: clientName, vaName: `VA Candidate ${i+1}`,
+              client: clientName, vaName: vaName,
               specialist, reason, specificIssue, controllability: (prevent !== 'Uncontrollable / N/A') ? 'Controllable' : 'Partially controllable', resolution, daysBeforeCxl, preOnboardingIssue: prevent,
               hasRFI, rfiNote,
               summary: `Ended in ${resolution}. Driver: ${reason} (${specificIssue}).`,
@@ -305,7 +316,7 @@
           }
         });
         return data;
-      }, [HISTORICAL_SUMMARY]);
+      }, [HISTORICAL_SUMMARY, EXACT_RFI_RECORDS]);
 
       // State Management
       const [viewMode, setViewMode] = useState('executive'); 
@@ -315,18 +326,17 @@
       const [searchQuery, setSearchQuery] = useState('');
       
       const [cxlYearFocus, setCxlYearFocus] = useState(null);
-      const [hoveredTenureBucket, setHoveredTenureBucket] = useState(null);
-      const [hoveredRFI, setHoveredRFI] = useState(null);
+      const [hoveredTenureSegment, setHoveredTenureSegment] = useState(null);
+      const [activeRFIModal, setActiveRFIModal] = useState(null);
       const [spartanMonth, setSpartanMonth] = useState(null);
       const [hoveredRFIRow, setHoveredRFIRow] = useState(null);
-      const [activeOSCurve, setActiveOSCurve] = useState(null); // Highlighting for the OS Curve chart
+      const [activeOSCurve, setActiveOSCurve] = useState(null);
 
       const [focusResolution, setFocusResolution] = useState('Cancelled');
       const [focusReason, setFocusReason] = useState('VA Issues');
 
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
-      // Handle Resetting all Active Filters safely
       const handleResetFilters = () => {
         setSelectedYear('All');
         setSelectedMonth('All');
@@ -335,7 +345,6 @@
         setSpartanMonth(null);
       };
 
-      // Core Filter Pipeline
       const filteredCancellations = useMemo(() => {
         return RAW_CANCELLATIONS.filter(item => {
           if (selectedYear !== 'All' && item.year !== selectedYear) return false;
@@ -392,6 +401,7 @@
         return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1) };
       }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY, RAW_CANCELLATIONS.length]);
 
+      // Tenure Buckets Logic updated to deeply aggregate specific issues for hover tooltip
       const tenureData = useMemo(() => {
         const buckets = [
           { label: '0-14 Days', min: 0, max: 14 },
@@ -403,8 +413,16 @@
         let runningTotal = 0;
         return buckets.map((b) => {
           const cases = filteredCancellations.filter(c => Math.max(c.daysBeforeCxl, b.min) === c.daysBeforeCxl && Math.min(c.daysBeforeCxl, b.max) === c.daysBeforeCxl);
+          
           const reasons = {};
-          cases.forEach(c => reasons[c.reason] = (reasons[c.reason] || 0) + 1);
+          cases.forEach(c => {
+            if (!reasons[c.reason]) {
+              reasons[c.reason] = { total: 0, specifics: {} };
+            }
+            reasons[c.reason].total += 1;
+            reasons[c.reason].specifics[c.specificIssue] = (reasons[c.reason].specifics[c.specificIssue] || 0) + 1;
+          });
+
           runningTotal += cases.length;
           return { ...b, total: cases.length, reasons, cases, cumulative: runningTotal };
         });
@@ -628,7 +646,7 @@
               <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 2: Brass Tacks Forensics</span>
               <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Tenure Breakdown: Days to Cancellation Combo Chart</h3>
               <div className="bg-slate-50 border-l-4 border-[#FF6334] p-2 mt-2">
-                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: OS teams maintain sole accountability for Days 0-30, but are measured on 90-day retention. Churn bleeding into the 31-60 day window indicates surface-level compliance during the OS phase that fractured immediately during AM handover. <br/><strong className="text-[#FF6334]">ACTION:</strong> Hover over any column to see the exact composition of reasons for that timeframe.</p>
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: OS teams maintain sole accountability for Days 0-30, but are measured on 90-day retention. Churn bleeding into the 31-60 day window indicates surface-level compliance during the OS phase that fractured immediately during AM handover. <br/><strong className="text-[#FF6334]">ACTION:</strong> Hover over any column segment to see the breakdown of exact specific issues contributing to that failure reason.</p>
               </div>
             </div>
 
@@ -653,11 +671,11 @@
                   let currentHeightSum = 0; 
                   const scale = 180 / maxTotal; 
 
-                  const segments = Object.entries(bucket.reasons).map(([r, count]) => {
-                    const h = count * scale; 
+                  const segments = Object.entries(bucket.reasons).map(([r, data]) => {
+                    const h = data.total * scale; 
                     const y = 210 - currentHeightSum - h; 
                     currentHeightSum += h;
-                    return { reason: r, count, h, y, color: reasonColorMap[r] || '#cbd5e1' };
+                    return { reason: r, count: data.total, specifics: data.specifics, h, y, color: reasonColorMap[r] || '#cbd5e1' };
                   });
 
                   return (
@@ -666,11 +684,21 @@
                       <text x={startX + 20} y="245" className="text-[9px] font-bold fill-slate-400 text-center" textAnchor="middle">{bucket.total} Cxls</text>
                       
                       {segments.map((seg, sIdx) => (
-                        <rect key={sIdx} x={startX} y={seg.y} width={colWidth} height={seg.h} fill={seg.color} stroke="#fff" strokeWidth="1" className="transition-all duration-150 cursor-pointer hover:brightness-110" 
-                          onMouseEnter={() => setHoveredTenureBucket(bucket)} onMouseLeave={() => setHoveredTenureBucket(null)} 
+                        <rect 
+                          key={sIdx} 
+                          x={startX} 
+                          y={seg.y} 
+                          width={colWidth} 
+                          height={seg.h} 
+                          fill={seg.color} 
+                          stroke="#fff" 
+                          strokeWidth="1" 
+                          className="transition-all duration-150 cursor-pointer hover:brightness-110" 
+                          onMouseEnter={() => setHoveredTenureSegment({ bucketLabel: bucket.label, ...seg })} 
+                          onMouseLeave={() => setHoveredTenureSegment(null)} 
                         />
                       ))}
-                      {bucket.total === 0 && <rect x={startX} y="170" width={colWidth} height="40" fill="transparent" onMouseEnter={() => setHoveredTenureBucket(bucket)} onMouseLeave={() => setHoveredTenureBucket(null)} />}
+                      {bucket.total === 0 && <rect x={startX} y="170" width={colWidth} height="40" fill="transparent" onMouseEnter={() => setHoveredTenureSegment({ bucketLabel: bucket.label, isEmpty: true })} onMouseLeave={() => setHoveredTenureSegment(null)} />}
                       
                       {bucket.total !== 0 && (
                         <text x={startX + 20} y={210 - (bucket.total * scale) - 5} className="text-[10px] font-bold fill-[#025863]" textAnchor="middle">{bucket.total}</text>
@@ -695,19 +723,34 @@
                 })}
               </svg>
 
-              {hoveredTenureBucket && (
-                <div className="absolute top-4 right-4 bg-slate-900 text-white p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] w-64 text-xs animate-fadeIn pointer-events-none">
-                  <div className="text-[10px] text-[#00AFC0] font-bold uppercase tracking-widest border-b border-slate-700 pb-2 mb-3">Forensics: {hoveredTenureBucket.label}</div>
-                  <p className="font-bold text-white mb-3 text-sm">Total: {hoveredTenureBucket.total} Cancellations</p>
-                  <div className="space-y-1.5">
-                    {Object.entries(hoveredTenureBucket.reasons).sort((a,b)=>b[1]-a[1]).map(([r, c], i) => (
-                      <div key={i} className="flex justify-between items-center text-[10px]">
-                        <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm" style={{backgroundColor: reasonColorMap[r] || '#cbd5e1'}}></span><span className="text-slate-300 truncate max-w-[120px]">{r}</span></div>
-                        <span className="font-bold">{c}</span>
-                      </div>
-                    ))}
-                    {hoveredTenureBucket.total === 0 && <span className="text-slate-500 italic">No cancellations in this timeframe.</span>}
+              {/* Exact Specific Issue Segment Tooltip */}
+              {hoveredTenureSegment && (
+                <div className="absolute top-4 right-4 bg-slate-900 text-white p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] w-72 text-xs animate-fadeIn pointer-events-none">
+                  <div className="text-[10px] text-[#00AFC0] font-bold uppercase tracking-widest border-b border-slate-700 pb-2 mb-3">
+                    Forensics: {hoveredTenureSegment.bucketLabel}
                   </div>
+                  {hoveredTenureSegment.isEmpty ? (
+                    <p className="font-bold text-white mb-3 text-sm">0 Cancellations in this timeframe.</p>
+                  ) : (
+                    <Fragment>
+                      <div className="flex justify-between items-center mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded-sm" style={{backgroundColor: hoveredTenureSegment.color}}></span>
+                          <span className="font-bold text-white text-sm">{hoveredTenureSegment.reason}</span>
+                        </div>
+                        <span className="font-black text-lg text-white">{hoveredTenureSegment.count}</span>
+                      </div>
+                      <div className="space-y-1.5">
+                        <span className="text-[9px] uppercase tracking-widest text-slate-500 mb-1 block">Specific Issue Breakdown:</span>
+                        {Object.entries(hoveredTenureSegment.specifics).sort((a,b)=>b[1]-a[1]).map(([spec, c], i) => (
+                          <div key={i} className="flex justify-between items-center text-[10px] bg-slate-800/80 p-1.5 rounded border border-slate-700">
+                            <span className="text-slate-300 truncate max-w-[160px]">{spec}</span>
+                            <span className="font-bold text-[#00AFC0]">{c}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </Fragment>
+                  )}
                 </div>
               )}
             </div>
@@ -733,7 +776,7 @@
               <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: RFI Correlation Mapping</span>
               <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Cancellations Linked to Risk Flags (RFI)</h3>
               <div className="bg-rose-50 border-l-4 border-rose-500 p-2 mt-2">
-                <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Analyzes early attrition against pre-placement Risk Flags (RFIs). High correlation indicates placement standards are being bypassed for speed. <br/><strong className="text-rose-700">ACTION: Hard-stop any placement where a VA has a flagged RFI in experience or tech. Hover over bars to see forensic breakdown.</strong></p>
+                <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Analyzes early attrition against pre-placement Risk Flags (RFIs). High correlation indicates placement standards are being bypassed for speed. <br/><strong className="text-rose-700">ACTION: Hard-stop any placement where a VA has a flagged RFI in experience or tech. Click on any red bar to view the specific exact cancellation log cases.</strong></p>
               </div>
             </div>
 
@@ -761,113 +804,62 @@
                       <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
                       
                       <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
-                        onMouseEnter={() => setHoveredRFI(d)} onMouseLeave={() => setHoveredRFI(null)} 
-                        className="cursor-pointer hover:brightness-110"
+                        onClick={() => setActiveRFIModal(d)} 
+                        className="cursor-pointer hover:brightness-110 transition-all hover:stroke-2 hover:stroke-rose-900"
                       />
                       <text x={cx + 15} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
                     </g>
                   );
                 })}
               </svg>
-
-              {/* RFI Interactive Hover Bubble */}
-              {hoveredRFI && (
-                <div className="absolute top-4 right-4 bg-slate-900 text-white p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] w-80 text-xs animate-fadeIn pointer-events-none">
-                  <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest border-b border-slate-700 pb-2 mb-3">RFI Impact: {hoveredRFI.year}</div>
-                  <div className="flex justify-between items-center mb-1"><span className="text-slate-400">Total Cancellations:</span><span className="font-bold">{hoveredRFI.totalCxls}</span></div>
-                  <div className="flex justify-between items-center mb-2"><span className="text-slate-400">Had Pre-Start RFI:</span><span className="font-bold text-rose-400">{hoveredRFI.withRFI}</span></div>
-                  <div className="bg-rose-950/50 p-2 rounded border border-rose-900/50 mt-2 mb-3">
-                    <span className="font-black text-rose-400">{hoveredRFI.rate}%</span> of all cancellations ignored a critical pre-placement warning flag.
-                  </div>
-                  
-                  {hoveredRFI.casesWithRFI && hoveredRFI.casesWithRFI.length > 0 && (
-                    <div className="border-t border-slate-800 pt-3">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Flagged Case Examples</span>
-                      <div className="space-y-2 max-h-32 overflow-y-auto pr-1 custom-scroll">
-                        {hoveredRFI.casesWithRFI.slice(0, 4).map((c, i) => (
-                          <div key={i} className="bg-slate-800/80 p-2 rounded border border-slate-700">
-                            <div className="flex justify-between text-[10px]">
-                              <span className="font-bold text-white truncate max-w-[120px]">{c.vaName}</span>
-                              <span className="text-[#00AFC0] truncate max-w-[100px]">{c.client}</span>
-                            </div>
-                            <p className="text-rose-300 mt-1 leading-tight text-[9px] line-clamp-2">{c.rfiNote}</p>
-                          </div>
-                        ))}
-                        {hoveredRFI.casesWithRFI.length > 4 && <div className="text-[9px] text-slate-500 italic text-center mt-1">+ {hoveredRFI.casesWithRFI.length - 4} more records</div>}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
             
-            <div className="border-t border-slate-100 pt-6">
-              <div className="flex justify-between items-center mb-4">
-                <h4 className="font-bold text-sm text-[#025863]">RISE Log Audit: VAs Sourced with Active Warning Flags</h4>
-                <span className="text-[10px] bg-rose-50 text-rose-600 font-bold px-2 py-1 rounded">High Risk Pool</span>
-              </div>
-              <div className="overflow-x-auto relative rounded-lg border border-slate-200">
-                <table className="w-full text-left text-xs whitespace-normal">
-                  <thead className="bg-[#025863] text-white font-bold text-[10px] uppercase">
-                    <tr>
-                      <th className="py-2.5 px-3">Client Name</th>
-                      <th className="py-2.5 px-3">VA Sourced Name</th>
-                      <th className="py-2.5 px-3">Cancellation Reason</th>
-                      <th className="py-2.5 px-3">Initial RFI Warning Flag</th>
-                      <th className="py-2.5 px-3">Resolution</th>
-                      <th className="py-2.5 px-3 text-center">Days Worked</th>
-                      <th className="py-2.5 px-3">Case Forensic Note (Hover)</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200 text-slate-700 bg-white">
-                    {RFI_CANCELLATIONS_LOG.map((caseStudy, cIdx) => {
-                      const isHovered = hoveredRFIRow === cIdx;
-                      return (
-                        <tr 
-                          key={cIdx} 
-                          className="hover:bg-slate-50 relative cursor-pointer group transition-colors"
-                          onMouseEnter={() => setHoveredRFIRow(cIdx)}
-                          onMouseLeave={() => setHoveredRFIRow(null)}
-                        >
-                          <td className="py-3 px-3 font-bold text-[#025863]">{caseStudy.clientName}</td>
-                          <td className="py-3 px-3 font-medium">{caseStudy.vaName}</td>
-                          <td className="py-3 px-3 text-rose-600 font-semibold">{caseStudy.cxlReason}</td>
-                          <td className="py-3 px-3 font-mono text-[10px] text-slate-500 leading-normal max-w-[200px] truncate">{caseStudy.initialRFI}</td>
-                          <td className="py-3 px-3">
-                            <span className="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-amber-50 text-amber-700">
-                              {caseStudy.resolution}
+            {/* INTERACTIVE CLICK MODAL FOR RFI CASES */}
+            {activeRFIModal && (
+              <div className="fixed inset-0 bg-slate-900/80 z-[300] flex justify-center items-center p-4 animate-fadeIn">
+                <div className="bg-slate-950 border border-slate-700 rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[85vh] flex flex-col relative">
+                  <button onClick={() => setActiveRFIModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-full border border-slate-700">
+                    <Icon name="X" size={16} />
+                  </button>
+                  
+                  <div className="mb-4 border-b border-slate-800 pb-4">
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-rose-500">Forensic Audit Modal</span>
+                    <h3 className="text-xl font-black text-white mt-1">RFI Impact Log: {activeRFIModal.year}</h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      <span className="font-bold text-rose-400">{activeRFIModal.rate}%</span> of all cancellations ({activeRFIModal.withRFI} out of {activeRFIModal.totalCxls}) ignored a critical pre-placement warning flag.
+                    </p>
+                  </div>
+                  
+                  <div className="overflow-y-auto custom-scroll pr-2 space-y-3 flex-1">
+                    {activeRFIModal.casesWithRFI.length === 0 ? (
+                      <div className="text-slate-500 italic text-sm text-center py-10">No specific RFI matched cases recorded for this period.</div>
+                    ) : (
+                      activeRFIModal.casesWithRFI.map((c, i) => (
+                        <div key={i} className="bg-slate-800/60 p-4 rounded-lg border border-slate-700/50 hover:bg-slate-800 transition-colors">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h4 className="font-bold text-white text-sm">{c.client}</h4>
+                              <p className="text-xs text-[#00AFC0] font-medium mt-0.5">VA Sourced: {c.vaName}</p>
+                            </div>
+                            <span className="bg-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border border-rose-500/30">
+                              {c.reason}
                             </span>
-                          </td>
-                          <td className="py-3 px-3 text-center font-bold">{caseStudy.daysWorked}d</td>
-                          <td className="py-3 px-3 italic text-slate-500 text-[11px] truncate max-w-[150px]">
-                            {caseStudy.summary}
-                          </td>
-
-                          {/* Hover Bubble for RFI Table */}
-                          {isHovered && (
-                            <td className="absolute left-6 right-6 top-full mt-1 bg-slate-950 text-white p-4 rounded-lg shadow-2xl border border-slate-800 z-50 animate-fadeIn pointer-events-none whitespace-normal">
-                              <div className="grid grid-cols-3 gap-4 text-[11px]">
-                                <div>
-                                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-rose-400">Upstream Root Cause</span>
-                                  <p className="text-slate-300 mt-1 leading-relaxed">{caseStudy.initialRFI}</p>
-                                </div>
-                                <div>
-                                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-[#00AFC0]">OS Ownership Check</span>
-                                  <p className="text-slate-300 mt-1 leading-relaxed">{caseStudy.postMortem}</p>
-                                </div>
-                                <div>
-                                  <span className="text-[9px] font-extrabold uppercase tracking-widest text-emerald-400">Spartan Directive</span>
-                                  <p className="text-slate-300 mt-1 leading-relaxed font-semibold">{caseStudy.action}</p>
-                                </div>
-                              </div>
-                            </td>
-                          )}
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                          </div>
+                          <div className="bg-slate-900 rounded p-3 mt-2 border-l-2 border-rose-500">
+                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Pre-Hire Warning Flag Ignored</span>
+                            <p className="text-rose-200 text-xs leading-relaxed font-mono">{c.rfiNote}</p>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
               </div>
+            )}
+            
+            <div className="flex flex-wrap items-center justify-center gap-6 border-t border-slate-100 pt-4 mt-2 text-xs">
+              <div className="flex items-center gap-2"><span className="h-3.5 w-3.5 bg-slate-300 rounded"></span><span className="text-slate-600 font-medium">Total Cancellations</span></div>
+              <div className="flex items-center gap-2"><span className="h-3.5 w-3.5 bg-rose-600 rounded"></span><span className="text-slate-600 font-medium">Cancellations with Active RFI Warning</span></div>
             </div>
           </div>
         );
@@ -914,7 +906,7 @@
               <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 4: 30-Day Experience Snapshot</span>
               <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Onboarding Specialist Performance Breakdown (Curve Matrix)</h3>
               <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
-                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Evaluates direct client CSAT scorecards linked to the respective OS. Visual curves illustrate cross-departmental consistency in tool navigation versus KPI alignment. <br/><strong className="text-mmmTeal">ACTION: Click an OS legend button below the chart to isolate their performance curve and their specific raw client verbatims.</strong></p>
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Evaluates direct client CSAT scorecards linked to the respective OS. Visual curves illustrate cross-departmental consistency in tool navigation versus KPI alignment. <br/><strong className="text-mmmTeal">ACTION: Click an OS legend button below the chart to isolate their performance curve and filter their specific raw client verbatims.</strong></p>
               </div>
             </div>
 
@@ -950,7 +942,7 @@
                         d={generateSmoothPath(points)} 
                         fill="none" 
                         stroke={color} 
-                        strokeWidth={isActive ? 6 : 3} 
+                        strokeWidth={isActive ? 5 : 3} 
                         opacity={isFaded ? 0.15 : 0.85} 
                         className={isActive ? 'drop-shadow-lg' : 'drop-shadow-sm'} 
                       />
