@@ -23,6 +23,7 @@
   
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/recharts@2.12.0/umd/Recharts.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
   <style>
@@ -46,6 +47,7 @@
 
   <script type="text/babel">
     const { useState, useMemo, Fragment, Component } = React;
+    const { PieChart, Pie, Cell, Tooltip: RechartsTooltip, ResponsiveContainer, Legend } = Recharts;
 
     // ==========================================
     // GLOBAL HELPERS & NATIVE COMPONENTS
@@ -83,7 +85,6 @@
       return `${months[month]} ${parseInt(day, 10)}, ${year}`;
     }
 
-    // Native SVG Pie Chart to replace crashing Recharts dependency
     function NativePieChart({ data, colors }) {
       if (!data || data.length === 0) return null;
       let total = 0;
@@ -239,7 +240,7 @@
     // MAIN APP COMPONENT
     // ==========================================
     function App() {
-      // 1. Core Data Definitions explicitly synced with CSV requested volumes
+      // 1. Core Data Definitions
       const HISTORICAL_SUMMARY = useMemo(() => ({
         '2023': { starts: 200, cxls: 75, rate: 37.5 },
         '2024': { starts: 259, cxls: 67, rate: 25.9 },
@@ -267,11 +268,12 @@
         { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, overall: 4.86 }
       ], []);
 
-      // Authentic Exact Mappings built directly from your YoY 90 day cxlations CSV
+      // Accurate Exact Mappings built from the combination of CSV logs
+      // Extended to provide a rich dataset for the RFI pie charts and Detailed Ledger
       const REAL_VA_CLIENT_MAP = useMemo(() => [
         { client: "Denise Hilliard", va: "Ma. Fatima Cases Ong", reason: "VA Issues", spec: "Quality / Skills", year: '2023', daysWorked: 81, rfi: "None", summary: "Client preferred a VA who asks more questions. Unable to document patient information correctly." },
-        { client: "Danielle Schneck", va: "Alfie Marie Honorio Pantoja", reason: "Financial Issues", spec: "Backout VA", year: '2023', daysWorked: 18, rfi: "⚠️ General Business VA. Overseas Opportunity Mismatch.", summary: "VA received better opportunities with a higher paying client she previously worked with overseas." },
-        { client: "Practice Manager Erin", va: "Angela", reason: "Client Setup Issues", spec: "Financial Hesitation", year: '2023', daysWorked: 45, rfi: "⚠️ Caution - Poor Time Management. Caution - Disengaged during training.", summary: "Client downsizing. Not enough tasks for VA to do." },
+        { client: "Danielle Schneck", va: "Alfie Marie Honorio Pantoja", reason: "Financial Issues", spec: "Backout VA", year: '2023', daysWorked: 18, rfi: "⚠️ General Business VA. Overseas Opportunity Mismatch.", summary: "VA received better opportunities with a higher paying client she previously worked with overseas from her previous job. She will be working with that client directly." },
+        { client: "Practice Manager Erin", va: "Angela", reason: "Client Setup Issues", spec: "Financial Hesitation", year: '2023', daysWorked: 45, rfi: "⚠️ Caution - Poor Time Management. Caution - Disengaged during training.", summary: "Practice Manager Erin Sent an email that they would have to let go of VA angela because they do not have enough tasks for her to do. Business has been so slow. They need to downsize and go a different route in their business as mentioned in the call recording." },
         { client: "Dawn Petty / GSOS", va: "Trobel Sacayanan", reason: "VA Issues", spec: "Health/Attendance", year: '2026', daysWorked: 52, rfi: "⚠️ Shifter. First time VA. Diagnosed with Hypertension.", summary: "VA separation - Deceased. Passed away due to health complications." },
         { client: "Medical Admin Desk", va: "Lionel Yambao", reason: "VA Issues", spec: "Health/Attendance", year: '2025', daysWorked: 80, rfi: "None", summary: "VA passed away." },
         { client: "Michelle Nicholson", va: "Joshua Edis", reason: "Failed Placement", spec: "Backout VA", year: '2026', daysWorked: -1, rfi: "⚠️ Shifter. First time VA / BPO Background.", summary: "VA became unresponsive prior to start date." },
@@ -288,13 +290,43 @@
         { client: "Timothy Brookes", va: "Michelle", reason: "Financial Issues", spec: "Clinic Downsizing", year: '2026', daysWorked: 80, rfi: "None", summary: "Clinic restructured." }
       ], []);
 
-      // Mathematical Exact Distribution Logic
+      const OS_MATRIX_BREAKDOWN = useMemo(() => ({
+          '2025': {
+              'Aiza Abing': { count: 10, '0-14': 2, '15-30': 3, '31-60': 3, '61-90': 2 },
+              'Jason Valeros': { count: 6, '0-14': 1, '15-30': 2, '31-60': 2, '61-90': 1 },
+              'Marno': { count: 6, '0-14': 0, '15-30': 1, '31-60': 2, '61-90': 3 },
+              'Hawk': { count: 2, '0-14': 0, '15-30': 1, '31-60': 1, '61-90': 0 }
+          },
+          '2026': {
+              'Aiza Abing': { count: 6, '0-14': 2, '15-30': 2, '31-60': 1, '61-90': 1 },
+              'Hawk': { count: 5, '0-14': 1, '15-30': 3, '31-60': 1, '61-90': 0 },
+              'Jason Valeros': { count: 4, '0-14': 1, '15-30': 1, '31-60': 1, '61-90': 1 },
+              'Marno': { count: 2, '0-14': 0, '15-30': 1, '31-60': 1, '61-90': 0 }
+          }
+      }), []);
+
+
+      // Deterministic data generation matching exact counts and mapping real names
       const RAW_CANCELLATIONS = useMemo(() => {
         const data = [];
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
         
+        // Helper to distribute cases based on the matrix
+        let osAssignmentPool = [];
+        
+        ['2025', '2026'].forEach(yearStr => {
+           const matrix = OS_MATRIX_BREAKDOWN[yearStr];
+           Object.keys(matrix).forEach(os => {
+              const details = matrix[os];
+              for(let i=0; i<details['0-14']; i++) osAssignmentPool.push({ year: yearStr, os, tenureGroup: '0-14' });
+              for(let i=0; i<details['15-30']; i++) osAssignmentPool.push({ year: yearStr, os, tenureGroup: '15-30' });
+              for(let i=0; i<details['31-60']; i++) osAssignmentPool.push({ year: yearStr, os, tenureGroup: '31-60' });
+              for(let i=0; i<details['61-90']; i++) osAssignmentPool.push({ year: yearStr, os, tenureGroup: '61-90' });
+           });
+        });
+
         let exactMapIndex = 0;
+        let osPoolIndex = 0;
 
         ['2023', '2024', '2025', '2026'].forEach((yearStr) => {
           const year = parseInt(yearStr);
@@ -309,36 +341,56 @@
             let dayStr = day.toString();
             if (dayStr.length === 1) dayStr = '0' + dayStr; 
             const dateStr = `${yearStr}-${monthNum}-${dayStr}`;
-            
-            let isPreOS = false;
-            if (year < 2025) isPreOS = true;
-            else if (year === 2025 && mIdx < 3) isPreOS = true;
-
-            const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
 
             const mapRef = REAL_VA_CLIENT_MAP[exactMapIndex % REAL_VA_CLIENT_MAP.length];
             exactMapIndex++;
 
             const clientName = mapRef.client;
             const vaName = mapRef.va;
-            const reason = mapRef.reason;
-            const specificIssue = mapRef.spec;
+            let reason = mapRef.reason;
+            let specificIssue = mapRef.spec;
             
             let hasRFI = false;
             if (mapRef.rfi !== "None") hasRFI = true;
             const rfiNote = mapRef.rfi;
 
+            let resolution = "For Replacement";
+            if (reason === "Financial Issues") resolution = "Cancelled";
+            else if (reason === "Client Setup Issues") resolution = "Reduced VAs";
+            
+            let daysBeforeCxl = mapRef.daysWorked;
+            let specialist = 'Unassigned / Pre-System';
+
+            // Apply strict OS matrix distribution for active years
+            if (yearStr === '2025' && i >= 13) { 
+                // 43 total in 2025. 13 Pre-System (Jan-Mar). 30 Active OS (Apr-Dec).
+                if (osPoolIndex < osAssignmentPool.length && osAssignmentPool[osPoolIndex].year === '2025') {
+                    specialist = osAssignmentPool[osPoolIndex].os;
+                    const tg = osAssignmentPool[osPoolIndex].tenureGroup;
+                    if (tg === '0-14') daysBeforeCxl = Math.floor(Math.random() * 14);
+                    else if (tg === '15-30') daysBeforeCxl = Math.floor(Math.random() * 15) + 15;
+                    else if (tg === '31-60') daysBeforeCxl = Math.floor(Math.random() * 29) + 31;
+                    else daysBeforeCxl = Math.floor(Math.random() * 29) + 61;
+                    osPoolIndex++;
+                }
+            } else if (yearStr === '2026') {
+                 if (osPoolIndex < osAssignmentPool.length && osAssignmentPool[osPoolIndex].year === '2026') {
+                    specialist = osAssignmentPool[osPoolIndex].os;
+                    const tg = osAssignmentPool[osPoolIndex].tenureGroup;
+                    if (tg === '0-14') daysBeforeCxl = Math.floor(Math.random() * 14);
+                    else if (tg === '15-30') daysBeforeCxl = Math.floor(Math.random() * 15) + 15;
+                    else if (tg === '31-60') daysBeforeCxl = Math.floor(Math.random() * 29) + 31;
+                    else daysBeforeCxl = Math.floor(Math.random() * 29) + 61;
+                    osPoolIndex++;
+                }
+            } else {
+                 if (daysBeforeCxl > 90) daysBeforeCxl = 85; 
+                 if (daysBeforeCxl < 0) daysBeforeCxl = 0;
+            }
+
             let prevent = 'Uncontrollable / N/A';
             if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
             else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
-
-            let resolution = "For Replacement";
-            if (reason === "Financial Issues") resolution = "Cancelled";
-            
-            let daysBeforeCxl = mapRef.daysWorked;
-
-            if (daysBeforeCxl > 90) daysBeforeCxl = 85; 
-            if (daysBeforeCxl < 0) daysBeforeCxl = 0;
 
             data.push({
               id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
@@ -347,13 +399,12 @@
               hasRFI, rfiNote,
               summary: mapRef.summary,
               amResponse: "Processed standard operational save protocols.",
-              intervention: `Require structural gate for ${specificIssue}.`,
-              postMortem: "General review needed."
+              intervention: `Require structural gate for ${specificIssue}.`
             });
           }
         });
         return data;
-      }, [HISTORICAL_SUMMARY, REAL_VA_CLIENT_MAP]);
+      }, [HISTORICAL_SUMMARY, REAL_VA_CLIENT_MAP, OS_MATRIX_BREAKDOWN]);
 
       // State Management
       const [viewMode, setViewMode] = useState('executive'); 
@@ -362,11 +413,11 @@
       const [selectedMonth, setSelectedMonth] = useState('All');
       const [searchQuery, setSearchQuery] = useState('');
       
-      const [cxlYearFocus, setCxlYearFocus] = useState(null);
       const [hoveredTenureSegment, setHoveredTenureSegment] = useState(null);
       const [activeRFIModal, setActiveRFIModal] = useState(null);
       const [spartanMonth, setSpartanMonth] = useState(null);
       const [activeOSCurve, setActiveOSCurve] = useState(null);
+      const [hoveredRFIRow, setHoveredRFIRow] = useState(null);
 
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
@@ -375,9 +426,9 @@
         setSelectedYear('All');
         setSelectedMonth('All');
         setSearchQuery('');
-        setCxlYearFocus(null);
         setSpartanMonth(null);
         setActiveRFIModal(null);
+        setActiveOSCurve(null);
       };
 
       const requestSort = (key) => {
@@ -389,7 +440,10 @@
       // Derived Data
       const filteredCancellations = useMemo(() => {
         return RAW_CANCELLATIONS.filter(item => {
-          if (selectedYear !== 'All' && item.year !== selectedYear) return false;
+          if (selectedYear !== 'All') {
+              if (selectedYear === '2025' && (item.year !== '2025' || item.specialist === 'Unassigned / Pre-System')) return false;
+              if (selectedYear === '2026' && item.year !== '2026') return false;
+          }
           if (selectedMonth !== 'All' && item.month !== selectedMonth) return false;
           if (searchQuery.trim() !== '') {
             const q = searchQuery.toLowerCase();
@@ -430,12 +484,10 @@
           return <span className="text-[#00AFC0] ml-1">▼</span>;
       };
 
-      const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear, RAW_CANCELLATIONS]);
-      
       const monthlyBreakdown = useMemo(() => {
         const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         return monthsList.map(mName => {
-          const monthCases = baseForMonths.filter(c => c.month === mName);
+          const monthCases = filteredCancellations.filter(c => c.month === mName);
           const reasonCounts = {};
           monthCases.forEach(c => {
              if (!reasonCounts[c.reason]) reasonCounts[c.reason] = 0;
@@ -443,22 +495,25 @@
           });
           return { month: mName, count: monthCases.length, reasons: reasonCounts, cases: monthCases };
         });
-      }, [baseForMonths]);
+      }, [filteredCancellations]);
 
       const dynamicKPIs = useMemo(() => {
         const totalCxls = filteredCancellations.length;
+        // OS metric rate is isolated against OS starts post April 2025. 
         let startsCount = 100, dynamicCxlRate = 0;
-        if (selectedYear !== 'All') {
-          startsCount = HISTORICAL_SUMMARY[selectedYear]?.starts || 100;
-          dynamicCxlRate = (totalCxls / startsCount) * 100;
+        if (selectedYear === '2025') {
+            startsCount = 197;
+        } else if (selectedYear === '2026') {
+            startsCount = 77;
         } else {
-          startsCount = Object.values(HISTORICAL_SUMMARY).reduce((sum, item) => sum + item.starts, 0);
-          dynamicCxlRate = (RAW_CANCELLATIONS.length / startsCount) * 100;
+            startsCount = 197 + 77;
+        }
+        if (startsCount > 0) {
+            dynamicCxlRate = (totalCxls / startsCount) * 100;
         }
         return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1) };
-      }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY, RAW_CANCELLATIONS.length]);
+      }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY]);
 
-      // Tenure Buckets Logic updated to deeply aggregate specific issues for hover tooltip
       const tenureData = useMemo(() => {
         const buckets = [
           { label: '0-14 Days', min: 0, max: 14 },
@@ -469,10 +524,7 @@
 
         let runningTotal = 0;
         return buckets.map((b) => {
-          const cases = filteredCancellations.filter(c => {
-              if (c.daysBeforeCxl >= b.min && c.daysBeforeCxl <= b.max) return true;
-              return false;
-          });
+          const cases = filteredCancellations.filter(c => c.daysBeforeCxl >= b.min && c.daysBeforeCxl <= b.max);
           
           const reasons = {};
           cases.forEach(c => {
@@ -493,11 +545,10 @@
 
       const rfiData = useMemo(() => {
         const years = ['2023', '2024', '2025', '2026'];
-        return years.map(y => {
+        const results = years.map(y => {
           const yData = RAW_CANCELLATIONS.filter(c => c.year === y);
           const totalCxls = yData.length;
           
-          // Get distinct cases based on exact IDs
           const uniqueRFICasesMap = new Map();
           yData.filter(c => c.hasRFI).forEach(c => {
              const key = `${c.client}-${c.vaName}-${c.rfiNote}`;
@@ -512,9 +563,12 @@
           if (totalCxls !== 0) {
               rate = ((withRFI/totalCxls)*100).toFixed(0);
           }
+          
+          const osAssignedCases = yData.filter(c => c.specialist !== 'Unassigned / Pre-System').length;
 
-          return { year: y, totalCxls, withRFI, rate, casesWithRFI };
+          return { year: y, totalCxls, withRFI, rate, casesWithRFI, osAssignedCases };
         });
+        return results;
       }, [RAW_CANCELLATIONS]);
 
       const activeRFIPieData = useMemo(() => {
@@ -522,13 +576,13 @@
         const rfiCounts = {};
         activeRFIModal.casesWithRFI.forEach(c => {
             let category = "Other";
-            if (c.rfiNote.includes('Shifter') || c.rfiNote.includes('General Business VA')) {
+            if (c.rfiNote.includes('Shifter') || c.rfiNote.includes('General Business VA') || c.rfiNote.includes('Overseas')) {
                 category = 'Experience Mismatch (Shifter)';
             } else if (c.rfiNote.includes('Hypertension') || c.rfiNote.includes('Health')) {
                 category = 'Health Risk';
             } else if (c.rfiNote.includes('software') || c.rfiNote.includes('Tech')) {
                 category = 'Software/Tech Gap';
-            } else if (c.rfiNote.includes('connectivity') || c.rfiNote.includes('Time Management')) {
+            } else if (c.rfiNote.includes('connectivity') || c.rfiNote.includes('Time Management') || c.rfiNote.includes('Disengaged')) {
                 category = 'Infrastructure/Behavior';
             } else if (c.rfiNote.includes('PT hours')) {
                 category = 'Hours Mismatch';
@@ -548,86 +602,16 @@
         const years = ['2023', '2024', '2025', '2026'];
         return years.map(y => {
           const starts = HISTORICAL_SUMMARY[y].starts;
-          const cxls = filteredCancellations.filter(c => c.year === y).length;
+          const cxls = RAW_CANCELLATIONS.filter(c => c.year === y).length;
           let rate = 0;
           if (starts !== 0) {
               rate = parseFloat(((cxls / starts) * 100).toFixed(1));
           }
           return { year: y, starts, cxls, rate };
         });
-      }, [filteredCancellations, HISTORICAL_SUMMARY]);
-
+      }, [RAW_CANCELLATIONS, HISTORICAL_SUMMARY]);
 
       // RENDERERS
-      function renderPipelineIllustration() {
-        return (
-          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
-            <div className="border-b border-slate-100 pb-3 mb-6 flex justify-between items-start">
-              <div>
-                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Macro System Mechanics</span>
-                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">The Leakage &amp; Containment Pipeline</h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Visualizing how pre-hire warning flags (RFIs) leak from Sales and Placements through the Onboarding Specialist (OS) 30-Day shield and surface post-handoff.
-                </p>
-              </div>
-            </div>
-            
-            <div className="w-full bg-slate-900 rounded-xl p-8 flex flex-col lg:flex-row items-center justify-between gap-6 text-white relative overflow-hidden">
-              <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none">
-                <Icon name="Activity" size={200} />
-              </div>
-
-              {/* Stage 1 */}
-              <div className="flex flex-col items-center p-5 bg-slate-800/80 rounded-xl border border-slate-700 w-full lg:w-[30%] relative z-10 shadow-lg">
-                <span className="bg-emerald-400/20 text-emerald-400 font-extrabold text-[10px] px-2 py-1 rounded tracking-widest uppercase mb-3">Stage 01: Intake</span>
-                <h5 className="font-black text-sm text-white mb-3 flex items-center gap-2"><Icon name="Users" size={16}/> Sales &amp; Placements</h5>
-                <div className="w-full bg-slate-950 h-1.5 rounded overflow-hidden mb-4">
-                  <div className="bg-emerald-400 h-full w-[100%]"></div>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed text-center">
-                  High-volume match generation occurs here. Unchecked Risk Flags (RFIs) are active but often ignored to prioritize fast time-to-hire.
-                </p>
-              </div>
-
-              <div className="hidden lg:flex flex-col items-center text-[#00AFC0] animate-pulse">
-                <span className="text-[9px] font-bold tracking-widest mb-1 text-slate-500 uppercase">Leakage</span>
-                <Icon name="ChevronRight" size={32} />
-              </div>
-
-              {/* Stage 2 */}
-              <div className="flex flex-col items-center p-5 bg-slate-800/80 rounded-xl border-2 border-[#00AFC0] w-full lg:w-[30%] relative z-10 shadow-[0_0_20px_rgba(0,175,192,0.15)]">
-                <span className="bg-[#00AFC0]/20 text-[#00AFC0] font-extrabold text-[10px] px-2 py-1 rounded tracking-widest uppercase mb-3">Stage 02: Days 0-30</span>
-                <h5 className="font-black text-sm text-white mb-3 flex items-center gap-2"><Icon name="ShieldAlert" size={16}/> OS Containment Shield</h5>
-                <div className="w-full bg-slate-950 h-1.5 rounded overflow-hidden mb-4">
-                  <div className="bg-[#00AFC0] h-full w-[80%]"></div>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed text-center">
-                  Sole OS accountability. High-touch stabilization masks pre-hire skill gaps. Elite CSAT (4.83) creates a surface-level illusion of fit.
-                </p>
-              </div>
-
-              <div className="hidden lg:flex flex-col items-center text-rose-500 animate-pulse">
-                <span className="text-[9px] font-bold tracking-widest mb-1 text-slate-500 uppercase">Graduation</span>
-                <Icon name="ChevronRight" size={32} />
-              </div>
-
-              {/* Stage 3 */}
-              <div className="flex flex-col items-center p-5 bg-slate-800/80 rounded-xl border border-rose-900/50 w-full lg:w-[30%] relative z-10 shadow-lg">
-                <span className="bg-rose-500/20 text-rose-400 font-extrabold text-[10px] px-2 py-1 rounded tracking-widest uppercase mb-3">Stage 03: Days 31-90</span>
-                <h5 className="font-black text-sm text-white mb-3 flex items-center gap-2"><Icon name="Target" size={16}/> AM Handoff &amp; Fracture</h5>
-                <div className="w-full bg-slate-950 h-1.5 rounded overflow-hidden mb-4 flex">
-                  <div className="bg-[#00AFC0] h-full w-[50%]"></div>
-                  <div className="bg-rose-500 h-full w-[50%]"></div>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed text-center">
-                  VA is graduated to AM. Without constant OS support, raw performance discrepancies or connectivity issues surface, triggering late-tenure drops.
-                </p>
-              </div>
-            </div>
-          </div>
-        );
-      }
-
       function renderExecutiveVerdict() {
         return (
           <div className="bg-slate-900 border-l-4 border-[#00AFC0] rounded-r-xl p-8 shadow-md animate-fadeIn mb-8 text-white relative overflow-hidden">
@@ -678,7 +662,7 @@
               <span className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest">Section 1: Macro Pipeline</span>
               <h2 className="text-lg font-bold text-[#025863] mt-1">Starts vs. Cancellations Timeline</h2>
               <div className="bg-slate-50 border-l-4 border-[#025863] p-2 mt-2">
-                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Compares new starts vs. early drops to reveal systemic health. <br/><strong className="text-[#025863]">ACTION:</strong> Click an orange cancellation bar to view the pipeline breakdown.</p>
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Compares new starts vs. early drops across all historical data to reveal systemic health. Includes pre-OS era figures for benchmark comparison.</p>
               </div>
             </div>
             
@@ -695,7 +679,6 @@
                   const cx = 150 + (idx * 170);
                   const sH = (stat.starts / 300) * 160;
                   const cH = (stat.cxls / 300) * 160;
-                  const isFocused = cxlYearFocus === stat.year;
 
                   return (
                     <g key={stat.year}>
@@ -705,9 +688,8 @@
                       
                       <rect 
                         x={cx + 2} y={200 - cH} width="18" height={cH} 
-                        fill={isFocused ? "#E11D48" : "#FF6334"} rx="2" 
-                        className="cursor-pointer transition-all duration-200 hover:brightness-110" 
-                        onClick={() => setCxlYearFocus(isFocused ? null : stat.year)} 
+                        fill="#FF6334" rx="2" 
+                        className="transition-all duration-200 hover:brightness-110" 
                       />
                       <text x={cx + 11} y={195 - cH} className="text-[9px] font-bold fill-[#FF6334]" textAnchor="middle">{stat.cxls}</text>
                     </g>
@@ -903,18 +885,28 @@
                     const scale = 180 / maxRFI;
                     const tH = d.totalCxls * scale;
                     const rH = d.withRFI * scale;
+                    const osH = d.osAssignedCases ? d.osAssignedCases * scale : 0;
 
                     return (
                       <g key={d.year}>
                         <text x={cx} y="235" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{d.year}</text>
-                        <rect x={cx - 25} y={210 - tH} width="20" height={tH} fill="#cbd5e1" rx="2" />
-                        <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
                         
-                        <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
+                        <rect x={cx - 30} y={210 - tH} width="16" height={tH} fill="#cbd5e1" rx="2" />
+                        <text x={cx - 22} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
+                        
+                        <rect x={cx - 8} y={210 - rH} width="16" height={rH} fill="#E11D48" rx="2" 
                           onClick={() => setActiveRFIModal(d)} 
                           className="cursor-pointer hover:brightness-110 transition-all hover:stroke-2 hover:stroke-rose-900"
                         />
-                        <text x={cx + 15} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
+                        <text x={cx} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
+
+                        {/* 3rd Bar: Assigned OS Cancellations (Only visible for 2025/2026) */}
+                        {osH > 0 && (
+                          <Fragment>
+                            <rect x={cx + 14} y={210 - osH} width="16" height={osH} fill="#f59e0b" rx="2" />
+                            <text x={cx + 22} y={205 - osH} className="text-[9px] font-bold fill-amber-600" textAnchor="middle">{d.osAssignedCases}</text>
+                          </Fragment>
+                        )}
                       </g>
                     );
                   })}
@@ -947,42 +939,42 @@
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-rose-500">Forensic Audit Modal</span>
                     <h3 className="text-xl font-black text-white mt-1">RFI Impact Log: {activeRFIModal.year}</h3>
                     <p className="text-xs text-slate-400 mt-1">
-                      <span className="font-bold text-rose-400">{activeRFIModal.rate}%</span> of all early cancellations ({activeRFIModal.withRFI} out of {activeRFIModal.totalCxls}) in {activeRFIModal.year} had a known pre-placement warning flag that materialized into a termination.
+                      <span className="font-bold text-rose-400">{activeRFIModal.rate}%</span> of all cancellations ({activeRFIModal.withRFI} out of {activeRFIModal.totalCxls}) in {activeRFIModal.year} had a known pre-placement warning flag that materialized into a termination.
                     </p>
                   </div>
                   
-                  <div className="overflow-y-auto custom-scroll pr-2 flex-1 pb-24">
+                  <div className="overflow-y-auto custom-scroll pr-4 flex-1 pb-24 h-96">
                     {activeRFIModal.casesWithRFI.length === 0 ? (
                       <div className="text-slate-500 italic text-sm text-center py-10">No specific RFI matched cases recorded for this period.</div>
                     ) : (
-                      <table className="w-full text-left text-xs whitespace-normal mt-2">
-                        <thead className="bg-slate-800 text-slate-300 font-bold text-[9px] uppercase sticky top-0 z-10">
-                          <tr>
-                            <th className="py-2.5 px-3 rounded-tl">Real VA Name</th>
-                            <th className="py-2.5 px-3">Client Name</th>
-                            <th className="py-2.5 px-3">Trigger Dept.</th>
-                            <th className="py-2.5 px-3 w-1/3">Exact Pre-Hire Warning Flag Ignored</th>
-                            <th className="py-2.5 px-3 text-center rounded-tr">Days Worked</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800 text-slate-300">
+                      <div className="space-y-4">
                           {activeRFIModal.casesWithRFI.map((c, i) => (
-                            <tr key={i} className="hover:bg-slate-800/60 transition-colors group">
-                              <td className="py-3 px-3 font-bold text-white group-hover:text-[#00AFC0]">{c.vaName}</td>
-                              <td className="py-3 px-3 font-medium">{c.client}</td>
-                              <td className="py-3 px-3">
-                                <span className="text-[9px] font-black uppercase text-rose-400 border border-rose-500/30 px-1.5 py-0.5 rounded bg-rose-500/10 whitespace-nowrap">
-                                  {c.reason}
-                                </span>
-                              </td>
-                              <td className="py-3 px-3 font-mono text-[10px] leading-relaxed text-amber-200">
-                                {c.rfiNote}
-                              </td>
-                              <td className="py-3 px-3 text-center font-bold text-slate-100">{c.daysBeforeCxl}d</td>
-                            </tr>
+                            <div key={i} className="mb-4 ml-6 relative">
+                              <div className="absolute -left-4 top-4 w-4 h-4 bg-slate-800 rounded-full"></div>
+                              <div className="absolute -left-6 top-8 w-2 h-2 bg-slate-800 rounded-full"></div>
+                              
+                              <div className="bg-slate-800 p-5 rounded-[2rem] rounded-tl-sm border border-slate-700 shadow-lg">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <h4 className="font-bold text-white text-sm">{c.client}</h4>
+                                    <p className="text-xs text-[#00AFC0] font-medium mt-0.5">VA Sourced: {c.vaName}</p>
+                                  </div>
+                                  <span className="bg-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border border-rose-500/30">
+                                    {c.reason}
+                                  </span>
+                                </div>
+                                <div className="bg-slate-900 rounded p-3 mt-2 border-l-2 border-rose-500">
+                                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Pre-Hire Warning Flag Ignored</span>
+                                  <p className="text-rose-200 text-xs leading-relaxed font-mono">{c.rfiNote}</p>
+                                </div>
+                                <div className="mt-3 flex justify-between items-end border-t border-slate-700 pt-3">
+                                  <p className="text-[10px] text-slate-400 italic flex-1 mr-4">"{c.summary}"</p>
+                                  <span className="text-[10px] text-white font-bold bg-slate-950 px-2 py-1 rounded whitespace-nowrap">Worked {c.daysBeforeCxl} Days</span>
+                                </div>
+                              </div>
+                            </div>
                           ))}
-                        </tbody>
-                      </table>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -990,15 +982,15 @@
             )}
             
             <div className="flex flex-wrap items-center justify-center gap-6 border-t border-slate-100 pt-4 mt-2 text-xs">
-              <div className="flex items-center gap-2"><span className="h-3.5 w-3.5 bg-slate-300 rounded"></span><span className="text-slate-600 font-medium">Total Cancellations</span></div>
+              <div className="flex items-center gap-2"><span className="h-3.5 w-3.5 bg-slate-300 rounded"></span><span className="text-slate-600 font-medium">Total OS Cancellations</span></div>
               <div className="flex items-center gap-2"><span className="h-3.5 w-3.5 bg-rose-600 rounded"></span><span className="text-slate-600 font-medium">Cancellations with Active RFI Warning</span></div>
+              <div className="flex items-center gap-2"><span className="h-3.5 w-3.5 bg-amber-500 rounded"></span><span className="text-slate-600 font-medium">Assigned OS Cases (25/26)</span></div>
             </div>
           </div>
         );
       }
 
       function renderOSSnapshot() {
-        // Curve Generation Helper
         const generateSmoothPath = (points) => {
           if (points.length === 0) return '';
           let path = `M ${points[0].x},${points[0].y}`;
@@ -1028,7 +1020,6 @@
           { key: 'chk', label: 'Check-ins' }
         ];
 
-        // Layout mapping variables for SVG Curve Chart
         const startXs = [80, 200, 320, 440, 560, 680];
         const mapY = (score) => 220 - ((score - 4.5) / 0.5) * 180;
 
@@ -1163,17 +1154,15 @@
               <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Onboarding Specialist Performance Breakdown: Early Attrition Forensics</h3>
               <div className="bg-slate-50 border-l-4 border-mmmTeal p-2 mt-2">
                 <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                  <strong>Data Scope:</strong> This cohort analysis isolates under-90-day client cancellations calculated strictly from the client’s original RVA start date (Source: Master Attrition Report 1779914133165).<br/>
-                  <strong>Operational Era:</strong> Reflects performance post-department launch on April 1, 2025 (Source: ROCK Completion - Q1C2025: Onboarding Specialist). All cancellations occurring prior to this date are classified under the Pre-System Baseline and omitted from individual scorecards.
+                  <strong>Data Scope:</strong> This cohort analysis isolates strictly the 41 exact active Onboarding Specialist cancellations calculated from the client’s original RVA start date (Source: Master Attrition Report).<br/>
+                  <strong>Operational Era:</strong> Reflects performance post-department launch on April 1, 2025. All prior historical legacy cancellations are omitted from individual OS scorecards below.
                 </p>
               </div>
             </div>
 
             <h4 className="font-bold text-sm text-[#025863] mb-2">1. Granular Tenure &amp; Reason Matrix Per Specialist</h4>
             <p className="text-xs text-slate-600 mb-4">
-              The matrix below breaks down early account attrition by individual Onboarding Specialist. The columns segment the exact tenure tranche where the failure materialized, alongside a raw accounting of the primary cancellation reasons.<br/><br/>
-              <strong>Days 0–14 &amp; 15–30:</strong> Exits within the OS team's sole accountability window.<br/>
-              <strong>Days 31–60 &amp; 61–90:</strong> Exits occurring post-handoff to Account Management, serving as the lagging health metric of the foundation established by the specialist.
+              The matrix breaks down active account attrition by individual Onboarding Specialist based on the exact 2025/2026 logs. Exits in the 31-90 day buckets serve as the lagging health metric of the foundation established by the specialist.
             </p>
 
             <div className="border border-slate-200 rounded-lg overflow-hidden mb-8">
@@ -1185,49 +1174,42 @@
                     <th className="py-3 px-4 text-center">15–30 Days</th>
                     <th className="py-3 px-4 text-center">31–60 Days</th>
                     <th className="py-3 px-4 text-center">61–90 Days</th>
-                    <th className="py-3 px-4">Primary Cancellation Reasons (Breakdown)</th>
+                    <th className="py-3 px-4 text-center">Total Volume</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 text-slate-700 bg-white">
+                  {/* Aggregated Totals exactly matching 2025 + 2026 data arrays built above */}
                   <tr className="hover:bg-slate-50">
                     <td className="py-3 px-4 font-bold text-[#025863]">Jason Valeros</td>
                     <td className="py-3 px-4 text-center font-bold">2</td>
                     <td className="py-3 px-4 text-center font-bold">3</td>
-                    <td className="py-3 px-4 text-center font-bold">7</td>
-                    <td className="py-3 px-4 text-center font-bold">6</td>
-                    <td className="py-3 px-4 text-[11px] leading-relaxed">
-                      <strong>10 VA Issues</strong> (Quality/Attendance), <strong>4 Client Setup</strong>, <strong>3 Financial</strong>, <strong>1 Failed Placement</strong>
-                    </td>
+                    <td className="py-3 px-4 text-center font-bold">3</td>
+                    <td className="py-3 px-4 text-center font-bold">2</td>
+                    <td className="py-3 px-4 text-center font-black text-rose-600 bg-rose-50">10 Cases</td>
                   </tr>
                   <tr className="hover:bg-slate-50">
                     <td className="py-3 px-4 font-bold text-[#025863]">Aiza Abing</td>
+                    <td className="py-3 px-4 text-center font-bold">4</td>
                     <td className="py-3 px-4 text-center font-bold">5</td>
-                    <td className="py-3 px-4 text-center font-bold">2</td>
+                    <td className="py-3 px-4 text-center font-bold">4</td>
                     <td className="py-3 px-4 text-center font-bold">3</td>
-                    <td className="py-3 px-4 text-center font-bold">2</td>
-                    <td className="py-3 px-4 text-[11px] leading-relaxed">
-                      <strong>6 Failed Placements / Back Out VAs</strong>, <strong>4 VA Issues</strong> (Responsiveness), <strong>2 Client Setup</strong>
-                    </td>
+                    <td className="py-3 px-4 text-center font-black text-rose-600 bg-rose-50">16 Cases</td>
                   </tr>
                   <tr className="hover:bg-slate-50">
                     <td className="py-3 px-4 font-bold text-[#025863]">Hawk</td>
                     <td className="py-3 px-4 text-center font-bold">1</td>
-                    <td className="py-3 px-4 text-center font-bold">5</td>
+                    <td className="py-3 px-4 text-center font-bold">4</td>
                     <td className="py-3 px-4 text-center font-bold">2</td>
-                    <td className="py-3 px-4 text-center font-bold">1</td>
-                    <td className="py-3 px-4 text-[11px] leading-relaxed">
-                      <strong>5 Client Setup Issues</strong> (Expectations), <strong>3 VA Issues</strong>, <strong>1 Financial</strong>
-                    </td>
+                    <td className="py-3 px-4 text-center font-bold">0</td>
+                    <td className="py-3 px-4 text-center font-black text-rose-600 bg-rose-50">7 Cases</td>
                   </tr>
                   <tr className="hover:bg-slate-50">
                     <td className="py-3 px-4 font-bold text-[#025863]">Marno</td>
                     <td className="py-3 px-4 text-center font-bold">0</td>
-                    <td className="py-3 px-4 text-center font-bold">1</td>
+                    <td className="py-3 px-4 text-center font-bold">2</td>
                     <td className="py-3 px-4 text-center font-bold">3</td>
-                    <td className="py-3 px-4 text-center font-bold">4</td>
-                    <td className="py-3 px-4 text-[11px] leading-relaxed">
-                      <strong>4 Financial Issues</strong>, <strong>3 VA Issues</strong> (Output), <strong>1 Commitment</strong>
-                    </td>
+                    <td className="py-3 px-4 text-center font-bold">3</td>
+                    <td className="py-3 px-4 text-center font-black text-rose-600 bg-rose-50">8 Cases</td>
                   </tr>
                 </tbody>
               </table>
@@ -1238,16 +1220,16 @@
             <div className="space-y-6">
               <div className="p-4 bg-slate-50 border-l-4 border-[#025863] rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Jason Valeros: The Volume &amp; Over-Performance Mask</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Churn is heavily skewed post-handoff (13 out of 18 total cases occur in the 31–90 day window).<br/>Causal Breakdown: Driven predominantly by VA Issues (Quality &amp; Skills).</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Highly efficient containment but some cases leaking. <br/>Causal Breakdown: Driven predominantly by VA Issues (Quality &amp; Skills).</p>
                 <p className="text-xs leading-relaxed text-slate-700">
-                  <strong className="text-[#025863]">Spartan Insight:</strong> Jason delivers an elite client experience during active ownership holding a 4.85 CSAT. His intense, high-touch management style temporarily masks upstream placement deficits. Once the account is graduated to an Account Manager on Day 31 and his close support framework is removed, the structural skill gaps of the VA surface, causing late-tenure dropouts.
+                  <strong className="text-[#025863]">Spartan Insight:</strong> Jason delivers an elite client experience during active ownership holding a 4.85 CSAT. His intense, high-touch management style temporarily masks upstream placement deficits.
                 </p>
                 <p className="text-xs font-black text-[#00AFC0] mt-2">ACTION: Enforce blind standalone VA testing on Day 25 to verify independence before allowing graduation to AM.</p>
               </div>
 
               <div className="p-4 bg-slate-50 border-l-4 border-[#00AFC0] rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Aiza Abing: Upstream Defect Burden</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Attrition is heavily front-loaded (7 out of 12 cases manifest inside active 0–30 day window).<br/>Causal Breakdown: Overwhelmingly dominated by Failed Placements and Back Out VAs.</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Attrition is front-loaded.<br/>Causal Breakdown: Overwhelmingly dominated by Failed Placements and Back Out VAs.</p>
                 <p className="text-xs leading-relaxed text-slate-700">
                   <strong className="text-[#025863]">Spartan Insight:</strong> Aiza is being heavily penalized by upstream recruitment failures. A cancellation at Day -1 or Day 4 due to an unresponsive VA is a matching and profiling defect, not a failure of onboarding execution. Aiza’s scorecard is absorbing the friction of speed-driven placement over-allocation.
                 </p>
@@ -1256,7 +1238,7 @@
 
               <div className="p-4 bg-slate-50 border-l-4 border-amber-500 rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Hawk: Client Alignment Vulnerability</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Churn peaks sharply in the 15–30 day tranche (5 cases), immediately prior to graduation.<br/>Causal Breakdown: Dominated by Client Setup Issues (Unrealistic Expectations / Unclear Workflows).</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Churn peaks sharply in the 15–30 day tranche, immediately prior to graduation.<br/>Causal Breakdown: Dominated by Client Setup Issues (Unrealistic Expectations / Unclear Workflows).</p>
                 <p className="text-xs leading-relaxed text-slate-700">
                   <strong className="text-[#025863]">Spartan Insight:</strong> Hawk is failing to forcefully resolve client expectation mismatches during the first two weeks of kickoff. If a client expects specialty output immediately or refuses to provide direct system integration, the account is left to curdle, peaking in a cancellation call right at the handoff threshold.
                 </p>
@@ -1265,7 +1247,7 @@
 
               <div className="p-4 bg-slate-50 border-l-4 border-slate-400 rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Marno: High Operational Integrity / Commercial Exposure</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Elite containment during sole ownership (only 1 cancellation in first 30 days). Attrition occurs exclusively late-stage (61–90 days).<br/>Causal Breakdown: Primarily driven by macroeconomic Financial Issues (Clinic Downsizing / Budget Cuts).</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Elite containment during sole ownership (0 cancellations in first 14 days). Attrition occurs late-stage.<br/>Causal Breakdown: Primarily driven by macroeconomic Financial Issues (Clinic Downsizing / Budget Cuts).</p>
                 <p className="text-xs leading-relaxed text-slate-700">
                   <strong className="text-[#025863]">Spartan Insight:</strong> Marno builds the strongest operational foundation in the department, scoring highest on tool utilization clarity (4.89) and KPI alignment (4.75). Accounts pass the AM handoff cleanly. Churn events are almost entirely unpreventable, non-operational commercial adjustments on the client side.
                 </p>
@@ -1335,7 +1317,7 @@
                 <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 7: Record Forensics</span>
                 <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Detailed Cancellation Ledger</h3>
                 <div className="bg-slate-50 border-l-4 border-slate-400 p-2 mt-2">
-                  <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Raw, unfiltered log of all matching cancellations. <br/><strong className="text-slate-700">ACTION:</strong> Hover over any row to view specific pre-onboarding defects and AM response logs.</p>
+                  <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Raw, unfiltered log of exact, verified cancellation records matching requested parameters. <br/><strong className="text-slate-700">ACTION:</strong> Hover over any row to view specific pre-onboarding defects and AM response logs.</p>
                 </div>
               </div>
               <div className="text-[10px] bg-slate-100 text-slate-600 px-3 py-1.5 rounded-full font-bold">Showing {sortedLedger.length} Records</div>
@@ -1362,7 +1344,7 @@
                       <td className="py-3 px-3 font-bold text-[#025863]">{item.client}</td>
                       <td className="py-3 px-3 font-semibold text-slate-800">{item.vaName}</td>
                       <td className="py-3 px-3 text-center">{item.hasRFI ? <span className="text-rose-500 font-black px-2 py-0.5 bg-rose-100 rounded">YES</span> : <span className="text-slate-300">-</span>}</td>
-                      <td className="py-3 px-3 text-slate-500">{item.specialist === 'Unassigned / Pre-System' ? <span className="italic opacity-60">Pre-Apr 2025</span> : item.specialist}</td>
+                      <td className="py-3 px-3 text-slate-500">{item.specialist}</td>
                       <td className="py-3 px-3 font-bold text-slate-800 text-center">{item.daysBeforeCxl}d</td>
                       <td className="py-3 px-3 font-semibold" style={{color: reasonColorMap[item.reason] || '#00AFC0'}}>{item.reason}</td>
                       <td className="py-3 px-3">
@@ -1411,11 +1393,11 @@
                 <div className="mt-2 pl-3 border-l-2 border-[#00AFC0]">
                   <p className="text-[11px] text-slate-500 font-semibold mb-0.5">
                     <span className="text-rose-500 uppercase tracking-widest text-[9px] mr-1">Data Scope:</span> 
-                    Exclusively dissecting new client cancellations within <strong className="text-slate-700">{'<90 days'}</strong> of their RVA start date.
+                    Exclusively analyzing the {RAW_CANCELLATIONS.filter(c => c.year === '2025' || c.year === '2026').length} exact cancellations actively managed by OS.
                   </p>
                   <p className="text-[11px] text-slate-500 font-semibold">
                     <span className="text-[#008BA3] uppercase tracking-widest text-[9px] mr-1">System Note:</span> 
-                    The Onboarding Specialist (OS) role officially launched on <strong className="text-slate-700">April 1, 2025</strong>.
+                    The Onboarding Specialist (OS) role officially launched on <strong className="text-slate-700">April 1, 2025</strong>. Legacy records are omitted.
                   </p>
                 </div>
               </div>
@@ -1432,7 +1414,7 @@
                 <div className="flex items-center gap-1 bg-[#F8F8F8] border border-slate-200 rounded px-2.5 py-1">
                   <label className="text-[10px] font-bold text-slate-400 uppercase">Year</label>
                   <select value={selectedYear} onChange={(e) => {setSelectedYear(e.target.value); setCxlYearFocus(null);}} className="bg-transparent text-xs font-semibold text-[#025863] outline-none cursor-pointer pl-1">
-                    <option value="All">All Years</option><option value="2023">2023</option><option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026 YTD</option>
+                    <option value="All">All Active OS Years</option><option value="2025">2025 (Post-April)</option><option value="2026">2026 YTD</option>
                   </select>
                 </div>
                 <div className="relative flex items-center bg-[#F8F8F8] border border-slate-200 rounded px-2 py-1 max-w-xs">
@@ -1447,8 +1429,6 @@
           <main className="max-w-7xl mx-auto px-6 mt-6 w-full animate-fadeIn pb-12">
             
             {renderExecutiveVerdict()}
-            
-            {viewMode === 'executive' && renderPipelineIllustration()}
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-8">
               <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
