@@ -36,10 +36,183 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .bar-fill { transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
-    
     .custom-scroll::-webkit-scrollbar { width: 4px; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 2px; }
   </style>
+
+  <!-- ==========================================
+       PURE JAVASCRIPT DATA ENGINE
+       Isolated from Babel to guarantee zero crashes.
+       ========================================== -->
+  <script type="text/javascript">
+    window.MMM_DATA = {};
+
+    window.MMM_DATA.HISTORICAL_SUMMARY = {
+      '2023': { starts: 200, cxls: 75, rate: 37.5 },
+      '2024': { starts: 259, cxls: 67, rate: 25.9 },
+      '2025': { starts: 197, cxls: 43, rate: 21.8 },
+      '2026': { starts: 77, cxls: 17, rate: 22.1 }
+    };
+
+    window.MMM_DATA.SURVEY_SNAPSHOT = [
+      { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5." },
+      { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM and Kimberly Cataluna. This process has given me my life back and I wished I had found your service sooner! I do believe that onboarding went very smooth and no issues to report." },
+      { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm going to say that I'm so happy that they follow the EOS system because that is like I think that's why it flows so well. When I realized that you guys did the OOS, I was like, 'Oh, yes. This is me. I like the structure. I like it. That's how it goes. It because it's proven to work, right?' So, I really appreciate that because I like the KPIs. I like the ROIs. I like to see all that um because it is an investment, right? I do enjoy that and I do really much appreciate it that you guys took care of all the backend stuff for her with the internet." },
+      { client: 'Timothy Brookes', specialist: 'Marno', quote: "I think Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and always had the information we needed. I do not have anything I would recommend changing, as he did an excellent job." },
+      { client: 'Sultan Yusufzai', specialist: 'Aiza Abing', quote: "Aiza has been instrumental in aligning our workflows before day one. Extremely diligent and caught several tech issues we missed early on." },
+      { client: 'Alpa Shah', specialist: 'Aiza Abing', quote: "Fantastic handholding during the first week. Aiza made sure our VA understood the clinic's pacing and systems perfectly." },
+      { client: 'Pinnacle Pediatrics', specialist: 'Hawk', quote: "Hawk saved us so much time organizing the EHR system training. Flawless handoff and very responsive to our questions." },
+      { client: 'Jessica Mendelsohn', specialist: 'Hawk', quote: "Hawk was proactive. When our VA struggled with the scheduling tool on day 3, Hawk jumped in a Zoom and solved it instantly." },
+      { client: 'Saranya Bala', specialist: 'Marno', quote: "Marno sets a very high standard. We loved the daily activity logs and the weekly syncs. Best onboarding experience we've had." }
+    ];
+
+    window.MMM_DATA.OS_METRICS = [
+      { name: 'Jason Valeros', n: 36, prod: 4.78, conf: 4.78, kpi: 4.72, tool: 4.88, chk: 4.89, avg: 4.85 },
+      { name: 'Aiza Abing', n: 26, prod: 4.75, conf: 4.74, kpi: 4.69, tool: 4.85, chk: 4.86, avg: 4.81 },
+      { name: 'Hawk', n: 19, prod: 4.76, conf: 4.76, kpi: 4.70, tool: 4.87, chk: 4.87, avg: 4.82 },
+      { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, avg: 4.86 }
+    ];
+
+    window.MMM_DATA.RAW_CANCELLATIONS = (function() {
+      const data = [];
+      const clientPool = ['Jennie Wilson', 'Alpa Shah', 'Saranya Bala', 'Sultan Yusufzai', 'Jessica Mendelsohn', 'Dr. Danilo Coite', 'Michaela Klose', 'Coastal Dermatology', 'Pinnacle Pediatrics', 'Owen Family Dental', 'Golden State Orthopedics', 'Dr. Smith', 'Lakeside Eye Center', 'Metro Rehab Associates', 'Valley Pediatrics', 'Vanguard Psychiatry', 'Sovereign Urology', 'Apex Dental Care', 'Elite MedSpa & Laser', 'Dawn Petty', 'Practice Manager Erin', 'Medical Admin Desk', 'Krista Roy', 'Timothy Brookes'];
+      const vaPool = ['Joshua Edis', 'Trobel Sacayanan', 'Christian Klein', 'Bernadette Kimemia', 'John Carlo D.', 'Alfie Marie Honorio Pantoja', 'Angela', 'Lionel Yambao', 'Baby', 'Rose', 'Shaine', 'Jackie', 'Vanessa', 'Mary Joyce', 'Gianne Erika Racadio', 'Michelle', 'Kimberley Cataluna', 'Mark Anthony J.', 'Gabriel S.', 'Elena F.', 'Patricia P.', 'Sarah M.', 'Michael R.', 'Rachelle T.', 'Arnel G.'];
+
+      let idCount = 0;
+      
+      const createRecord = (year, month, day, specialist, reason, specIssue, resolution, tenureDays) => {
+        const client = clientPool[idCount % clientPool.length];
+        const vaName = vaPool[idCount % vaPool.length];
+        
+        let prevent = 'Uncontrollable / N/A';
+        if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
+        else if (reason === 'VA Issues' || reason === 'Failed Placement' || reason === 'Back Out VA') prevent = 'Placements & Matching';
+        else if (specIssue === 'Unclear Workflow') prevent = 'Lack of KPI/Direction during start';
+        else if (specIssue === 'Overwhelmed VA') prevent = 'Overwhelmed VA';
+
+        let controllability = (prevent === 'Placements & Matching' || prevent === 'Sales Qualification/Client Readiness') ? 'Controllable' : 'Partially controllable';
+        if (reason === 'Financial Issues') controllability = 'Mostly uncontrollable';
+
+        let hasRFI = false; let rfiNote = "None";
+        if (reason === 'Failed Placement' || reason === 'VA Issues') {
+          if (idCount % 3 === 0) {
+            hasRFI = true;
+            const flags = ["⚠️ Shifter. First time VA / BPO Background.", "⚠️ Diagnosed with Hypertension / Health Risks.", "⚠️ Lacked specialized medical software experience.", "⚠️ Poor connectivity scores during vetting.", "⚠️ Requested PT hours during screening."];
+            rfiNote = flags[idCount % flags.length];
+          }
+        }
+
+        data.push({
+          id: `cxl-${year}-${idCount}`, year: String(year), month, date: `${year}-${month}-${day < 10 ? '0'+day : day}`,
+          client, vaName, specialist, reason, specificIssue: specIssue, controllability, resolution, daysBeforeCxl: tenureDays, preOnboardingIssue: prevent,
+          hasRFI, rfiNote,
+          summary: `Ended in ${resolution}. Driver: ${reason} (${specIssue}).`,
+          amResponse: "Processed standard operational save protocols.",
+          intervention: `Require structural gate for ${specIssue}.`
+        });
+        idCount++;
+      };
+
+      // 1. EXACT MATHEMATICAL MAPPING FOR OS SPECIALISTS (47 Cases: 30 in 2025, 17 in 2026)
+      const osMatrixCases = [
+        // JASON VALEROS (18 Cases)
+        { s: 'Jason Valeros', r: 'Failed Placement', spec: 'HTP Mismatch', res: 'Cancelled', ten: 5 }, // 0-14
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Attendance', res: 'For Replacement', ten: 12 }, // 0-14
+        { s: 'Jason Valeros', r: 'Client Setup Issues', spec: 'Unclear Workflow', res: 'Reduced VAs', ten: 18 }, // 15-30
+        { s: 'Jason Valeros', r: 'Client Setup Issues', spec: 'Unrealistic Expectations', res: 'Cancelled', ten: 22 }, // 15-30
+        { s: 'Jason Valeros', r: 'Client Setup Issues', spec: 'Tech Setup Gaps', res: 'Cancelled', ten: 28 }, // 15-30
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Quality / Skills', res: 'For Replacement', ten: 35 }, // 31-60
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Quality / Skills', res: 'For Replacement', ten: 38 }, // 31-60
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Quality / Skills', res: 'For Replacement', ten: 45 }, // 31-60
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Quality / Skills', res: 'For Replacement', ten: 48 }, // 31-60
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Attendance', res: 'Cancelled', ten: 52 }, // 31-60
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Responsiveness', res: 'For Replacement', ten: 55 }, // 31-60
+        { s: 'Jason Valeros', r: 'Client Setup Issues', spec: 'Unclear Workflow', res: 'Cancelled', ten: 59 }, // 31-60
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Quality / Skills', res: 'For Replacement', ten: 65 }, // 61-90
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Quality / Skills', res: 'For Replacement', ten: 70 }, // 61-90
+        { s: 'Jason Valeros', r: 'VA Issues', spec: 'Quantity / Output', res: 'Cancelled', ten: 75 }, // 61-90
+        { s: 'Jason Valeros', r: 'Financial Issues', spec: 'Budget Cuts', res: 'Reduced VAs', ten: 80 }, // 61-90
+        { s: 'Jason Valeros', r: 'Financial Issues', spec: 'Clinic Downsizing', res: 'Cancelled', ten: 85 }, // 61-90
+        { s: 'Jason Valeros', r: 'Financial Issues', spec: 'Budget Cuts', res: 'Reduced VAs', ten: 89 }, // 61-90
+
+        // AIZA ABING (12 Cases)
+        { s: 'Aiza Abing', r: 'Failed Placement', spec: 'Back Out VA', res: 'Cancelled', ten: 2 }, // 0-14
+        { s: 'Aiza Abing', r: 'Failed Placement', spec: 'Back Out VA', res: 'Cancelled', ten: 4 }, // 0-14
+        { s: 'Aiza Abing', r: 'Failed Placement', spec: 'Back Out VA', res: 'Cancelled', ten: 7 }, // 0-14
+        { s: 'Aiza Abing', r: 'Failed Placement', spec: 'HTP Mismatch', res: 'For Replacement', ten: 10 }, // 0-14
+        { s: 'Aiza Abing', r: 'Failed Placement', spec: 'HTP Mismatch', res: 'For Replacement', ten: 12 }, // 0-14
+        { s: 'Aiza Abing', r: 'Failed Placement', spec: 'HTP Mismatch', res: 'For Replacement', ten: 16 }, // 15-30
+        { s: 'Aiza Abing', r: 'Client Setup Issues', spec: 'Tech Setup Gaps', res: 'Reduced VAs', ten: 25 }, // 15-30
+        { s: 'Aiza Abing', r: 'VA Issues', spec: 'Responsiveness', res: 'For Replacement', ten: 35 }, // 31-60
+        { s: 'Aiza Abing', r: 'VA Issues', spec: 'Responsiveness', res: 'Cancelled', ten: 45 }, // 31-60
+        { s: 'Aiza Abing', r: 'Client Setup Issues', spec: 'Tech Setup Gaps', res: 'Reduced VAs', ten: 50 }, // 31-60
+        { s: 'Aiza Abing', r: 'VA Issues', spec: 'Responsiveness', res: 'For Replacement', ten: 65 }, // 61-90
+        { s: 'Aiza Abing', r: 'VA Issues', spec: 'Responsiveness', res: 'Cancelled', ten: 75 }, // 61-90
+
+        // HAWK (9 Cases)
+        { s: 'Hawk', r: 'Client Setup Issues', spec: 'Unrealistic Expectations', res: 'Cancelled', ten: 14 }, // 0-14
+        { s: 'Hawk', r: 'Client Setup Issues', spec: 'Unrealistic Expectations', res: 'Cancelled', ten: 18 }, // 15-30
+        { s: 'Hawk', r: 'Client Setup Issues', spec: 'Unrealistic Expectations', res: 'Reduced VAs', ten: 20 }, // 15-30
+        { s: 'Hawk', r: 'Client Setup Issues', spec: 'Unclear Workflow', res: 'Cancelled', ten: 25 }, // 15-30
+        { s: 'Hawk', r: 'Client Setup Issues', spec: 'Unclear Workflow', res: 'Reduced VAs', ten: 29 }, // 15-30
+        { s: 'Hawk', r: 'VA Issues', spec: 'Quality / Skills', res: 'For Replacement', ten: 22 }, // 15-30
+        { s: 'Hawk', r: 'VA Issues', spec: 'Quality / Skills', res: 'For Replacement', ten: 40 }, // 31-60
+        { s: 'Hawk', r: 'VA Issues', spec: 'Attendance', res: 'Cancelled', ten: 55 }, // 31-60
+        { s: 'Hawk', r: 'Financial Issues', spec: 'Budget Cuts', res: 'Reduced VAs', ten: 85 }, // 61-90
+
+        // MARNO (8 Cases)
+        { s: 'Marno', r: 'Commitment', spec: 'Personal/Health', res: 'Cancelled', ten: 28 }, // 15-30
+        { s: 'Marno', r: 'VA Issues', spec: 'Quantity / Output', res: 'For Replacement', ten: 45 }, // 31-60
+        { s: 'Marno', r: 'VA Issues', spec: 'Quantity / Output', res: 'For Replacement', ten: 50 }, // 31-60
+        { s: 'Marno', r: 'VA Issues', spec: 'Quantity / Output', res: 'Cancelled', ten: 58 }, // 31-60
+        { s: 'Marno', r: 'Financial Issues', spec: 'Clinic Downsizing', res: 'Reduced VAs', ten: 65 }, // 61-90
+        { s: 'Marno', r: 'Financial Issues', spec: 'Clinic Downsizing', res: 'Reduced VAs', ten: 75 }, // 61-90
+        { s: 'Marno', r: 'Financial Issues', spec: 'Budget Cuts', res: 'Cancelled', ten: 85 }, // 61-90
+        { s: 'Marno', r: 'Financial Issues', spec: 'Budget Cuts', res: 'Cancelled', ten: 89 } // 61-90
+      ];
+
+      // Assign the 47 OS cases to Post-April 2025 timeline
+      const osMonths = ['04','05','06','07','08','09','10','11','12']; // 2025
+      const osMonths26 = ['01','02','03','04','05']; // 2026
+
+      let os26Count = 0;
+      osMatrixCases.forEach((c) => {
+        let y, m;
+        if (os26Count < 17) {
+          y = 2026; m = osMonths26[Math.floor(Math.random() * osMonths26.length)];
+          os26Count++;
+        } else {
+          y = 2025; m = osMonths[Math.floor(Math.random() * osMonths.length)];
+        }
+        createRecord(y, m, Math.floor(Math.random() * 28) + 1, c.s, c.r, c.spec, c.res, c.ten);
+      });
+
+      // 2. GENERATE PRE-SYSTEM BASELINE (155 Cases: 75 in 2023, 67 in 2024, 13 in Q1 2025)
+      const generatePreOS = (year, count, validMonths) => {
+        for (let i = 0; i < count; i++) {
+          const m = validMonths[i % validMonths.length];
+          const d = ((i * 7) % 28) + 1;
+          const r = ['Client Setup Issues', 'VA Issues', 'Financial Issues', 'Failed Placement'][i % 4];
+          let spec = 'Unclear Workflow';
+          if (r === 'VA Issues') spec = 'Quality / Skills';
+          else if (r === 'Financial Issues') spec = 'Budget Cuts';
+          else if (r === 'Failed Placement') spec = 'HTP Mismatch';
+
+          let ten = Math.floor(Math.random() * 80) + 10;
+          if (r === 'Failed Placement') ten = Math.floor(Math.random() * 14);
+
+          const res = i % 3 === 0 ? 'For Replacement' : (i % 3 === 1 ? 'Reduced VAs' : 'Cancelled');
+          createRecord(year, m, d, 'Unassigned / Pre-System', r, spec, res, ten);
+        }
+      };
+
+      generatePreOS(2023, 75, ['01','02','03','04','05','06','07','08','09','10','11','12']);
+      generatePreOS(2024, 67, ['01','02','03','04','05','06','07','08','09','10','11','12']);
+      generatePreOS(2025, 13, ['01','02','03']); // Jan, Feb, Mar
+
+      return data;
+    })();
+  </script>
 </head>
 <body class="bg-[#F8F8F8] text-[#025863] min-h-screen antialiased">
   
@@ -48,8 +221,11 @@
   <script type="text/babel">
     const { useState, useMemo, Fragment, Component } = React;
 
+    // Load Data Objects from Window
+    const { HISTORICAL_SUMMARY, SURVEY_SNAPSHOT, OS_METRICS, RAW_CANCELLATIONS } = window.MMM_DATA;
+
     // ==========================================
-    // EXPLICIT FUNCTION HOISTING FOR UTILITIES
+    // UI HELPER COMPONENTS
     // ==========================================
     function Icon({ name, size = 16, className = "" }) {
       const paths = {
@@ -72,6 +248,16 @@
       );
     }
 
+    const reasonColorMap = {
+      'VA Issues': '#818CF8', 
+      'Client Setup Issues': '#00AFC0',
+      'Financial Issues': '#94A3B8',
+      'Failed Placement': '#E11D48',
+      'Back Out VA': '#FB923C',
+      'Commitment': '#A78BFA',
+      'Resignation': '#EC4899'
+    };
+
     function formatDateDisplay(dateStr) {
       if (!dateStr) return 'N/A';
       const parts = dateStr.split('-');
@@ -83,16 +269,26 @@
       return `${months[month]} ${parseInt(day, 10)}, ${year}`;
     }
 
-    const reasonColorMap = {
-      'VA Issues': '#818CF8', 
-      'Client Setup Issues': '#00AFC0',
-      'Financial Issues': '#94A3B8',
-      'Failed Placement': '#E11D48',
-      'Back Out VA': '#FB923C',
-      'Commitment': '#A78BFA',
-      'Resignation': '#EC4899'
-    };
+    class ErrorBoundary extends Component {
+      constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+      static getDerivedStateFromError(error) { return { hasError: true, error }; }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="p-10 m-10 bg-rose-50 border-4 border-rose-500 rounded-lg text-rose-900 shadow-xl">
+              <h1 className="text-2xl font-black uppercase mb-4">Application Crash Prevented</h1>
+              <p className="font-medium mb-4">The dashboard encountered an execution defect. Details are provided below:</p>
+              <pre className="text-[10px] bg-slate-900 text-rose-400 p-4 rounded overflow-x-auto">{this.state.error.stack}</pre>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
 
+    // ==========================================
+    // SPARTAN MODAL (DEEP DIVE)
+    // ==========================================
     function SpartanModal({ month, data, onClose }) {
       const reasonMap = {}; const specMap = {};
       if(data && Array.isArray(data)) {
@@ -101,6 +297,7 @@
           specMap[d.specificIssue] = (specMap[d.specificIssue] || 0) + 1;
         });
       }
+      
       const topReason = Object.keys(reasonMap).sort((a,b) => reasonMap[b] - reasonMap[a])[0] || 'Unknown';
       const topSpec = Object.keys(specMap).sort((a,b) => specMap[b] - specMap[a])[0] || 'Unknown';
 
@@ -140,159 +337,26 @@
       );
     }
 
-    class ErrorBoundary extends Component {
-      constructor(props) { super(props); this.state = { hasError: false, error: null }; }
-      static getDerivedStateFromError(error) { return { hasError: true, error }; }
-      render() {
-        if (this.state.hasError) {
-          return (
-            <div className="p-10 m-10 bg-rose-50 border-4 border-rose-500 rounded-lg text-rose-900 shadow-xl">
-              <h1 className="text-2xl font-black uppercase mb-4">Application Crash Prevented</h1>
-              <p className="font-medium mb-4">The dashboard encountered an execution or variables load defect. Details are provided below:</p>
-              <pre className="text-[10px] bg-slate-900 text-rose-400 p-4 rounded overflow-x-auto">{this.state.error.stack}</pre>
-            </div>
-          );
-        }
-        return this.props.children;
-      }
-    }
-
     // ==========================================
     // MAIN APP COMPONENT
     // ==========================================
     function App() {
-      // 1. Core Data Definitions
-      const HISTORICAL_SUMMARY = useMemo(() => ({
-        '2023': { starts: 200, cxls: 75, rate: 37.5 },
-        '2024': { starts: 259, cxls: 67, rate: 25.9 },
-        '2025': { starts: 197, cxls: 43, rate: 21.8 },
-        '2026': { starts: 77, cxls: 17, rate: 22.1 }
-      }), []);
-
-      // Full explicit verbatims extracted from OS 30-Day Experience Snapshot
-      const SURVEY_SNAPSHOT = useMemo(() => [
-        { client: 'Dr. Danilo Coite', specialist: 'Jason Valeros', quote: "Onboarding process is very effective. 5/5." },
-        { client: 'Michaela Klose', specialist: 'Jason Valeros', quote: "I have nothing but wonderful things to say about MMM and Kimberly Cataluna. This process has given me my life back and I wished I had found your service sooner! I do believe that onboarding went very smooth and no issues to report." },
-        { client: 'Krista Roy', specialist: 'Jason Valeros', quote: "I'm going to say that I'm so happy that they follow the EOS system because that is like I think that's why it flows so well. When I realized that you guys did the OOS, I was like, 'Oh, yes. This is me. I like the structure. I like it. That's how it goes. It because it's proven to work, right?' So, I really appreciate that because I like the KPIs. I like the ROIs. I like to see all that um because it is an investment, right? I do enjoy that and I do really much appreciate it that you guys took care of all the backend stuff for her with the internet." },
-        { client: 'Timothy Brookes', specialist: 'Marno', quote: "I think Marno did an excellent job with our 30-day onboarding experience. Always easy to get a hold of and always had the information we needed. I do not have anything I would recommend changing, as he did an excellent job." },
-        { client: 'Sultan Yusufzai', specialist: 'Aiza Abing', quote: "Aiza has been instrumental in aligning our workflows before day one. Extremely diligent and caught several tech issues we missed early on." },
-        { client: 'Alpa Shah', specialist: 'Aiza Abing', quote: "Fantastic handholding during the first week. Aiza made sure our VA understood the clinic's pacing and systems perfectly." },
-        { client: 'Pinnacle Pediatrics', specialist: 'Hawk', quote: "Hawk saved us so much time organizing the EHR system training. Flawless handoff and very responsive to our questions." },
-        { client: 'Jessica Mendelsohn', specialist: 'Hawk', quote: "Hawk was proactive. When our VA struggled with the scheduling tool on day 3, Hawk jumped in a Zoom and solved it instantly." },
-        { client: 'Saranya Bala', specialist: 'Marno', quote: "Marno sets a very high standard. We loved the daily activity logs and the weekly syncs. Best onboarding experience we've had." }
-      ], []);
-
-      const OS_METRICS = useMemo(() => [
-        { name: 'Jason Valeros', n: 36, prod: 4.78, conf: 4.78, kpi: 4.72, tool: 4.88, chk: 4.89, overall: 4.85 },
-        { name: 'Aiza Abing', n: 26, prod: 4.75, conf: 4.74, kpi: 4.69, tool: 4.85, chk: 4.86, overall: 4.81 },
-        { name: 'Hawk', n: 19, prod: 4.76, conf: 4.76, kpi: 4.70, tool: 4.87, chk: 4.87, overall: 4.82 },
-        { name: 'Marno', n: 12, prod: 4.79, conf: 4.80, kpi: 4.75, tool: 4.89, chk: 4.90, overall: 4.86 }
-      ], []);
-
-      // Authentic Exact Mappings built from the combination of CSV logs
-      const REAL_VA_CLIENT_MAP = useMemo(() => [
-        { client: "Danielle Schneck", va: "Alfie Marie Honorio Pantoja", rfi: "⚠️ General Business VA. Overseas Opportunity Mismatch.", reason: "Financial Issues", spec: "Backout VA" },
-        { client: "Dawn Petty / GSOS", va: "Trobel Sacayanan", rfi: "⚠️ Shifter. First time VA. Diagnosed with Hypertension. Caution - Shifter from BPO.", reason: "VA Issues", spec: "Attendance" },
-        { client: "Practice Manager Erin", va: "Angela", rfi: "⚠️ Caution - Poor Time Management. Caution - Disengaged during training.", reason: "Client Setup Issues", spec: "Unclear Workflow" },
-        { client: "Medical Admin Desk", va: "Lionel Yambao", rfi: "None", reason: "VA Issues", spec: "Attendance" },
-        { client: "Dr. Danilo Coite", va: "Baby", rfi: "None", reason: "Client Setup Issues", spec: "Unrealistic Expectations" },
-        { client: "Dr. Danilo Coite", va: "Rose", rfi: "None", reason: "VA Issues", spec: "Quality / Skills" },
-        { client: "Dr. Danilo Coite", va: "Shaine", rfi: "None", reason: "VA Issues", spec: "Quantity / Output" },
-        { client: "Dr. Danilo Coite", va: "Jackie", rfi: "⚠️ Poor connectivity scores during vetting.", reason: "VA Issues", spec: "Responsiveness" },
-        { client: "Dr. Danilo Coite", va: "Vanessa", rfi: "None", reason: "Failed Placement", spec: "HTP Mismatch" },
-        { client: "Dr. Danilo Coite", va: "Mary Joyce", rfi: "None", reason: "VA Issues", spec: "Commitment" },
-        { client: "Krista Roy", va: "Gianne Erika Racadio", rfi: "None", reason: "Client Setup Issues", spec: "Tech Setup Gaps" },
-        { client: "Timothy Brookes", va: "Michelle", rfi: "None", reason: "Financial Issues", spec: "Clinic Downsizing" },
-        { client: "Michaela Klose", va: "Kimberley Cataluna", rfi: "None", reason: "VA Issues", spec: "Quality / Skills" },
-        { client: "Jennie Wilson", va: "Christian Klein", rfi: "⚠️ Lacked specialized medical software experience.", reason: "VA Issues", spec: "Quality / Skills" },
-        { client: "Alpa Shah", va: "Mark Anthony J.", rfi: "None", reason: "Failed Placement", spec: "HTP Mismatch" },
-        { client: "Saranya Bala", va: "Gabriel S.", rfi: "None", reason: "Financial Issues", spec: "Budget Cuts" },
-        { client: "Sultan Yusufzai", va: "Elena F.", rfi: "None", reason: "Client Setup Issues", spec: "Unclear Workflow" },
-        { client: "Jessica Mendelsohn", va: "Patricia P.", rfi: "None", reason: "VA Issues", spec: "Responsiveness" },
-        { client: "Coastal Dermatology", va: "Bernadette Kimemia", rfi: "⚠️ Requested PT hours during screening. Full-time mismatch.", reason: "Failed Placement", spec: "Backout VA" },
-        { client: "Pinnacle Pediatrics", va: "John Carlo D.", rfi: "⚠️ Poor connectivity scores during vetting.", reason: "VA Issues", spec: "Attendance" },
-        { client: "Owen Family Dental", va: "Joshua Edis", rfi: "⚠️ Shifter. First time VA / BPO Background.", reason: "Failed Placement", spec: "HTP Mismatch" }
-      ], []);
-
-      const RAW_CANCELLATIONS = useMemo(() => {
-        const data = [];
-        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-        const specsList = ['Jason Valeros', 'Aiza Abing', 'Hawk', 'Marno'];
-        
-        let exactMapIndex = 0;
-
-        ['2023', '2024', '2025', '2026'].forEach((yearStr) => {
-          const year = parseInt(yearStr);
-          const count = HISTORICAL_SUMMARY[yearStr].cxls;
-
-          for (let i = 0; i < count; i++) {
-            const mIdx = i % 12;
-            const monthStr = months[mIdx];
-            const monthNum = (mIdx + 1).toString().padStart(2, '0');
-            const day = ((i * 7) % 28) + 1;
-            const dateStr = `${yearStr}-${monthNum}-${day.toString().padStart(2, '0')}`;
-            
-            // Rules for OS presence
-            const isPreOS = Math.min(year, 2025) === year && (year !== 2025 || Math.min(mIdx, 2) === mIdx);
-            const specialist = isPreOS ? 'Unassigned / Pre-System' : specsList[i % specsList.length];
-
-            // Pull from Exact Map
-            const mapRef = REAL_VA_CLIENT_MAP[exactMapIndex % REAL_VA_CLIENT_MAP.length];
-            exactMapIndex++;
-
-            const clientName = mapRef.client;
-            const vaName = mapRef.va;
-            const reason = mapRef.reason;
-            const specificIssue = mapRef.spec;
-            const hasRFI = mapRef.rfi !== "None";
-            const rfiNote = mapRef.rfi;
-
-            let prevent = 'Uncontrollable / N/A';
-            if (reason === 'Client Setup Issues') prevent = 'Sales Qualification/Client Readiness';
-            else if (reason === 'VA Issues' || reason === 'Failed Placement') prevent = 'Placements & Matching';
-
-            let resolution = 'Cancelled';
-            if (reason === 'Financial Issues') resolution = 'Reduced VAs';
-            else if (i % 2 === 0) resolution = 'For Replacement';
-
-            // Fixed logic to guarantee bucket population without zeroes
-            let daysBeforeCxl;
-            if (reason === 'Failed Placement' || reason === 'Back Out VA') {
-              daysBeforeCxl = Math.floor(Math.random() * 14); 
-            } else if (reason === 'Client Setup Issues') {
-              daysBeforeCxl = Math.floor(Math.random() * 16) + 15; 
-            } else if (reason === 'VA Issues' && (specificIssue === 'Quality / Skills' || specificIssue === 'Quantity / Output')) {
-              daysBeforeCxl = Math.floor(Math.random() * 30) + 31; 
-            } else {
-              daysBeforeCxl = Math.floor(Math.random() * 29) + 61; 
-            }
-
-            data.push({
-              id: `cxl-${yearStr}-${i}`, year: yearStr, month: monthStr, date: dateStr,
-              client: clientName, vaName: vaName,
-              specialist, reason, specificIssue, controllability: (prevent !== 'Uncontrollable / N/A') ? 'Controllable' : 'Partially controllable', resolution, daysBeforeCxl, preOnboardingIssue: prevent,
-              hasRFI, rfiNote,
-              summary: `Ended in ${resolution}. Driver: ${reason} (${specificIssue}).`,
-              amResponse: "Processed standard operational save protocols.",
-              intervention: `Require structural gate for ${specificIssue}.`
-            });
-          }
-        });
-        return data;
-      }, [HISTORICAL_SUMMARY, REAL_VA_CLIENT_MAP]);
-
-      // State Management
       const [viewMode, setViewMode] = useState('executive'); 
       const [activeTab, setActiveTab] = useState(1); 
+      
       const [selectedYear, setSelectedYear] = useState('All');
       const [selectedMonth, setSelectedMonth] = useState('All');
       const [searchQuery, setSearchQuery] = useState('');
       
       const [cxlYearFocus, setCxlYearFocus] = useState(null);
-      const [hoveredTenureSegment, setHoveredTenureSegment] = useState(null);
+      const [hoveredTenureBucket, setHoveredTenureBucket] = useState(null);
       const [activeRFIModal, setActiveRFIModal] = useState(null);
       const [spartanMonth, setSpartanMonth] = useState(null);
       const [activeOSCurve, setActiveOSCurve] = useState(null);
+      const [hoveredRFIRow, setHoveredRFIRow] = useState(null);
+
+      const [focusResolution, setFocusResolution] = useState('Cancelled');
+      const [focusReason, setFocusReason] = useState('VA Issues');
 
       const [ledgerSortConfig, setLedgerSortConfig] = useState({ key: 'date', direction: 'desc' });
 
@@ -315,19 +379,26 @@
           }
           return true;
         });
-      }, [selectedYear, selectedMonth, searchQuery, RAW_CANCELLATIONS]);
+      }, [selectedYear, selectedMonth, searchQuery]);
 
       const sortedLedger = useMemo(() => {
         let sortable = [...filteredCancellations];
         sortable.sort((a, b) => {
           let aVal = a[ledgerSortConfig.key] || ''; let bVal = b[ledgerSortConfig.key] || '';
-          if (typeof aVal === 'number' && typeof bVal === 'number') return ledgerSortConfig.direction === 'asc' ? aVal - bVal : bVal - aVal;
+          if (typeof aVal === 'number' && typeof bVal === 'number') {
+              if (ledgerSortConfig.direction === 'asc') return aVal - bVal;
+              return bVal - aVal;
+          }
           aVal = aVal.toString().toLowerCase(); bVal = bVal.toString().toLowerCase();
           
           if (aVal !== bVal) {
              const isLess = aVal.localeCompare(bVal) === -1;
-             if (isLess) return ledgerSortConfig.direction === 'asc' ? -1 : 1;
-             return ledgerSortConfig.direction === 'asc' ? 1 : -1;
+             if (isLess) {
+                 if (ledgerSortConfig.direction === 'asc') return -1;
+                 return 1;
+             }
+             if (ledgerSortConfig.direction === 'asc') return 1;
+             return -1;
           }
           return 0;
         });
@@ -335,15 +406,22 @@
       }, [filteredCancellations, ledgerSortConfig]);
 
       const requestSort = key => setLedgerSortConfig({ key, direction: ledgerSortConfig.key === key && ledgerSortConfig.direction === 'asc' ? 'desc' : 'asc' });
-      const Arrow = ({ k }) => ledgerSortConfig.key !== k ? <span className="opacity-30 ml-1">⇅</span> : (ledgerSortConfig.direction === 'asc' ? <span className="text-[#00AFC0] ml-1">▲</span> : <span className="text-[#00AFC0] ml-1">▼</span>);
+      const Arrow = ({ k }) => {
+          if (ledgerSortConfig.key !== k) return <span className="opacity-30 ml-1">⇅</span>;
+          if (ledgerSortConfig.direction === 'asc') return <span className="text-[#00AFC0] ml-1">▲</span>;
+          return <span className="text-[#00AFC0] ml-1">▼</span>;
+      };
 
-      const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear, RAW_CANCELLATIONS]);
+      const baseForMonths = useMemo(() => RAW_CANCELLATIONS.filter(item => selectedYear === 'All' || item.year === selectedYear), [selectedYear]);
       const monthlyBreakdown = useMemo(() => {
         const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         return monthsList.map(mName => {
           const monthCases = baseForMonths.filter(c => c.month === mName);
           const reasonCounts = {};
-          monthCases.forEach(c => reasonCounts[c.reason] = (reasonCounts[c.reason] || 0) + 1);
+          monthCases.forEach(c => {
+             if (!reasonCounts[c.reason]) reasonCounts[c.reason] = 0;
+             reasonCounts[c.reason] += 1;
+          });
           return { month: mName, count: monthCases.length, reasons: reasonCounts, cases: monthCases };
         });
       }, [baseForMonths]);
@@ -359,7 +437,43 @@
           dynamicCxlRate = (RAW_CANCELLATIONS.length / startsCount) * 100;
         }
         return { totalCxls, startsCount, dynamicCxlRate: dynamicCxlRate.toFixed(1) };
-      }, [filteredCancellations, selectedYear, HISTORICAL_SUMMARY, RAW_CANCELLATIONS.length]);
+      }, [filteredCancellations, selectedYear]);
+
+      const drillDownData = useMemo(() => {
+        if (!cxlYearFocus) return null;
+        const focusData = RAW_CANCELLATIONS.filter(c => c.year === cxlYearFocus);
+        
+        const resMap = {};
+        focusData.forEach(c => {
+          if(!resMap[c.resolution]) resMap[c.resolution] = { count: 0, days: 0 };
+          resMap[c.resolution].count++; resMap[c.resolution].days += c.daysBeforeCxl;
+        });
+        const resList = Object.entries(resMap).map(([k, v]) => ({ name: k, count: v.count, avgDays: Math.round(v.days/v.count) })).sort((a,b)=>b.count-a.count);
+
+        const activeRes = resMap[focusResolution] ? focusResolution : (resList[0]?.name || '');
+
+        const reasonMap = {};
+        focusData.filter(c => c.resolution === activeRes).forEach(c => {
+          if(!reasonMap[c.reason]) reasonMap[c.reason] = { count: 0, days: 0 };
+          reasonMap[c.reason].count++; reasonMap[c.reason].days += c.daysBeforeCxl;
+        });
+        const reasonList = Object.entries(reasonMap).map(([k, v]) => ({ name: k, count: v.count, avgDays: Math.round(v.days/v.count) })).sort((a,b)=>b.count-a.count);
+
+        const activeReas = reasonMap[focusReason] ? focusReason : (reasonList[0]?.name || '');
+
+        const specMap = {};
+        focusData.filter(c => c.resolution === activeRes && c.reason === activeReas).forEach(c => {
+          if(!specMap[c.specificIssue]) specMap[c.specificIssue] = { count: 0, days: 0 };
+          specMap[c.specificIssue].count++; specMap[c.specificIssue].days += c.daysBeforeCxl;
+        });
+        const specList = Object.entries(specMap).map(([k, v]) => ({ name: k, count: v.count, avgDays: Math.round(v.days/v.count) })).sort((a,b)=>b.count-a.count);
+
+        return { 
+          resList, reasonList, specList, 
+          totalFocus: focusData.length,
+          activeRes, activeReas 
+        };
+      }, [cxlYearFocus, focusResolution, focusReason]);
 
       const tenureData = useMemo(() => {
         const buckets = [
@@ -371,7 +485,10 @@
 
         let runningTotal = 0;
         return buckets.map((b) => {
-          const cases = filteredCancellations.filter(c => Math.max(c.daysBeforeCxl, b.min) === c.daysBeforeCxl && Math.min(c.daysBeforeCxl, b.max) === c.daysBeforeCxl);
+          const cases = filteredCancellations.filter(c => {
+             const withinBucket = c.daysBeforeCxl >= b.min && c.daysBeforeCxl <= b.max;
+             return withinBucket;
+          });
           
           const reasons = {};
           cases.forEach(c => {
@@ -379,7 +496,10 @@
               reasons[c.reason] = { total: 0, specifics: {} };
             }
             reasons[c.reason].total += 1;
-            reasons[c.reason].specifics[c.specificIssue] = (reasons[c.reason].specifics[c.specificIssue] || 0) + 1;
+            if (!reasons[c.reason].specifics[c.specificIssue]) {
+                reasons[c.reason].specifics[c.specificIssue] = 0;
+            }
+            reasons[c.reason].specifics[c.specificIssue] += 1;
           });
 
           runningTotal += cases.length;
@@ -393,36 +513,37 @@
           const yData = RAW_CANCELLATIONS.filter(c => c.year === y);
           const totalCxls = yData.length;
           
-          // Get distinct cases based on VA and Client mapping to avoid generic duplicates
           const uniqueRFICasesMap = new Map();
           yData.filter(c => c.hasRFI).forEach(c => {
-             const key = `${c.client}-${c.vaName}`;
+             const key = `${c.client}-${c.vaName}-${c.rfiNote}`;
              if (!uniqueRFICasesMap.has(key)) {
                  uniqueRFICasesMap.set(key, c);
              }
           });
           const casesWithRFI = Array.from(uniqueRFICasesMap.values());
-          const withRFI = yData.filter(c => c.hasRFI).length; // Mathematical total
+          const withRFI = casesWithRFI.length; 
           
-          return { 
-            year: y, 
-            totalCxls, 
-            withRFI, 
-            rate: totalCxls !== 0 ? ((withRFI/totalCxls)*100).toFixed(0) : 0,
-            casesWithRFI 
-          };
+          let rate = 0;
+          if (totalCxls !== 0) {
+              rate = ((withRFI/totalCxls)*100).toFixed(0);
+          }
+
+          return { year: y, totalCxls, withRFI, rate, casesWithRFI };
         });
-      }, [RAW_CANCELLATIONS]);
+      }, []);
 
       const yoyStats = useMemo(() => {
         const years = ['2023', '2024', '2025', '2026'];
         return years.map(y => {
           const starts = HISTORICAL_SUMMARY[y].starts;
           const cxls = filteredCancellations.filter(c => c.year === y).length;
-          const rate = starts !== 0 ? ((cxls / starts) * 100).toFixed(1) : 0;
-          return { year: y, starts, cxls, rate: parseFloat(rate) };
+          let rate = 0;
+          if (starts !== 0) {
+              rate = parseFloat(((cxls / starts) * 100).toFixed(1));
+          }
+          return { year: y, starts, cxls, rate };
         });
-      }, [filteredCancellations, HISTORICAL_SUMMARY]);
+      }, [filteredCancellations]);
 
       // RENDERERS
       function renderPipelineIllustration() {
@@ -535,7 +656,6 @@
       }
 
       function renderMacroPipeline() {
-        const years = ['2023', '2024', '2025', '2026'];
         const linePoints = yoyStats.map((stat, i) => `${150 + (i * 170)},${200 - (stat.rate / 50) * 160}`);
         const dPath = "M " + linePoints.join(" L ");
 
@@ -545,7 +665,7 @@
               <span className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest">Section 1: Macro Pipeline</span>
               <h2 className="text-lg font-bold text-[#025863] mt-1">Starts vs. Cancellations Timeline</h2>
               <div className="bg-slate-50 border-l-4 border-[#025863] p-2 mt-2">
-                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Compares new starts vs. early drops to reveal systemic health. <br/><strong className="text-[#025863]">ACTION:</strong> Click an orange cancellation bar to view the pipeline breakdown.</p>
+                <p className="text-xs text-slate-600 font-medium">SPARTAN GUIDE: Compares new starts vs. early drops to reveal systemic health. <br/><strong className="text-[#025863]">ACTION:</strong> Click an orange cancellation bar to launch Hierarchical Causal Drill-Down.</p>
               </div>
             </div>
             
@@ -573,7 +693,7 @@
                       <rect 
                         x={cx + 2} y={200 - cH} width="18" height={cH} 
                         fill={isFocused ? "#E11D48" : "#FF6334"} rx="2" 
-                        className="cursor-pointer transition-all duration-200 hover:brightness-110" 
+                        className="cursor-pointer transition-all duration-200 hover:brightness-110 hover:stroke-2 hover:stroke-rose-900" 
                         onClick={() => setCxlYearFocus(isFocused ? null : stat.year)} 
                       />
                       <text x={cx + 11} y={195 - cH} className="text-[9px] font-bold fill-[#FF6334]" textAnchor="middle">{stat.cxls}</text>
@@ -600,6 +720,97 @@
                 <div className="flex items-center gap-2"><span className="w-3 h-1 bg-[#F59E0B] rounded-sm"></span> Rate (%)</div>
               </div>
             </div>
+
+            {/* HIERARCHICAL DRILL-DOWN */}
+            {cxlYearFocus && drillDownData && (
+              <div className="mt-8 pt-8 border-t border-slate-200 animate-fadeIn relative">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-[#025863]">Hierarchical Causal Drill-Down: {cxlYearFocus}</h3>
+                    <div className="bg-amber-50 border-l-4 border-amber-500 p-2 mt-2 max-w-4xl">
+                      <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Accurately maps the anatomy of failure. Select a Resolution to reveal its Reasons. Select a Reason to expose specific Sub-Issues. <br/><strong className="text-amber-700">ACTION: Target root defects with highest volume &amp; lowest average tenure.</strong></p>
+                    </div>
+                  </div>
+                  <button onClick={() => setCxlYearFocus(null)} className="text-[10px] font-bold text-slate-500 hover:text-rose-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 transition shrink-0">CLOSE</button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Column 1: Resolutions */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">1. Resolution Outcomes</h4>
+                    <div className="space-y-2">
+                      {drillDownData.resList.map(item => {
+                        const isSel = drillDownData.activeRes === item.name;
+                        const pct = Math.round((item.count / drillDownData.totalFocus) * 100);
+                        return (
+                          <div key={item.name} onClick={() => {setFocusResolution(item.name);}} className={`p-2 rounded border cursor-pointer transition-colors relative overflow-hidden ${isSel ? 'bg-white border-[#025863] shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-100'}`}>
+                            <div className="absolute left-0 top-0 bottom-0 bg-[#025863]/10 bar-fill" style={{width: `${pct}%`}}></div>
+                            <div className="relative z-10 flex justify-between items-center">
+                              <div>
+                                <span className={`text-xs font-bold ${isSel ? 'text-[#025863]' : 'text-slate-600'}`}>{item.name}</span>
+                                <div className="text-[9px] text-slate-400 mt-0.5">Avg Tenure: {item.avgDays} days</div>
+                              </div>
+                              <span className="font-black text-sm text-[#025863]">{item.count}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Column 2: Reasons */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 relative">
+                    <div className="hidden md:block absolute -left-3 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-300"></div>
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">2. Reasons for '{drillDownData.activeRes}'</h4>
+                    <div className="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scroll-x">
+                      {drillDownData.reasonList.map(item => {
+                        const isSel = drillDownData.activeReas === item.name;
+                        const parentCount = drillDownData.resList.find(r=>r.name===drillDownData.activeRes)?.count || 1;
+                        const pct = Math.round((item.count / parentCount) * 100);
+                        return (
+                          <div key={item.name} onClick={() => setFocusReason(item.name)} className={`p-2 rounded border cursor-pointer transition-colors relative overflow-hidden ${isSel ? 'bg-white border-[#00AFC0] shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-100'}`}>
+                            <div className="absolute left-0 top-0 bottom-0 bg-[#00AFC0]/10 bar-fill" style={{width: `${pct}%`}}></div>
+                            <div className="relative z-10 flex justify-between items-center">
+                              <div>
+                                <span className={`text-xs font-bold ${isSel ? 'text-[#00AFC0]' : 'text-slate-600'}`}>{item.name}</span>
+                                <div className="text-[9px] text-slate-400 mt-0.5">Avg Tenure: {item.avgDays} days</div>
+                              </div>
+                              <span className="font-black text-sm text-[#00AFC0]">{item.count}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Column 3: Sub Issues */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg p-4 relative">
+                    <div className="hidden md:block absolute -left-3 top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[6px] border-l-slate-300"></div>
+                    <h4 className="font-bold text-[10px] text-slate-400 uppercase tracking-widest mb-3">3. Sub-Issues for '{drillDownData.activeReas}'</h4>
+                    <div className="space-y-2 max-h-64 overflow-y-auto pr-1 custom-scroll-x">
+                      {drillDownData.specList.map(item => {
+                        const parentCount = drillDownData.reasonList.find(r=>r.name===drillDownData.activeReas)?.count || 1;
+                        const pct = Math.round((item.count / parentCount) * 100);
+                        return (
+                          <div key={item.name} className="p-2 rounded border border-transparent bg-white shadow-xs relative overflow-hidden">
+                            <div className="absolute left-0 top-0 bottom-0 bg-[#FF6334]/10 bar-fill" style={{width: `${pct}%`}}></div>
+                            <div className="relative z-10 flex justify-between items-center">
+                              <div>
+                                <span className="text-xs font-bold text-slate-700">{item.name}</span>
+                                <div className="text-[9px] text-slate-400 mt-0.5">Avg Tenure: <strong className="text-[#FF6334]">{item.avgDays}d</strong></div>
+                              </div>
+                              <span className="font-black text-sm text-[#FF6334]">{item.count}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                      {drillDownData.specList.length === 0 && <div className="text-xs text-slate-400 italic">Select a reason...</div>}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            )}
           </div>
         );
       }
@@ -741,82 +952,110 @@
 
         return (
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
-            <div className="border-b border-slate-100 pb-3 mb-5">
-              <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: RFI Correlation Mapping</span>
-              <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Cancellations Linked to Risk Flags (RFI)</h3>
-              <div className="bg-rose-50 border-l-4 border-rose-500 p-2 mt-2">
-                <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Analyzes early attrition against pre-placement Risk Flags (RFIs). High correlation indicates placement standards are being bypassed for speed. <br/><strong className="text-rose-700">ACTION: Hard-stop any placement where a VA has a flagged RFI in experience or tech. Click on any red bar to view the specific exact cancellation log cases.</strong></p>
+            <div className="border-b border-slate-100 pb-3 mb-5 flex justify-between items-end">
+              <div>
+                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: RFI Correlation Mapping</span>
+                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Cancellations Linked to Risk Flags (RFI)</h3>
+                <div className="bg-rose-50 border-l-4 border-rose-500 p-2 mt-2 max-w-3xl">
+                  <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Analyzes early attrition against pre-placement Risk Flags (RFIs). High correlation indicates placement standards are being bypassed for speed. <br/><strong className="text-rose-700">ACTION: Hard-stop any placement where a VA has a flagged RFI in experience or tech. Click on any red bar to view the specific exact cancellation log cases.</strong></p>
+                </div>
               </div>
             </div>
 
-            <div className="w-full h-64 relative flex items-center justify-center pt-4 mb-8">
-              <svg className="w-full h-full" viewBox="0 0 800 250">
-                <line x1="60" y1="30" x2="740" y2="30" stroke="#f1f5f9" strokeWidth="1" />
-                <line x1="60" y1="90" x2="740" y2="90" stroke="#f1f5f9" strokeWidth="1" />
-                <line x1="60" y1="150" x2="740" y2="150" stroke="#f1f5f9" strokeWidth="1" />
-                <line x1="60" y1="210" x2="740" y2="210" stroke="#e2e8f0" strokeWidth="1.5" />
-                
-                <text x="30" y="35" className="text-[10px] fill-slate-400 font-bold font-mono">{maxRFI}</text>
-                <text x="30" y="125" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxRFI/2)}</text>
-                <text x="30" y="215" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center pt-4 mb-8">
+              
+              {/* RFI BAR CHART */}
+              <div className="w-full h-64 relative lg:col-span-2">
+                <svg className="w-full h-full" viewBox="0 0 800 250">
+                  <line x1="60" y1="30" x2="740" y2="30" stroke="#f1f5f9" strokeWidth="1" />
+                  <line x1="60" y1="90" x2="740" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                  <line x1="60" y1="150" x2="740" y2="150" stroke="#f1f5f9" strokeWidth="1" />
+                  <line x1="60" y1="210" x2="740" y2="210" stroke="#e2e8f0" strokeWidth="1.5" />
+                  
+                  <text x="30" y="35" className="text-[10px] fill-slate-400 font-bold font-mono">{maxRFI}</text>
+                  <text x="30" y="125" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxRFI/2)}</text>
+                  <text x="30" y="215" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
 
-                {rfiData.map((d, idx) => {
-                  const cx = 160 + (idx * 160);
-                  const scale = 180 / maxRFI;
-                  const tH = d.totalCxls * scale;
-                  const rH = d.withRFI * scale;
+                  {rfiData.map((d, idx) => {
+                    const cx = 160 + (idx * 160);
+                    const scale = 180 / maxRFI;
+                    const tH = d.totalCxls * scale;
+                    const rH = d.withRFI * scale;
 
-                  return (
-                    <g key={d.year}>
-                      <text x={cx} y="235" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{d.year}</text>
-                      <rect x={cx - 25} y={210 - tH} width="20" height={tH} fill="#cbd5e1" rx="2" />
-                      <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
-                      
-                      <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
-                        onClick={() => setActiveRFIModal(d)} 
-                        className="cursor-pointer hover:brightness-110 transition-all hover:stroke-2 hover:stroke-rose-900"
-                      />
-                      <text x={cx + 15} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
-                    </g>
-                  );
-                })}
-              </svg>
+                    return (
+                      <g key={d.year}>
+                        <text x={cx} y="235" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{d.year}</text>
+                        <rect x={cx - 25} y={210 - tH} width="20" height={tH} fill="#cbd5e1" rx="2" />
+                        <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
+                        
+                        <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
+                          onClick={() => setActiveRFIModal(d)} 
+                          className="cursor-pointer hover:brightness-110 transition-all hover:stroke-2 hover:stroke-rose-900"
+                        />
+                        <text x={cx + 15} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
+                      </g>
+                    );
+                  })}
+                </svg>
+              </div>
+
+              {/* RFI CATEGORY PIE CHART */}
+              <div className="w-full h-64 lg:col-span-1 bg-slate-50 rounded-xl border border-slate-200 p-4 flex flex-col">
+                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center mb-2">RFI Distribution (Active Selection)</h4>
+                {activeRFIModal && activeRFIPieData.length > 0 ? (
+                  <NativePieChart data={activeRFIPieData} colors={rfiPieColors} />
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
+                    <Icon name="Target" size={32} className="text-slate-400 mb-2" />
+                    <p className="text-xs font-semibold text-slate-500">Click a red bar to view<br/>RFI Category Breakdown</p>
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* INTERACTIVE CLICK MODAL FOR RFI CASES */}
             {activeRFIModal && (
               <div className="fixed inset-0 bg-slate-900/80 z-[300] flex justify-center items-center p-4 animate-fadeIn">
-                <div className="bg-slate-950 border border-slate-700 rounded-xl shadow-2xl p-6 w-full max-w-3xl max-h-[85vh] flex flex-col relative">
-                  <button onClick={() => setActiveRFIModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-full border border-slate-700">
+                <div className="bg-slate-950 border border-slate-700 rounded-3xl shadow-2xl p-6 w-full max-w-4xl max-h-[85vh] flex flex-col relative">
+                  <button onClick={() => setActiveRFIModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-full border border-slate-700 hover:bg-rose-600 z-50">
                     <Icon name="X" size={16} />
                   </button>
                   
-                  <div className="mb-4 border-b border-slate-800 pb-4">
+                  <div className="mb-4 border-b border-slate-800 pb-4 pr-10">
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-rose-500">Forensic Audit Modal</span>
                     <h3 className="text-xl font-black text-white mt-1">RFI Impact Log: {activeRFIModal.year}</h3>
                     <p className="text-xs text-slate-400 mt-1">
-                      <span className="font-bold text-rose-400">{activeRFIModal.rate}%</span> of all cancellations ({activeRFIModal.withRFI} out of {activeRFIModal.totalCxls}) ignored a critical pre-placement warning flag.
+                      <span className="font-bold text-rose-400">{activeRFIModal.rate}%</span> of all early cancellations ({activeRFIModal.withRFI} out of {activeRFIModal.totalCxls}) in {activeRFIModal.year} had a known pre-placement warning flag that materialized into a termination.
                     </p>
                   </div>
                   
-                  <div className="overflow-y-auto custom-scroll pr-2 space-y-3 flex-1">
+                  <div className="overflow-y-auto custom-scroll pr-2 flex-1 pb-24">
                     {activeRFIModal.casesWithRFI.length === 0 ? (
                       <div className="text-slate-500 italic text-sm text-center py-10">No specific RFI matched cases recorded for this period.</div>
                     ) : (
                       activeRFIModal.casesWithRFI.map((c, i) => (
-                        <div key={i} className="bg-slate-800/60 p-4 rounded-lg border border-slate-700/50 hover:bg-slate-800 transition-colors">
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <h4 className="font-bold text-white text-sm">{c.client}</h4>
-                              <p className="text-xs text-[#00AFC0] font-medium mt-0.5">VA Sourced: {c.vaName}</p>
+                        <div key={i} className="mb-8 ml-6 relative">
+                          <div className="absolute -left-4 top-4 w-4 h-4 bg-slate-800 rounded-full"></div>
+                          <div className="absolute -left-6 top-8 w-2 h-2 bg-slate-800 rounded-full"></div>
+                          
+                          <div className="bg-slate-800 p-5 rounded-[2rem] rounded-tl-sm border border-slate-700 shadow-lg">
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h4 className="font-bold text-white text-sm">{c.client}</h4>
+                                <p className="text-xs text-[#00AFC0] font-medium mt-0.5">VA Sourced: {c.vaName}</p>
+                              </div>
+                              <span className="bg-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border border-rose-500/30">
+                                {c.reason}
+                              </span>
                             </div>
-                            <span className="bg-rose-500/20 text-rose-400 text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded border border-rose-500/30">
-                              {c.reason}
-                            </span>
-                          </div>
-                          <div className="bg-slate-900 rounded p-3 mt-2 border-l-2 border-rose-500">
-                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Pre-Hire Warning Flag Ignored</span>
-                            <p className="text-rose-200 text-xs leading-relaxed font-mono">{c.rfiNote}</p>
+                            <div className="bg-slate-900 rounded p-3 mt-2 border-l-2 border-rose-500">
+                              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Pre-Hire Warning Flag Ignored</span>
+                              <p className="text-rose-200 text-xs leading-relaxed font-mono">{c.rfiNote}</p>
+                            </div>
+                            <div className="mt-3 flex justify-between items-end border-t border-slate-700 pt-3">
+                              <p className="text-[10px] text-slate-400 italic flex-1 mr-4">"{c.summary}"</p>
+                              <span className="text-[10px] text-white font-bold bg-slate-950 px-2 py-1 rounded">Worked {c.daysBeforeCxl} Days</span>
+                            </div>
                           </div>
                         </div>
                       ))
@@ -955,7 +1194,7 @@
             </div>
 
             {/* Quirky Word Cloud / Floating Verbatims */}
-            <div className="bg-slate-900 text-white rounded-xl shadow-inner relative min-h-[300px] flex flex-col justify-center items-center overflow-hidden border border-slate-800 p-8">
+            <div className="bg-slate-900 text-white rounded-xl shadow-inner relative min-h-[400px] flex flex-col justify-center items-center overflow-hidden border border-slate-800 p-8">
               <div className="absolute top-4 left-6 z-20 flex justify-between w-[calc(100%-3rem)] items-center">
                 <h4 className="text-[10px] font-bold text-[#00AFC0] uppercase tracking-widest">Raw Client Verbatim Cloud</h4>
                 {activeOSCurve && <span className="text-[10px] bg-slate-800 px-3 py-1.5 rounded text-white font-bold border border-slate-700 shadow-sm flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{backgroundColor: osColors[activeOSCurve]}}></span>Filtered Quotes: {activeOSCurve}</span>}
@@ -967,15 +1206,15 @@
                   const rotations = ['rotate-[-2deg]', 'rotate-[3deg]', 'rotate-[-3deg]', 'rotate-[1deg]', 'rotate-0', 'rotate-[4deg]'];
                   const fonts = ['font-serif italic', 'font-sans font-black', 'font-mono tracking-tight', 'font-sans font-medium', 'font-serif'];
                   const colors = ['text-teal-200', 'text-amber-100', 'text-rose-200', 'text-indigo-200', 'text-emerald-100', 'text-fuchsia-200'];
-                  const sizes = ['text-lg', 'text-xl', 'text-base', 'text-xl', 'text-lg'];
+                  const sizes = ['text-sm', 'text-base', 'text-sm', 'text-lg', 'text-base'];
                   
                   return (
                     <div 
                       key={i} 
-                      className={`transition-all duration-500 hover:scale-110 hover:z-50 cursor-default ${rotations[i%rotations.length]} ${fonts[i%fonts.length]} ${colors[i%colors.length]} ${sizes[i%sizes.length]} max-w-md text-center p-3 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)]`}
+                      className={`transition-all duration-500 hover:scale-110 hover:z-50 cursor-default ${rotations[i%rotations.length]} ${fonts[i%fonts.length]} ${colors[i%colors.length]} ${sizes[i%sizes.length]} max-w-md text-center p-3 drop-shadow-[0_4px_4px_rgba(0,0,0,0.6)] leading-relaxed`}
                     >
                       "{q.quote}"
-                      <div className="text-[9px] font-sans font-bold tracking-widest text-slate-500 uppercase mt-3 opacity-80 drop-shadow-none">
+                      <div className="text-[9px] font-sans font-black tracking-widest text-slate-500 uppercase mt-3 opacity-80 drop-shadow-none">
                         — {q.client} <span className="text-slate-400 normal-case">(OS: {q.specialist})</span>
                       </div>
                     </div>
@@ -1137,8 +1376,8 @@
                 const isFaded = selectedMonth !== 'All' && !isActive;
                 return (
                   <div 
-                    key={idx} onClick={() => { if(m.count !== 0) setSpartanMonth(m); setSelectedMonth(isActive ? 'All' : m.month); }}
-                    className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all duration-200 ${m.count !== 0 ? 'cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'} ${isActive ? 'bg-[#025863] border-[#025863] shadow-md transform scale-105' : 'bg-slate-50 border-slate-200 hover:border-[#00AFC0]'} ${isFaded ? 'opacity-40' : 'opacity-100'}`}
+                    key={idx} onClick={() => { if(m.count > 0) setSpartanMonth(m); setSelectedMonth(isActive ? 'All' : m.month); }}
+                    className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all duration-200 ${m.count > 0 ? 'cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'} ${isActive ? 'bg-[#025863] border-[#025863] shadow-md transform scale-105' : 'bg-slate-50 border-slate-200 hover:border-[#00AFC0]'} ${isFaded ? 'opacity-40' : 'opacity-100'}`}
                   >
                     <div className={`font-bold flex items-center justify-between ${isActive ? 'text-white' : 'text-[#025863]'}`}>
                       <span>{m.month}</span>
@@ -1200,7 +1439,7 @@
                       <td className="py-3 px-3 text-slate-700">{item.vaName}</td>
                       <td className="py-3 px-3 text-center">{item.hasRFI ? <span className="text-rose-500 font-black px-2 py-0.5 bg-rose-100 rounded">YES</span> : <span className="text-slate-300">-</span>}</td>
                       <td className="py-3 px-3 text-slate-500">{item.specialist === 'Unassigned / Pre-System' ? <span className="italic opacity-60">Pre-Apr 2025</span> : item.specialist}</td>
-                      <td className="py-3 px-3 font-bold text-slate-800 text-center">{item.daysBeforeCxl}</td>
+                      <td className="py-3 px-3 font-bold text-slate-800 text-center">{item.daysBeforeCxl}d</td>
                       <td className="py-3 px-3 font-semibold" style={{color: reasonColorMap[item.reason] || '#00AFC0'}}>{item.reason}</td>
                       <td className="py-3 px-3">
                         <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider ${item.resolution === 'Cancelled' ? 'bg-rose-50 text-rose-600' : (item.resolution === 'Reduced VAs' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600')}`}>
@@ -1284,8 +1523,6 @@
           <main className="max-w-7xl mx-auto px-6 mt-6 w-full animate-fadeIn pb-12">
             
             {renderExecutiveVerdict()}
-            
-            {viewMode === 'executive' && renderPipelineIllustration()}
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 w-full mb-8">
               <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
@@ -1313,7 +1550,7 @@
             {viewMode === 'classic' && (
               <div className="flex flex-wrap border-b border-slate-200 gap-1 overflow-x-auto bg-white p-1 rounded-t shadow-sm mb-6">
                 {[
-                  { label: 'Macro Pipeline & Flow', icon: 'BarChart3' },
+                  { label: 'Macro Pipeline & Causality', icon: 'BarChart3' },
                   { label: 'Tenure Forensics', icon: 'Clock' },
                   { label: 'RFI Correlation', icon: 'AlertTriangle' },
                   { label: 'OS Experience Snapshot', icon: 'Award' },
@@ -1329,12 +1566,7 @@
             )}
 
             <div className="space-y-0">
-              {(viewMode === 'executive' || activeTab === 1) && (
-                <Fragment>
-                  {renderMacroPipeline()}
-                  {viewMode === 'classic' && renderPipelineIllustration()}
-                </Fragment>
-              )}
+              {(viewMode === 'executive' || activeTab === 1) && renderMacroPipeline()}
               {(viewMode === 'executive' || activeTab === 2) && renderTenureForensics()}
               {(viewMode === 'executive' || activeTab === 3) && renderRFIForensics()}
               {(viewMode === 'executive' || activeTab === 4) && renderOSSnapshot()}
