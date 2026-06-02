@@ -42,9 +42,9 @@
 
   <!-- ==========================================
        PURE JAVASCRIPT DATA ENGINE
-       Isolated from Babel to guarantee zero crashes.
+       Hardcoded deterministic data array. Zero randomizers.
        ========================================== -->
-  <script type="text/javascript">
+  <script>
     window.MMM_DATA = {};
 
     window.MMM_DATA.HISTORICAL_SUMMARY = {
@@ -172,8 +172,9 @@
       ];
 
       // Assign the 47 OS cases to Post-April 2025 timeline
-      const osMonths = ['04','05','06','07','08','09','10','11','12']; // 2025
-      const osMonths26 = ['01','02','03','04','05']; // 2026
+      const osMonths = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; // 2025
+      const osMonths26 = ['Jan','Feb','Mar','Apr','May']; // 2026
+      const monthMap2 = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06','Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'};
 
       let os26Count = 0;
       osMatrixCases.forEach((c) => {
@@ -206,9 +207,9 @@
         }
       };
 
-      generatePreOS(2023, 75, ['01','02','03','04','05','06','07','08','09','10','11','12']);
-      generatePreOS(2024, 67, ['01','02','03','04','05','06','07','08','09','10','11','12']);
-      generatePreOS(2025, 13, ['01','02','03']); // Jan, Feb, Mar
+      generatePreOS(2023, 75, ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']);
+      generatePreOS(2024, 67, ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']);
+      generatePreOS(2025, 13, ['Jan','Feb','Mar']); // Jan, Feb, Mar
 
       return data;
     })();
@@ -952,71 +953,64 @@
 
         return (
           <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-8 animate-fadeIn">
-            <div className="border-b border-slate-100 pb-3 mb-5 flex justify-between items-end">
-              <div>
-                <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: RFI Correlation Mapping</span>
-                <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Cancellations Linked to Risk Flags (RFI)</h3>
-                <div className="bg-rose-50 border-l-4 border-rose-500 p-2 mt-2 max-w-3xl">
-                  <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Analyzes early attrition against pre-placement Risk Flags (RFIs). High correlation indicates placement standards are being bypassed for speed. <br/><strong className="text-rose-700">ACTION: Hard-stop any placement where a VA has a flagged RFI in experience or tech. Click on any red bar to view the specific exact cancellation log cases.</strong></p>
-                </div>
+            <div className="border-b border-slate-100 pb-3 mb-5">
+              <span className="text-[10px] font-bold text-mmmTeal uppercase tracking-widest">Section 3: RFI Correlation Mapping</span>
+              <h3 className="text-md font-bold text-mmmDarkTeal mt-0.5">Cancellations Linked to Risk Flags (RFI)</h3>
+              <div className="bg-rose-50 border-l-4 border-rose-500 p-2 mt-2">
+                <p className="text-xs text-slate-700 font-medium">SPARTAN GUIDE: Analyzes early attrition against pre-placement Risk Flags (RFIs). High correlation indicates placement standards are being bypassed for speed. <br/><strong className="text-rose-700">ACTION: Hard-stop any placement where a VA has a flagged RFI in experience or tech. Click on any red bar to view the specific exact cancellation log cases.</strong></p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center pt-4 mb-8">
-              
-              {/* RFI BAR CHART */}
-              <div className="w-full h-64 relative lg:col-span-2">
-                <svg className="w-full h-full" viewBox="0 0 800 250">
-                  <line x1="60" y1="30" x2="740" y2="30" stroke="#f1f5f9" strokeWidth="1" />
-                  <line x1="60" y1="90" x2="740" y2="90" stroke="#f1f5f9" strokeWidth="1" />
-                  <line x1="60" y1="150" x2="740" y2="150" stroke="#f1f5f9" strokeWidth="1" />
-                  <line x1="60" y1="210" x2="740" y2="210" stroke="#e2e8f0" strokeWidth="1.5" />
-                  
-                  <text x="30" y="35" className="text-[10px] fill-slate-400 font-bold font-mono">{maxRFI}</text>
-                  <text x="30" y="125" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxRFI/2)}</text>
-                  <text x="30" y="215" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
+            <div className="w-full h-64 relative flex items-center justify-center pt-4 mb-8">
+              <svg className="w-full h-full" viewBox="0 0 800 250">
+                <line x1="60" y1="30" x2="740" y2="30" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="90" x2="740" y2="90" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="150" x2="740" y2="150" stroke="#f1f5f9" strokeWidth="1" />
+                <line x1="60" y1="210" x2="740" y2="210" stroke="#e2e8f0" strokeWidth="1.5" />
+                
+                <text x="30" y="35" className="text-[10px] fill-slate-400 font-bold font-mono">{maxRFI}</text>
+                <text x="30" y="125" className="text-[10px] fill-slate-400 font-bold font-mono">{Math.round(maxRFI/2)}</text>
+                <text x="30" y="215" className="text-[10px] fill-slate-400 font-bold font-mono">0</text>
 
-                  {rfiData.map((d, idx) => {
-                    const cx = 160 + (idx * 160);
-                    const scale = 180 / maxRFI;
-                    const tH = d.totalCxls * scale;
-                    const rH = d.withRFI * scale;
+                {rfiData.map((d, idx) => {
+                  const cx = 160 + (idx * 160);
+                  const scale = 180 / maxRFI;
+                  const tH = d.totalCxls * scale;
+                  const rH = d.withRFI * scale;
 
-                    return (
-                      <g key={d.year}>
-                        <text x={cx} y="235" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{d.year}</text>
-                        <rect x={cx - 25} y={210 - tH} width="20" height={tH} fill="#cbd5e1" rx="2" />
-                        <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
-                        
-                        <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
-                          onClick={() => setActiveRFIModal(d)} 
-                          className="cursor-pointer hover:brightness-110 transition-all hover:stroke-2 hover:stroke-rose-900"
-                        />
-                        <text x={cx + 15} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
-                      </g>
-                    );
-                  })}
-                </svg>
-              </div>
+                  return (
+                    <g key={d.year}>
+                      <text x={cx} y="235" className="text-[11px] font-bold fill-slate-600 text-center" textAnchor="middle">{d.year}</text>
+                      <rect x={cx - 25} y={210 - tH} width="20" height={tH} fill="#cbd5e1" rx="2" />
+                      <text x={cx - 15} y={205 - tH} className="text-[9px] font-bold fill-slate-500" textAnchor="middle">{d.totalCxls}</text>
+                      
+                      <rect x={cx + 5} y={210 - rH} width="20" height={rH} fill="#E11D48" rx="2" 
+                        onClick={() => setActiveRFIModal(d)} 
+                        className="cursor-pointer hover:brightness-110 transition-all hover:stroke-2 hover:stroke-rose-900"
+                      />
+                      <text x={cx + 15} y={205 - rH} className="text-[9px] font-bold fill-[#E11D48]" textAnchor="middle">{d.withRFI}</text>
+                    </g>
+                  );
+                })}
+              </svg>
 
-              {/* RFI CATEGORY PIE CHART */}
-              <div className="w-full h-64 lg:col-span-1 bg-slate-50 rounded-xl border border-slate-200 p-4 flex flex-col">
-                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center mb-2">RFI Distribution (Active Selection)</h4>
-                {activeRFIModal && activeRFIPieData.length > 0 ? (
-                  <NativePieChart data={activeRFIPieData} colors={rfiPieColors} />
-                ) : (
-                  <div className="flex-1 flex flex-col items-center justify-center text-center opacity-50">
-                    <Icon name="Target" size={32} className="text-slate-400 mb-2" />
-                    <p className="text-xs font-semibold text-slate-500">Click a red bar to view<br/>RFI Category Breakdown</p>
+              {/* RFI Interactive Hover Bubble */}
+              {hoveredRFI && (
+                <div className="absolute top-4 right-4 bg-slate-900 text-white p-4 rounded-xl shadow-2xl border border-slate-700 z-[100] w-64 text-xs animate-fadeIn pointer-events-none">
+                  <div className="text-[10px] text-rose-400 font-bold uppercase tracking-widest border-b border-slate-700 pb-2 mb-3">RFI Impact: {hoveredRFI.year}</div>
+                  <div className="flex justify-between items-center mb-1"><span className="text-slate-400">Total Cancellations:</span><span className="font-bold">{hoveredRFI.totalCxls}</span></div>
+                  <div className="flex justify-between items-center mb-2"><span className="text-slate-400">Had Pre-Start RFI:</span><span className="font-bold text-rose-400">{hoveredRFI.withRFI}</span></div>
+                  <div className="bg-rose-950/50 p-2 rounded border border-rose-900/50 mt-2">
+                    <span className="font-black text-rose-400">{hoveredRFI.rate}%</span> of all cancellations ignored a critical pre-placement warning flag.
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
             
             {/* INTERACTIVE CLICK MODAL FOR RFI CASES */}
             {activeRFIModal && (
               <div className="fixed inset-0 bg-slate-900/80 z-[300] flex justify-center items-center p-4 animate-fadeIn">
-                <div className="bg-slate-950 border border-slate-700 rounded-3xl shadow-2xl p-6 w-full max-w-4xl max-h-[85vh] flex flex-col relative">
+                <div className="bg-slate-950 border border-slate-700 rounded-xl shadow-2xl p-6 w-full max-w-4xl max-h-[85vh] flex flex-col relative">
                   <button onClick={() => setActiveRFIModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors bg-slate-800 p-1.5 rounded-full border border-slate-700 hover:bg-rose-600 z-50">
                     <Icon name="X" size={16} />
                   </button>
@@ -1323,7 +1317,7 @@
 
               <div className="p-4 bg-slate-50 border-l-4 border-[#00AFC0] rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Aiza Abing: Upstream Defect Burden</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Attrition is heavily front-loaded (7 out of 12 cases manifest inside active 0–30 day window).<br/>Causal Breakdown: Overwhelmingly dominated by Failed Placements and Back Out VAs.</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Attrition is heavily front-loaded (7 out of 12 cases manifest inside the active 0–30 day window; 5 clear within the first 14 days).<br/>Causal Breakdown: Overwhelmingly dominated by Failed Placements and Back Out VAs (Source: RISE Cancellations w/ RFI).</p>
                 <p className="text-xs leading-relaxed text-slate-700">
                   <strong className="text-[#025863]">Spartan Insight:</strong> Aiza is being heavily penalized by upstream recruitment failures. A cancellation at Day -1 or Day 4 due to an unresponsive VA is a matching and profiling defect, not a failure of onboarding execution. Aiza’s scorecard is absorbing the friction of speed-driven placement over-allocation.
                 </p>
@@ -1341,7 +1335,7 @@
 
               <div className="p-4 bg-slate-50 border-l-4 border-slate-400 rounded-r">
                 <h4 className="font-bold text-sm text-[#025863] mb-1">Marno: High Operational Integrity / Commercial Exposure</h4>
-                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Elite containment during sole ownership (only 1 cancellation in first 30 days). Attrition occurs exclusively late-stage (61–90 days).<br/>Causal Breakdown: Primarily driven by macroeconomic Financial Issues (Clinic Downsizing / Budget Cuts).</p>
+                <p className="text-xs text-slate-500 mb-2 font-semibold">Tenure Trajectory: Elite containment during sole ownership (only 1 cancellation in the first 30 days). Attrition occurs exclusively late-stage (61–90 days).<br/>Causal Breakdown: Primarily driven by macroeconomic Financial Issues (Clinic Downsizing / Budget Cuts).</p>
                 <p className="text-xs leading-relaxed text-slate-700">
                   <strong className="text-[#025863]">Spartan Insight:</strong> Marno builds the strongest operational foundation in the department, scoring highest on tool utilization clarity (4.89) and KPI alignment (4.75). Accounts pass the AM handoff cleanly. Churn events are almost entirely unpreventable, non-operational commercial adjustments on the client side.
                 </p>
@@ -1376,8 +1370,8 @@
                 const isFaded = selectedMonth !== 'All' && !isActive;
                 return (
                   <div 
-                    key={idx} onClick={() => { if(m.count > 0) setSpartanMonth(m); setSelectedMonth(isActive ? 'All' : m.month); }}
-                    className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all duration-200 ${m.count > 0 ? 'cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'} ${isActive ? 'bg-[#025863] border-[#025863] shadow-md transform scale-105' : 'bg-slate-50 border-slate-200 hover:border-[#00AFC0]'} ${isFaded ? 'opacity-40' : 'opacity-100'}`}
+                    key={idx} onClick={() => { if(m.count !== 0) setSpartanMonth(m); setSelectedMonth(isActive ? 'All' : m.month); }}
+                    className={`p-3 rounded-lg border text-xs flex flex-col justify-between transition-all duration-200 ${m.count !== 0 ? 'cursor-pointer hover:shadow-md' : 'opacity-50 cursor-not-allowed'} ${isActive ? 'bg-[#025863] border-[#025863] shadow-md transform scale-105' : 'bg-slate-50 border-slate-200 hover:border-[#00AFC0]'} ${isFaded ? 'opacity-40' : 'opacity-100'}`}
                   >
                     <div className={`font-bold flex items-center justify-between ${isActive ? 'text-white' : 'text-[#025863]'}`}>
                       <span>{m.month}</span>
@@ -1436,7 +1430,7 @@
                     <tr key={item.id} className="hover:bg-slate-50 cursor-help group relative transition-colors">
                       <td className="py-3 px-3 font-medium text-slate-600">{formatDateDisplay(item.date)}</td>
                       <td className="py-3 px-3 font-bold text-[#025863]">{item.client}</td>
-                      <td className="py-3 px-3 text-slate-700">{item.vaName}</td>
+                      <td className="py-3 px-3 font-semibold text-slate-800">{item.vaName}</td>
                       <td className="py-3 px-3 text-center">{item.hasRFI ? <span className="text-rose-500 font-black px-2 py-0.5 bg-rose-100 rounded">YES</span> : <span className="text-slate-300">-</span>}</td>
                       <td className="py-3 px-3 text-slate-500">{item.specialist === 'Unassigned / Pre-System' ? <span className="italic opacity-60">Pre-Apr 2025</span> : item.specialist}</td>
                       <td className="py-3 px-3 font-bold text-slate-800 text-center">{item.daysBeforeCxl}d</td>
