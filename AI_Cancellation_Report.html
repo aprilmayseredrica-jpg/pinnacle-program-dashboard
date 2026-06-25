@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Related Cancellation Analysis | My Mountain Mover</title>
+    <!-- Google Fonts: Montserrat for clean executive typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome for fallback premium vector iconography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* 1. BRAND DESIGN SYSTEM (MMM GUIDELINES) */
+        :root {
+            --mmm-cerulean: #00AFC0;
+            --mmm-teal: #008BA3;
+            --mmm-deep-teal: #025863;
+            --mmm-pale-blue: #D1EBEF;
+            --mmm-portland-orange: #FF6334;
+            --mmm-desert-storm: #F8F8F8;
+            --mmm-navy: #0B2E4F;
+            --mmm-green: #63C174;
+            --slate-100: #F1F5F9;
+            --slate-200: #E2E8F0;
+            --slate-700: #334155;
+            --slate-800: #1E293B;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0F172A;
+            color: var(--slate-800);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 2. LAYOUT FRAMEWORK */
+        header {
+            background-color: var(--mmm-navy);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid var(--mmm-cerulean);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .brand-logo-svg {
+            width: 50px;
+            height: 50px;
+        }
+
+        .brand-title {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        
+        .brand-title span {
+            color: var(--mmm-cerulean);
+        }
+
+        .brand-tagline {
+            font-size: 11px;
+            opacity: 0.8;
+            font-weight: 400;
+        }
+
+        .controls-top {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-smooth);
+        }
+
+        .btn:hover {
+            background-color: var(--mmm-cerulean);
+            border-color: var(--mmm-cerulean);
+        }
+
+        .btn-primary {
+            background-color: var(--mmm-portland-orange);
+            border-color: var(--mmm-portland-orange);
+        }
+
+        .btn-primary:hover {
+            background-color: #e04f22;
+            border-color: #e04f22;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 83px);
+            position: relative;
+        }
+
+        /* 3. SIDEBAR INDEX */
+        .sidebar {
+            width: 320px;
+            background-color: #1E293B;
+            border-right: 1px solid rgba(255,255,255,0.1);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 10px;
+            gap: 8px;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-title {
+            color: white;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 0 15px 15px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .slide-tab {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            font-size: 13px;
+            font-weight: 600;
+            border-left: 4px solid transparent;
+        }
+
+        .slide-tab:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .slide-tab.active {
+            background-color: rgba(0, 175, 192, 0.15);
+            color: #fff;
+            border-left-color: var(--mmm-cerulean);
+        }
+
+        .slide-tab .num {
+            background-color: rgba(255, 255, 255, 0.1);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .slide-tab.active .num {
+            background-color: var(--mmm-cerulean);
+        }
+
+        /* 4. WORKSPACE CONTROLLER */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #0F172A;
+            overflow-y: auto;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        /* 5. SLIDE DECK VIEW SYSTEM */
+        .slide-canvas {
+            width: 100%;
+            max-width: 1200px;
+            aspect-ratio: 16 / 9;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            transition: opacity 0.4s ease;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        .slide-canvas.active {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(15px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Base Slide Template Layout */
+        .slide-header {
+            padding: 35px 50px 10px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            z-index: 10;
+        }
+
+        .slide-title-group {
+            border-left: 5px solid var(--mmm-cerulean);
+            padding-left: 15px;
+        }
+
+        .slide-tag {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--mmm-teal);
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .slide-title-main {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--mmm-navy);
+            text-transform: uppercase;
+        }
+
+        .slide-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            opacity: 0.6;
+        }
+
+        .slide-body {
+            flex: 1;
+            padding: 10px 50px 35px 50px;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 6. COMPONENT STYLING */
+        
+        /* Slide 1: Title Cover */
+        .cover-slide {
+            background: radial-gradient(circle at 70% 30%, var(--mmm-deep-teal) 0%, var(--mmm-navy) 100%);
+            color: white;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px;
+        }
+
+        .cover-logo {
+            margin-bottom: 30px;
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.03); opacity: 1; }
+        }
+
+        .cover-title {
+            font-size: 48px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            line-height: 1.1;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .cover-title span {
+            color: var(--mmm-cerulean);
+        }
+
+        .cover-subtitle {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--mmm-pale-blue);
+            letter-spacing: 1px;
+            margin-bottom: 50px;
+        }
+
+        .cover-footer {
+            border-top: 1px solid rgba(255,255,255,0.15);
+            padding-top: 25px;
+            width: 80%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Split Screen Grids */
+        .split-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        /* Structured Executive Tables */
+        .brand-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .brand-table th {
+            background-color: var(--mmm-navy);
+            color: white;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 3px solid var(--mmm-cerulean);
+            letter-spacing: 0.5px;
+        }
+
+        .brand-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--slate-200);
+            color: var(--slate-800);
+            line-height: 1.45;
+        }
+
+        .brand-table tr:nth-child(even) {
+            background-color: var(--mmm-desert-storm);
+        }
+
+        .brand-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .brand-table strong {
+            color: var(--mmm-navy);
+        }
+
+        /* Badges */
+        .badge {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge.danger { background: #FEE2E2; color: #EF4444; }
+        .badge.warning { background: #FEF3C7; color: #D97706; }
+        .badge.success { background: #DCFCE7; color: #15803D; }
+        .badge.primary { background: #E0F2FE; color: #0369A1; }
+
+        /* Scorecard Layout (Slide 2) */
+        .scorecard-split {
+            display: grid;
+            grid-template-columns: 1.22fr 0.78fr;
+            gap: 30px;
+            align-items: stretch;
+        }
+
+        .score-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ceo-bottom-line-card {
+            background: var(--mmm-pale-blue);
+            border-left: 6px solid var(--mmm-teal);
+            padding: 25px;
+            border-radius: 0 16px 16px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+
+        .ceo-bottom-line-card h4 {
+            color: var(--mmm-deep-teal);
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ceo-bottom-line-card p {
+            font-size: 13px;
+            font-style: italic;
+            line-height: 1.6;
+            color: var(--mmm-navy);
+        }
+
+        /* Dynamic Visual Charts */
+        .chart-panel {
+            background: var(--mmm-desert-storm);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--slate-200);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Horizontal Bars (Slide 4) */
+        .bar-chart-v2 {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .bar-row-v2 {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .bar-meta-v2 {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--mmm-navy);
+        }
+
+        .bar-track-v2 {
+            height: 24px;
+            background-color: var(--slate-200);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill-v2 {
+            height: 100%;
+            border-radius: 12px;
+            background: linear-gradient(90deg, var(--mmm-teal) 0%, var(--mmm-cerulean) 100%);
+            width: 0%;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bar-fill-v2.high-alert {
+            background: linear-gradient(90deg, #E2B93B 0%, var(--mmm-portland-orange) 100%);
+        }
+
+        .bar-value-v2 {
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--mmm-navy);
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+        }
+
+        /* Doughnut Chart (Slide 5) */
+        .doughnut-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .chart-legend-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--slate-700);
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* Tenure Vertical Bars (Slide 6) */
+        .tenure-chart-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 220px;
+            width: 100%;
+            border-bottom: 2px solid var(--slate-200);
+            padding-bottom: 10px;
+            position: relative;
+        }
+
+        .tenure-bar-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 16%;
+            height: 100%;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .tenure-bar-fill {
+            width: 36px;
+            border-radius: 4px 4px 0 0;
+            background: linear-gradient(0deg, var(--mmm-teal) 0%, var(--mmm-cerulean) 100%);
+            position: relative;
+            transition: height 1s ease-out;
+            height: 0;
+        }
+
+        .tenure-bar-fill.alert-fill {
+            background: linear-gradient(0deg, var(--mmm-teal) 0%, var(--mmm-portland-orange) 100%);
+        }
+
+        .tenure-lbl-top {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--mmm-navy);
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
+
+        .tenure-lbl-bottom {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--slate-700);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        /* Timeline Node Visualization */
+        .timeline-graphic {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 10px 20px;
+            margin-top: 15px;
+        }
+
+        .timeline-track-line {
+            position: absolute;
+            top: 50%;
+            left: 20px;
+            right: 20px;
+            height: 4px;
+            background: var(--slate-200);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+
+        .timeline-node-dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid var(--mmm-cerulean);
+            position: relative;
+            z-index: 5;
+        }
+
+        .timeline-node-dot.danger { border-color: var(--mmm-portland-orange); }
+        .timeline-node-dot.success { border-color: var(--mmm-green); }
+
+        /* Department Roadmap Grid (Slide 9 - Reworked) */
+        .department-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            width: 100%;
+            height: 100%;
+        }
+
+        .dept-card {
+            background: var(--mmm-desert-storm);
+            border-left: 5px solid var(--mmm-teal);
+            border-radius: 8px;
+            padding: 18px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: var(--transition-smooth);
+        }
+
+        .dept-card:hover {
+            transform: translateY(-2px);
+            background: white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .dept-card.sales { border-left-color: var(--mmm-cerulean); }
+        .dept-card.training { border-left-color: var(--mmm-portland-orange); }
+        .dept-card.marketing { border-left-color: var(--mmm-green); }
+
+        .dept-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--mmm-navy);
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--slate-200);
+            padding-bottom: 6px;
+        }
+
+        .dept-header i {
+            font-size: 18px;
+            color: var(--mmm-teal);
+        }
+        .dept-card.sales .dept-header i { color: var(--mmm-cerulean); }
+        .dept-card.training .dept-header i { color: var(--mmm-portland-orange); }
+        .dept-card.marketing .dept-header i { color: var(--mmm-green); }
+
+        .dept-bullets {
+            list-style-type: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 5px;
+        }
+
+        .dept-bullets li {
+            font-size: 11.5px;
+            line-height: 1.45;
+            color: var(--slate-800);
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .dept-bullets li::before {
+            content: "➔";
+            position: absolute;
+            left: 0;
+            color: var(--mmm-teal);
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .dept-card.sales .dept-bullets li::before { color: var(--mmm-cerulean); }
+        .dept-card.training .dept-bullets li::before { color: var(--mmm-portland-orange); }
+        .dept-card.marketing .dept-bullets li::before { color: var(--mmm-green); }
+
+        /* Trend Visualizer Vertical Bars (Slide 10) */
+        .trend-chart-v2 {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 230px;
+            width: 100%;
+            border-bottom: 2px solid var(--slate-200);
+            padding-bottom: 10px;
+        }
+
+        .trend-col-v2 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 25%;
+            height: 100%;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .trend-fill-v2 {
+            width: 44px;
+            border-radius: 6px 6px 0 0;
+            background: linear-gradient(0deg, var(--mmm-teal) 0%, var(--mmm-cerulean) 100%);
+            position: relative;
+            transition: height 1s ease-out;
+            height: 0;
+        }
+
+        .trend-fill-v2.alert-fill {
+            background: linear-gradient(0deg, var(--mmm-deep-teal) 0%, var(--mmm-portland-orange) 100%);
+        }
+
+        .trend-lbl-top-v2 {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--mmm-navy);
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .trend-lbl-bottom-v2 {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--slate-700);
+        }
+
+        /* Observation highlight box */
+        .observation-highlight-box {
+            background: linear-gradient(135deg, var(--mmm-navy) 0%, var(--mmm-deep-teal) 100%);
+            border-radius: 16px;
+            padding: 30px;
+            color: white;
+            box-shadow: 0 10px 25px -5px rgba(2, 88, 99, 0.3);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .observation-highlight-box i {
+            font-size: 40px;
+            color: var(--mmm-cerulean);
+        }
+
+        .observation-highlight-box h3 {
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--mmm-pale-blue);
+        }
+
+        .observation-highlight-box p {
+            font-size: 13px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        /* 7. CONTROL BAR (BOTTOM) */
+        .bottom-nav {
+            background-color: var(--mmm-navy);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            z-index: 40;
+        }
+
+        .nav-bullets {
+            display: flex;
+            gap: 8px;
+        }
+
+        .bullet {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .bullet.active {
+            background-color: var(--mmm-cerulean);
+            transform: scale(1.3);
+        }
+
+        /* 8. PRESENTER COMPANION MODULE (RIGHT SIDEBAR) */
+        .presenter-companion {
+            width: 320px;
+            background-color: #1E293B;
+            border-left: 1px solid rgba(255,255,255,0.1);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            color: white;
+            overflow-y: auto;
+        }
+
+        .presenter-companion h3 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--mmm-cerulean);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .notes-content {
+            font-size: 13px;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .notes-content ul {
+            list-style-type: square;
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* 9. PRINT/DOCUMENT SINGLE-PAGE SCROLL OUTLINE VIEW */
+        .document-view-container {
+            display: none;
+            flex-direction: column;
+            gap: 50px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 0;
+            background-color: transparent;
+        }
+
+        .document-mode .sidebar, 
+        .document-mode .presenter-companion, 
+        .document-mode .bottom-nav,
+        .document-mode .slide-canvas {
+            display: none !important;
+        }
+
+        .document-mode .document-view-container {
+            display: flex !important;
+        }
+
+        .document-mode .workspace {
+            padding: 20px;
+            overflow-y: auto;
+            height: auto;
+        }
+
+        .document-mode {
+            overflow-y: auto;
+        }
+
+        .doc-slide-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            aspect-ratio: 16/9;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid var(--slate-200);
+        }
+
+        @media print {
+            header, .btn, .sidebar, .presenter-companion, .bottom-nav {
+                display: none !important;
+            }
+            body {
+                background: white;
+            }
+            .workspace {
+                padding: 0;
+                background: white;
+            }
+            .document-view-container {
+                gap: 0;
+            }
+            .doc-slide-card {
+                page-break-after: always;
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                aspect-ratio: 16/9;
+            }
+        }
+
+        /* Closing card additions */
+        .closing-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .quote-pinnacle {
+            background: radial-gradient(circle at 0% 100%, var(--mmm-pale-blue) 0%, white 100%);
+            border-left: 8px solid var(--mmm-portland-orange);
+            padding: 40px;
+            border-radius: 0 24px 24px 0;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+        }
+
+        .quote-pinnacle blockquote {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--mmm-navy);
+            line-height: 1.3;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .quote-pinnacle p {
+            font-size: 14px;
+            color: var(--mmm-teal);
+            font-weight: 600;
+        }
+
+        .priority-list-box h3 {
+            font-size: 18px;
+            color: var(--mmm-navy);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--mmm-cerulean);
+            padding-bottom: 10px;
+        }
+
+        .priority-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .priority-item i {
+            color: var(--mmm-portland-orange);
+            font-size: 20px;
+            margin-top: 2px;
+        }
+
+        .priority-item p {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--slate-800);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. HEADER MODULE -->
+    <header>
+        <div class="logo-container">
+            <!-- Brand Logo SVG Icon -->
+            <svg class="brand-logo-svg" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="#00AFC0" />
+                <path d="M35 75 L60 40 L85 75 Z" fill="#025863" />
+                <path d="M50 75 L70 48 L90 75 Z" fill="#D1EBEF" opacity="0.8" />
+                <text x="60" y="98" font-family="Montserrat" font-size="11" font-weight="900" fill="#025863" text-anchor="middle">MMM</text>
+            </svg>
+            <div>
+                <h1 class="brand-title">My Mountain <span>Mover</span></h1>
+                <p class="brand-tagline">THE PINNACLE OF OUTSOURCED VIRTUAL TALENT</p>
+            </div>
+        </div>
+        <div class="controls-top">
+            <button class="btn" id="btnToggleMode" onclick="toggleViewMode()">
+                <i class="fa-solid fa-file-invoice"></i> Switch to Document Outline
+            </button>
+            <button class="btn btn-primary" onclick="window.print()">
+                <i class="fa-solid fa-print"></i> Export / Print PDF
+            </button>
+        </div>
+    </header>
+
+    <!-- 2. MAIN WORKSPACE FRAMEWORK -->
+    <div class="main-container" id="mainContainer">
+        
+        <!-- Interactive Sidebar Directory -->
+        <aside class="sidebar">
+            <div class="sidebar-title">
+                <span>Slide Deck Index</span>
+                <span style="font-size: 10px; background-color: var(--mmm-cerulean); padding: 2px 6px; border-radius: 4px;">11 Slides</span>
+            </div>
+            <a href="javascript:void(0)" class="slide-tab active" onclick="goToSlide(1)"><div class="num">1</div> Title Cover</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(2)"><div class="num">2</div> Executive Scorecard</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(3)"><div class="num">3</div> Executive Snapshot</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(4)"><div class="num">4</div> Highest Risk Roles</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(5)"><div class="num">5</div> Why Clients Choose AI</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(6)"><div class="num">6</div> Critical Retention Timeline</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(7)"><div class="num">7</div> Monthly Seasonality</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(8)"><div class="num">8</div> Strategic Actions</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(9)"><div class="num">9</div> Departmental Roadmap</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(10)"><div class="num">10</div> Yearly Trends</a>
+            <a href="javascript:void(0)" class="slide-tab" onclick="goToSlide(11)"><div class="num">11</div> Closing Takeaways</a>
+        </aside>
+
+        <!-- Presentation Workspace Area -->
+        <main class="workspace" id="workspaceArea">
+            
+            <!-- Standard Presentation Slide Deck Frame -->
+            
+            <!-- SLIDE 1: COVER -->
+            <div class="slide-canvas cover-slide active" id="slide-1">
+                <div class="cover-logo">
+                    <svg width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="55" fill="none" stroke="#00AFC0" stroke-width="4" />
+                        <path d="M30 80 L60 35 L90 80 Z" fill="#00AFC0" />
+                        <path d="M45 80 L72 45 L98 80 Z" fill="#D1EBEF" opacity="0.7" />
+                        <text x="60" y="105" font-family="Montserrat" font-size="10" font-weight="800" fill="white" letter-spacing="2" text-anchor="middle">PINNACLE</text>
+                    </svg>
+                </div>
+                <h2 class="cover-title">AI-Related<br><span>Cancellation Analysis</span></h2>
+                <p class="cover-subtitle">Executive Strategic Review (2024–2026)</p>
+                <div class="cover-footer">
+                    <span>My Mountain Mover</span>
+                    <span>Account Management Department</span>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: SCORECARD -->
+            <div class="slide-canvas" id="slide-2">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Performance Review</span>
+                        <h3 class="slide-title-main">AI-Related Cancellation Scorecard</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="scorecard-split">
+                        <!-- Scorecard Data Table Integrated Alongside Graphics -->
+                        <div>
+                            <table class="brand-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">KPI Target</th>
+                                        <th style="width: 25%;">Current Status</th>
+                                        <th>Executive Diagnostic Note</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>AI cancellations</strong></td>
+                                        <td><span class="badge success">🟢 6.3% share</span></td>
+                                        <td>Still a small portion of absolute cancellations, but represents an upward competitive risk.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Highest exposure</strong></td>
+                                        <td><span class="badge danger">🔴 Medical Receptionist</span></td>
+                                        <td>Repetitive front-office administrative workflows are most susceptible to automation.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Biggest risk stage</strong></td>
+                                        <td><span class="badge danger">🔴 First 150 Days</span></td>
+                                        <td>Early onboarding is when clients benchmark standard VAs against immediate automated tech.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Risk Seasonality</strong></td>
+                                        <td><span class="badge warning">🟠 Jan & Dec Peaks</span></td>
+                                        <td>Fiscal reassessments, budget restructuring, and workflow reviews occur in planning cycles.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Largest Opportunity</strong></td>
+                                        <td><span class="badge success">🟢 Client Set-Up</span></td>
+                                        <td>Aggressive, structured onboarding workflow consulting intercepts early automation desires.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Strategic Priority</strong></td>
+                                        <td><span class="badge primary">🔵 AI-Enabled VAs</span></td>
+                                        <td>Position VAs as executive task managers orchestrating AI systems rather than competing.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- CEO Bottom Line Graphic Panel -->
+                        <div class="ceo-bottom-line-card">
+                            <h4><i class="fa-solid fa-ranking-star"></i> CEO Bottom Line</h4>
+                            <p>"AI is not yet replacing VAs at scale—it's replacing repetitive workflows. Our biggest opportunity is to strengthen onboarding, redesign workflows, and help clients maximize both AI and their VA rather than viewing them as alternatives."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: EXECUTIVE SNAPSHOT -->
+            <div class="slide-canvas" id="slide-3">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Global Observations</span>
+                        <h3 class="slide-title-main">Executive Summary Snapshot</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="split-grid">
+                        <!-- Bullet Points & Structured Snapshot Table -->
+                        <div>
+                            <table class="brand-table" style="margin-bottom: 20px;">
+                                <thead>
+                                    <tr>
+                                        <th>Overall Macro Snapshot Metric</th>
+                                        <th style="text-align: right;">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Total AI/Automation Related Cancellations</td>
+                                        <td style="text-align: right; font-weight: bold; color: var(--mmm-navy);">80 Cases</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Total Volume of Cancellations Analysed (2024-2026)</td>
+                                        <td style="text-align: right; font-weight: bold; color: var(--mmm-navy);">1,263 Cases</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Macro AI-Exposure Risk Proportion</td>
+                                        <td style="text-align: right; font-weight: bold; color: var(--mmm-portland-orange);">6.3% Rate</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="snapshot-text-block">
+                                <ul>
+                                    <li style="font-size:12px; margin-bottom: 8px;">AI-related cancellations show consistency across 2024–2026, indicating a growing competitive shift rather than random anomalies.</li>
+                                    <li style="font-size:12px;"><strong>Client Set-Up</strong> accounts for the vast majority of referenced cases, which proves that setup execution and early workflow design impact retention more than tool capability.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Key Observation Callout -->
+                        <div class="observation-highlight-box">
+                            <i class="fa-solid fa-binoculars"></i>
+                            <h3>Key Observation</h3>
+                            <p>"The majority of clients are not replacing VAs because AI is inherently better—they're replacing repetitive tasks where the perceived return on immediate digital automation is higher."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: RISK ROLES -->
+            <div class="slide-canvas" id="slide-4">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Segment Exposure</span>
+                        <h3 class="slide-title-main">Highest Risk Sub-Industries</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="split-grid">
+                        <!-- Left Pane: Integrated Source Table -->
+                        <div>
+                            <table class="brand-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 10%; text-align: center;">Rank</th>
+                                        <th>Sub-Industry Role Focus</th>
+                                        <th style="text-align: center; width: 25%;">Cancellations</th>
+                                        <th style="text-align: center; width: 20%;">Risk Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="text-align: center; font-weight: bold;">1</td>
+                                        <td><strong>Medical Receptionist</strong></td>
+                                        <td style="text-align: center; font-weight: 800;">35 cases</td>
+                                        <td style="text-align: center;"><span class="badge danger">🔴 High</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center; font-weight: bold;">2</td>
+                                        <td><strong>Medical Scribe</strong></td>
+                                        <td style="text-align: center; font-weight: 800;">21 cases</td>
+                                        <td style="text-align: center;"><span class="badge danger">🔴 High</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center; font-weight: bold;">3</td>
+                                        <td><strong>Medical Billing Assistant / Biller</strong></td>
+                                        <td style="text-align: center; font-weight: 800;">16 cases</td>
+                                        <td style="text-align: center;"><span class="badge warning">🟠 Med</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center; font-weight: bold;">4</td>
+                                        <td><strong>Medical Administrative Assistant</strong></td>
+                                        <td style="text-align: center; font-weight: 800;">12 cases</td>
+                                        <td style="text-align: center;"><span class="badge warning">🟠 Med</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: center; font-weight: bold;">5</td>
+                                        <td><strong>General Business VA</strong></td>
+                                        <td style="text-align: center; font-weight: 800;">4 cases</td>
+                                        <td style="text-align: center;"><span class="badge success">🟢 Low</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Right Pane: Horizontal Bar Chart Visualizer -->
+                        <div class="chart-panel">
+                            <h4 style="font-size:11px; text-transform:uppercase; margin-bottom:12px; color: var(--mmm-navy); font-weight:800; align-self: flex-start;">Risk Distribution (Volume comparison)</h4>
+                            <div class="bar-chart-v2">
+                                <div class="bar-row-v2">
+                                    <div class="bar-meta-v2"><span>Medical Receptionist</span><span>35</span></div>
+                                    <div class="bar-track-v2">
+                                        <div class="bar-fill-v2 high-alert" style="width: 87.5%;" data-percent="87.5"></div>
+                                        <span class="bar-value-v2">35 Cases</span>
+                                    </div>
+                                </div>
+                                <div class="bar-row-v2">
+                                    <div class="bar-meta-v2"><span>Medical Scribe</span><span>21</span></div>
+                                    <div class="bar-track-v2">
+                                        <div class="bar-fill-v2 high-alert" style="width: 52.5%;" data-percent="52.5"></div>
+                                        <span class="bar-value-v2">21 Cases</span>
+                                    </div>
+                                </div>
+                                <div class="bar-row-v2">
+                                    <div class="bar-meta-v2"><span>Medical Billing Assistant</span><span>16</span></div>
+                                    <div class="bar-track-v2">
+                                        <div class="bar-fill-v2" style="width: 40%;" data-percent="40"></div>
+                                        <span class="bar-value-v2">16 Cases</span>
+                                    </div>
+                                </div>
+                                <div class="bar-row-v2">
+                                    <div class="bar-meta-v2"><span>Medical Admin Assistant</span><span>12</span></div>
+                                    <div class="bar-track-v2">
+                                        <div class="bar-fill-v2" style="width: 30%;" data-percent="30"></div>
+                                        <span class="bar-value-v2">12 Cases</span>
+                                    </div>
+                                </div>
+                                <div class="bar-row-v2">
+                                    <div class="bar-meta-v2"><span>General Business VA</span><span>4</span></div>
+                                    <div class="bar-track-v2">
+                                        <div class="bar-fill-v2" style="width: 10%;" data-percent="10"></div>
+                                        <span class="bar-value-v2">4 Cases</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 5: WHY CLIENTS CHOOSE AI -->
+            <div class="slide-canvas" id="slide-5">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Causal Taxonomy</span>
+                        <h3 class="slide-title-main">Primary Drivers: Human vs Automation</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="split-grid">
+                        <!-- Left Column: Causal Taxonomy Source Table -->
+                        <div>
+                            <table class="brand-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Primary Driver</th>
+                                        <th>Focal Client Observation</th>
+                                        <th>Mitigation Opportunity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Client Set-Up</strong></td>
+                                        <td>Clients redesign workflows during tech integration audits.</td>
+                                        <td style="color: var(--mmm-teal); font-weight: 700;">Improve setup consulting</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Quality of Work</strong></td>
+                                        <td>AI is perceived as more consistent for administrative data processing.</td>
+                                        <td style="color: var(--mmm-teal); font-weight: 700;">Deploy AI-assisted QA checking</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Attention to Detail</strong></td>
+                                        <td>Repetitive minor human errors impact client system confidence.</td>
+                                        <td style="color: var(--mmm-teal); font-weight: 700;">Standardize QA checkpoints</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Commitment / Behavior</strong></td>
+                                        <td>Workplace VAs reliability metrics influence retention directly.</td>
+                                        <td style="color: var(--mmm-teal); font-weight: 700;">Reinforce accountability coaching</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Repetitive Tasks</strong></td>
+                                        <td>Routine actions are easily simulated by software.</td>
+                                        <td style="color: var(--mmm-teal); font-weight: 700;">Expand tasks ownership boundaries</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Right Column: Category Breakdown Chart Component -->
+                        <div class="chart-panel">
+                            <div class="doughnut-box">
+                                <h4 style="font-size:11px; text-transform:uppercase; color: var(--mmm-navy); font-weight:800;">Mention Categories in Analysis Summary (N=80)</h4>
+                                <svg width="130" height="130" viewBox="0 0 100 100" style="transform: rotate(-90deg)">
+                                    <!-- Automation Mentioned (34 cases / 42.5%) -->
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#008BA3" stroke-width="12" stroke-dasharray="106.81 144.35" />
+                                    <!-- AI Mentioned (33 cases / 41.25%) -->
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#00AFC0" stroke-width="12" stroke-dasharray="103.67 147.49" stroke-dashoffset="-106.81" />
+                                    <!-- ChatGPT Specific (9 cases / 11.25%) -->
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#FF6334" stroke-width="12" stroke-dasharray="28.27 222.89" stroke-dashoffset="-210.48" />
+                                    <!-- Tagged Only (4 cases / 5.0%) -->
+                                    <circle cx="50" cy="50" r="40" fill="transparent" stroke="#025863" stroke-width="12" stroke-dasharray="12.56 238.6" stroke-dashoffset="-238.75" />
+                                    
+                                    <circle cx="50" cy="50" r="28" fill="white" />
+                                    <text x="50" y="53" font-family="Montserrat" font-size="8" font-weight="800" fill="#0B2E4F" text-anchor="middle" style="transform: rotate(90deg); transform-origin: 50px 50px;">80 Cases</text>
+                                </svg>
+                                <div class="chart-legend-grid">
+                                    <div class="legend-item"><span class="legend-color" style="background:#008BA3;"></span> Automation (34)</div>
+                                    <div class="legend-item"><span class="legend-color" style="background:#00AFC0;"></span> AI Referenced (33)</div>
+                                    <div class="legend-item"><span class="legend-color" style="background:#FF6334;"></span> ChatGPT Specific (9)</div>
+                                    <div class="legend-item"><span class="legend-color" style="background:#025863;"></span> Tagged Only (4)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 6: CRITICAL RETENTION TIMELINE -->
+            <div class="slide-canvas" id="slide-6">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Tenure Risk Vector</span>
+                        <h3 class="slide-title-main">Critical Retention Windows</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="split-grid">
+                        <!-- Left Pane: Integrated Source Retention Windows Table -->
+                        <div>
+                            <table class="brand-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Tenure Stage</th>
+                                        <th style="width: 25%;">Risk Grade</th>
+                                        <th>Primary Intervention Focus</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>0–150 Days</strong></td>
+                                        <td><span class="badge danger">🔴 Highest Risk</span></td>
+                                        <td>Onboarding setup stabilization, intensive QA monitoring, building rapid confidence.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>151–400 Days</strong></td>
+                                        <td><span class="badge success">🟢 Stable Window</span></td>
+                                        <td>Maintain relationship frequency, expand VA responsibility scopes to lock retention.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>400+ Days</strong></td>
+                                        <td><span class="badge danger">🔴 High Risk</span></td>
+                                        <td>Workforce evolution audit, actively integrate VAs with automation to avoid substitution.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p style="font-size: 11px; margin-top: 15px; line-height: 1.5; color: var(--slate-700);">
+                                <i class="fa-solid fa-circle-exclamation" style="color: var(--mmm-portland-orange);"></i> 
+                                <strong>The Loyalty Risk:</strong> Clients replacement strategies escalate after year-one when human processes are stabilized and deemed easy to replicate using digital platforms.
+                            </p>
+                        </div>
+
+                        <!-- Right Pane: Tenure Bucket Bar Chart Integrated From Dashboard PDF -->
+                        <div class="chart-panel">
+                            <h4 style="font-size:11px; text-transform:uppercase; color: var(--mmm-navy); font-weight:800; margin-bottom: 15px; align-self: flex-start;">Cancellations by Tenure Bucket (Cases)</h4>
+                            <div class="tenure-chart-container">
+                                <div class="tenure-bar-col">
+                                    <div class="tenure-bar-fill" style="height: 3.8%;" data-height="3.8"><span class="tenure-lbl-top">2</span></div>
+                                    <span class="tenure-lbl-bottom">0-30 Days</span>
+                                </div>
+                                <div class="tenure-bar-col">
+                                    <div class="tenure-bar-fill" style="height: 11.5%;" data-height="11.5"><span class="tenure-lbl-top">6</span></div>
+                                    <span class="tenure-lbl-bottom">30-90 Days</span>
+                                </div>
+                                <div class="tenure-bar-col">
+                                    <div class="tenure-bar-fill" style="height: 25%;" data-height="25"><span class="tenure-lbl-top">13</span></div>
+                                    <span class="tenure-lbl-bottom">90-180 Days</span>
+                                </div>
+                                <div class="tenure-bar-col">
+                                    <div class="tenure-bar-fill" style="height: 13.5%;" data-height="13.5"><span class="tenure-lbl-top">7</span></div>
+                                    <span class="tenure-lbl-bottom">180-365 Days</span>
+                                </div>
+                                <div class="tenure-bar-col">
+                                    <div class="tenure-bar-fill alert-fill" style="height: 100%;" data-height="100"><span class="tenure-lbl-top" style="color: var(--mmm-portland-orange);">52</span></div>
+                                    <span class="tenure-lbl-bottom" style="font-weight: 800; color: var(--mmm-navy);">&gt;365 Days</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 7: MONTHLY SEASONALITY -->
+            <div class="slide-canvas" id="slide-7">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Temporal Risk Vector</span>
+                        <h3 class="slide-title-main">Monthly Distribution & Seasonality</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="split-grid">
+                        <!-- Left Pane: Integrated Monthly Distribution Table -->
+                        <div>
+                            <table class="brand-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Period</th>
+                                        <th style="width: 25%;">Trend Level</th>
+                                        <th>Strategic Account Management Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>January</strong></td>
+                                        <td><span class="badge danger">🔴 Highest Peak</span></td>
+                                        <td>Reinforce overall ROI, audit onboarding, deploy rapid value verification checks.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>February–July</strong></td>
+                                        <td><span class="badge success">🟢 Moderate</span></td>
+                                        <td>Continue continuous coaching, task scaling, and pipeline efficiency tuning.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>August–September</strong></td>
+                                        <td><span class="badge success">🟢 Lowest Risk</span></td>
+                                        <td>Upskill VAs on emerging business tools, expand task ownership scopes proactively.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>October–December</strong></td>
+                                        <td><span class="badge warning">🟠 Rising to High</span></td>
+                                        <td>Launch proactive retention strategies *before* client annual planning reviews.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Right Pane: Monthly Trend Visual Line Chart -->
+                        <div class="chart-panel">
+                            <h4 style="font-size:11px; text-transform:uppercase; color: var(--mmm-navy); font-weight:800; margin-bottom: 12px; align-self: flex-start;">Relative Risk Cycle (Jan-Dec)</h4>
+                            <svg width="100%" height="160" viewBox="0 0 600 200">
+                                <!-- High Risk Highlight Blocks (Oct-Jan Planning Windows) -->
+                                <rect x="0" y="10" width="60" height="180" fill="#FF6334" opacity="0.1" />
+                                <rect x="470" y="10" width="130" height="180" fill="#FF6334" opacity="0.1" />
+                                
+                                <!-- Baseline Grid lines -->
+                                <line x1="50" y1="180" x2="570" y2="180" stroke="#CBD5E1" stroke-width="1" />
+                                <line x1="50" y1="95" x2="570" y2="95" stroke="#E2E8F0" stroke-width="1" stroke-dasharray="4" />
+                                <line x1="50" y1="10" x2="570" y2="10" stroke="#E2E8F0" stroke-width="1" />
+
+                                <!-- Seasonality risk path -->
+                                <path d="M 50 30 Q 100 130 150 140 T 250 150 T 350 170 T 450 130 T 570 40" fill="none" stroke="#00AFC0" stroke-width="5" />
+                                
+                                <circle cx="50" cy="30" r="6" fill="#FF6334" stroke="white" stroke-width="2" />
+                                <circle cx="350" cy="170" r="6" fill="#63C174" stroke="white" stroke-width="2" />
+                                <circle cx="570" cy="40" r="6" fill="#FF6334" stroke="white" stroke-width="2" />
+
+                                <!-- Labels -->
+                                <text x="50" y="195" font-family="Montserrat" font-size="9" font-weight="800" fill="#0B2E4F" text-anchor="middle">Jan (Peak)</text>
+                                <text x="250" y="195" font-family="Montserrat" font-size="9" font-weight="600" fill="#334155" text-anchor="middle">May</text>
+                                <text x="350" y="195" font-family="Montserrat" font-size="9" font-weight="700" fill="#15803D" text-anchor="middle">Jul (Low)</text>
+                                <text x="570" y="195" font-family="Montserrat" font-size="9" font-weight="800" fill="#0B2E4F" text-anchor="middle">Dec (High)</text>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 8: STRATEGIC ACTIONS -->
+            <div class="slide-canvas" id="slide-8">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Playbook Execution</span>
+                        <h3 class="slide-title-main">Strategic Actions & Recommendations</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="split-grid">
+                        <!-- Left Column: Source Priority Actions Table -->
+                        <div>
+                            <table class="brand-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 20%;">Priority</th>
+                                        <th style="width: 35%;">Strategic Initiative</th>
+                                        <th>Target Strategic Outcome</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="badge danger">🔴 High</span></td>
+                                        <td><strong>AI-Assisted PIP</strong></td>
+                                        <td>Upskill VAs on PIP; use automated templates to salvage quality and reduce attrition.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge danger">🔴 High</span></td>
+                                        <td><strong>30/60/90-Day QA Reports</strong></td>
+                                        <td>Deliver transparent metrics during early lifecycle to stabilize client trust patterns.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge danger">🔴 High</span></td>
+                                        <td><strong>Workflow Review (9-12m)</strong></td>
+                                        <td>Audit tasks before year-one expiration to keep the VA's workflow relevant.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge warning">🟠 Medium</span></td>
+                                        <td><strong>Human Value Reviews</strong></td>
+                                        <td>Explicitly highlight patient relationship care and thinking metrics over pure tech.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge warning">🟠 Medium</span></td>
+                                        <td><strong>AI Risk Scoring</strong></td>
+                                        <td>Score and flag prospective accounts during intake to identify exposure risks.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="badge success">🟢 Ongoing</span></td>
+                                        <td><strong>AI Upskilling for VAs</strong></td>
+                                        <td>Train VAs on Zapier & ChatGPT so they own automation systems directly.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Right Column: Visual Summary Statement Panel -->
+                        <div class="observation-highlight-box" style="background: linear-gradient(135deg, var(--mmm-teal) 0%, var(--mmm-deep-teal) 100%);">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <h3>Integrated Execution Strategy</h3>
+                            <p>"The core business focus is not to prevent client AI adoption—it is to guarantee VAs remain indispensable by owning higher-value tasks requiring judgment, empathy, accountability, and custom workflow design."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 9: DEPARTMENTAL ROADMAP (NEWLY ADDED) -->
+            <div class="slide-canvas" id="slide-9">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Operational Execution</span>
+                        <h3 class="slide-title-main">Recommendations by Department</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="department-grid">
+                        
+                        <!-- Product Card -->
+                        <div class="dept-card">
+                            <div class="dept-header">
+                                <i class="fa-solid fa-cubes"></i>
+                                <span>Product & Service Development</span>
+                            </div>
+                            <ul class="dept-bullets">
+                                <li><strong>AI-Augmented VAs:</strong> Create a structured "Human+AI" service model equipping standard VAs with certified automation tools to increase delivery margins.</li>
+                                <li><strong>Automated Client Reporting:</strong> Streamline administrative task summaries automatically so clients feel continuous high efficiency.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Sales Card -->
+                        <div class="dept-card sales">
+                            <div class="dept-header">
+                                <i class="fa-solid fa-comments-dollar"></i>
+                                <span>Sales & Onboarding</span>
+                            </div>
+                            <ul class="dept-bullets">
+                                <li><strong>Value Prop Refinement:</strong> Detail exactly why human-guided virtual assistants outperform code execution (such as critical judgment & complex resolution).</li>
+                                <li><strong>Early Intervention CS playbooks:</strong> Arm Customer Success teams with an "AI-Retention" playbook to deploy immediately upon client automation inquiries.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Training Card -->
+                        <div class="dept-card training">
+                            <div class="dept-header">
+                                <i class="fa-solid fa-graduation-cap"></i>
+                                <span>Training & Operations</span>
+                            </div>
+                            <ul class="dept-bullets">
+                                <li><strong>Mandatory AI Upskilling:</strong> Standardize ChatGPT, API, and Zapier pipeline execution classes to ensure VAs manage client setups directly.</li>
+                                <li><strong>Proactive Year-One Audits:</strong> Review client processes at Month 9 to automate low-value repetitive tasks before clients seek outside solutions.</li>
+                                <li><strong>Active PIP Management:</strong> Leverage ongoing improvements and human adaptability tracking if VAs are under review.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Marketing Card -->
+                        <div class="dept-card marketing">
+                            <div class="dept-header">
+                                <i class="fa-solid fa-bullhorn"></i>
+                                <span>Marketing Department</span>
+                            </div>
+                            <ul class="dept-bullets">
+                                <li><strong>Thought Leadership Positioning:</strong> Position the business as an industry expert in organizing and "managing AI through high-performing VAs."</li>
+                                <li><strong>Innovative Campaign Packaging:</strong> Market outsourced support structures as "AI-powered human assistance" for modern clients.</li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 10: YEARLY COMPARISON TREND -->
+            <div class="slide-canvas" id="slide-10">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Macro Trend Velocity</span>
+                        <h3 class="slide-title-main">Yearly Cancellation Impact Escalation</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="split-grid">
+                        <!-- Left Pane: Source Tabular Data -->
+                        <div>
+                            <table class="brand-table">
+                                <thead>
+                                    <tr>
+                                        <th>Analysis Year</th>
+                                        <th style="text-align: center;">AI Cancellations</th>
+                                        <th style="text-align: center;">Total Churn Volume</th>
+                                        <th style="text-align: center;">Risk Proportion</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>2024 (Base Year)</strong></td>
+                                        <td style="text-align: center; font-weight: 700;">7 cases</td>
+                                        <td style="text-align: center;">469 cases</td>
+                                        <td style="text-align: center; font-weight: 800; color: var(--mmm-navy);">1.49%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>2025 (Mid-Cycle)</strong></td>
+                                        <td style="text-align: center; font-weight: 700;">27 cases</td>
+                                        <td style="text-align: center;">501 cases</td>
+                                        <td style="text-align: center; font-weight: 800; color: var(--mmm-navy);">7.39%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>2026 (YTD Current)</strong></td>
+                                        <td style="text-align: center; font-weight: 700; color: var(--mmm-portland-orange);">36 cases</td>
+                                        <td style="text-align: center;">293 cases</td>
+                                        <td style="text-align: center; font-weight: 800; color: var(--mmm-portland-orange);">12.29%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <p style="font-size: 11px; margin-top: 20px; line-height: 1.5; color: var(--slate-700);">
+                                <i class="fa-solid fa-chart-line" style="color: var(--mmm-portland-orange);"></i>
+                                **Trend Vector Alert:** Over a three-year window, the percentage of client cancellations citing AI substitution has accelerated from 1.49% to 12.29%, highlighting tech as an active competitive challenge.
+                            </p>
+                        </div>
+
+                        <!-- Right Pane: Trend Vertical Columns Visual -->
+                        <div class="chart-panel">
+                            <h4 style="font-size:11px; text-transform:uppercase; color: var(--mmm-navy); font-weight:800; margin-bottom: 15px; align-self: flex-start;">AI Churn % of Total Cancellations</h4>
+                            <div class="trend-chart-v2">
+                                <div class="trend-col-v2">
+                                    <div class="trend-fill-v2" style="height: 12.12%;" data-height="12.12">
+                                        <span class="trend-lbl-top-v2">1.49%</span>
+                                    </div>
+                                    <span class="trend-lbl-bottom-v2">2024</span>
+                                </div>
+                                <div class="trend-col-v2">
+                                    <div class="trend-fill-v2" style="height: 60.13%;" data-height="60.13">
+                                        <span class="trend-lbl-top-v2">7.39%</span>
+                                    </div>
+                                    <span class="trend-lbl-bottom-v2">2025</span>
+                                </div>
+                                <div class="trend-col-v2">
+                                    <div class="trend-fill-v2 alert-fill" style="height: 100%;" data-height="100">
+                                        <span class="trend-lbl-top-v2" style="color: var(--mmm-portland-orange);">12.29%</span>
+                                    </div>
+                                    <span class="trend-lbl-bottom-v2" style="font-weight: 800; color: var(--mmm-navy);">2026</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SLIDE 11: CLOSING TAKEAWAY -->
+            <div class="slide-canvas" id="slide-11">
+                <div class="slide-header">
+                    <div class="slide-title-group">
+                        <span class="slide-tag">Strategic Core Vision</span>
+                        <h3 class="slide-title-main">Closing Executive Takeaway</h3>
+                    </div>
+                </div>
+                <div class="slide-body">
+                    <div class="closing-container">
+                        <div class="quote-pinnacle">
+                            <blockquote>
+                                "AI doesn't replace great VAs.<br>It replaces repetitive work."
+                            </blockquote>
+                            <p>— My Mountain Mover Strategic Manifesto</p>
+                        </div>
+                        <div class="priority-list-box">
+                            <h3>Immediate Tactical Priorities</h3>
+                            <div class="priority-item">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <p><strong>Onboarding Focus:</strong> Optimize standard procedures during risk-prone first 150 days of client relationships.</p>
+                            </div>
+                            <div class="priority-item">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <p><strong>Workflow Proactive Audit:</strong> Expand VA scopes dynamically before client teams seek digital automation.</p>
+                            </div>
+                            <div class="priority-item">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <p><strong>Upskill Delivery:</strong> Equip standard VAs with modern automation skillsets to increase team efficiency.</p>
+                            </div>
+                            <div class="priority-item">
+                                <i class="fa-solid fa-circle-check" style="color: var(--mmm-green);"></i>
+                                <p><strong>Conversational Shift:</strong> Turn client sales engagements actively away from "AI vs VA" models and transition them strictly to "AI + VA" options.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Single outline view layout (Used for printing / full scroll review) -->
+            <div class="document-view-container" id="documentOutlineView">
+                <!-- JavaScript populates identical styled card outline nodes here dynamically -->
+            </div>
+
+        </main>
+
+        <!-- Live Presenter Companion Panel -->
+        <aside class="presenter-companion" id="presenterCompanion">
+            <h3>Presenter Notes</h3>
+            <div class="notes-content" id="notesContent">
+                <!-- Injected dynamically by active slide listener -->
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- 3. BOTTOM CONTROL BAR -->
+    <div class="bottom-nav" id="bottomNav">
+        <div>
+            <button class="btn" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i> Previous</button>
+        </div>
+        <div class="nav-bullets" id="navBullets">
+            <!-- Programmatically populated bullets -->
+        </div>
+        <div>
+            <button class="btn" onclick="nextSlide()">Next <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- 4. CORE CONTROLLER JS -->
+    <script>
+        let currentSlideIndex = 1;
+        const totalSlides = 11;
+        let isDocumentView = false;
+
+        const presenterNotes = {
+            1: "<strong>Opening Title Cover.</strong><br>Establish the goal: reviewing AI/automation references in client cancellations from 2024 to 2026.<br>Emphasize that this is an Account Management strategy briefing designed to identify risks and structural retention opportunities.",
+            2: "<strong>Integrated Scorecard Table:</strong><br><ul><li>Review the overall risk profile including the 6.3% cumulative cancel share.</li><li>Point out Receptionists as the absolute high-exposure role (35 cases) requiring rapid process shifting.</li><li>Diagnose the first 150 days window as our primary AM playbook deployment focus.</li></ul>",
+            3: "<strong>Executive Snapshot Metrics:</strong><br><ul><li>Highlight 80 cases out of 1,263. Demonstrate that setup readiness represents a client's main driver.</li><li>Discuss 'Key Observation'—cancellations occur where the client's return on automation is perceived to exceed the return on VAs.</li></ul>",
+            4: "<strong>Sub-Industry Risks Table & Bar Chart:</strong><br><ul><li>Review the exact cancellation breakdown alongside the custom horizontal bar indicators.</li><li>Scribes (21) and Billers (16) represent critical operational targets for task expansion reviews.</li></ul>",
+            5: "<strong>Primary Causal Taxonomy Table:</strong><br><ul><li>The table details client observations and opportunities next to our mention category doughnut.</li><li>Automation and general AI terms account for more than 80% of our churn mentions (67 combined cases).</li></ul>",
+            6: "<strong>Retention Windows & Tenure Buckets:</strong><br><ul><li>Left Table details the three-stage risk windows.</li><li>Right Chart visualizes the exact tenure bucket peaks: We lose 52 out of 80 cases (65%) among mature, year-one accounts, demonstrating the ultimate loyalty risk.</li></ul>",
+            7: "<strong>Temporal risk seasonality:</strong><br><ul><li>January and December are the highest-risk months due to planning cycles.</li><li>AM Action: Proactively review client workflows beginning October 15 before year-end financial checks occur.</li></ul>",
+            8: "<strong>Action Roadmap:</strong><br><ul><li>Review recommended initiatives on the left (Performance PIPs, 30/60/90 Day QA checks) alongside the integration vision block on the right.</li><li>Upskilling turns VAs into automation managers.</li></ul>",
+            9: "<strong>Departmental Roadmap Recommendations:</strong><br><ul><li>This is a crucial addition showing department-specific actionable strategies.</li><li>Discuss Product's 'Human+AI' model and automated summaries.</li><li>Outline Training's focus on upskilling (Zapier/ChatGPT) and sales positioning.</li><li>Explain Marketing's 'AI-powered human assistance' campaigns.</li></ul>",
+            10: "<strong>Macro Escalation Trend:</strong><br><ul><li>Yearly impact table is paired with vertical progression charts.</li><li>We see an exponential jump from 1.49% to 12.29%. AI tools are transitioning from experiments to direct competitors.</li></ul>",
+            11: "<strong>Summary Strategic Vision:</strong><br><ul><li>Conclude with our tactical playbook priorities list: focus on the first 150 days, proactive year-one audits, and equipping VAs with automated toolsets.</li><li>Highlight the critical sales message pivot to 'AI + VA'.</li></ul>"
+        };
+
+        function updateSlideUI() {
+            // Manage Active States on Canvas
+            document.querySelectorAll('.slide-canvas').forEach(canvas => {
+                canvas.classList.remove('active');
+            });
+            const currentSlide = document.getElementById(`slide-${currentSlideIndex}`);
+            if (currentSlide) {
+                currentSlide.classList.add('active');
+            }
+
+            // Update Left Sidebar Tabs
+            document.querySelectorAll('.slide-tab').forEach((tab, index) => {
+                if (index + 1 === currentSlideIndex) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            // Update Nav Bullets
+            document.querySelectorAll('.bullet').forEach((bullet, index) => {
+                if (index + 1 === currentSlideIndex) {
+                    bullet.classList.add('active');
+                } else {
+                    bullet.classList.remove('active');
+                }
+            });
+
+            // Update Presenter Notes
+            const notesBox = document.getElementById('notesContent');
+            notesBox.innerHTML = presenterNotes[currentSlideIndex] || "No presenter notes assigned.";
+
+            // Reset chart animations to replay on slide view
+            triggerChartAnimations();
+        }
+
+        function triggerChartAnimations() {
+            // Horizontal Bar animations inside Slide 4
+            if (currentSlideIndex === 4) {
+                const fills = document.querySelectorAll('#slide-4 .bar-fill-v2');
+                fills.forEach(fill => {
+                    const pct = fill.getAttribute('data-percent');
+                    fill.style.width = '0%';
+                    setTimeout(() => {
+                        fill.style.width = pct + '%';
+                    }, 50);
+                });
+            }
+
+            // Vertical Bar animations inside Slide 6
+            if (currentSlideIndex === 6) {
+                const fills = document.querySelectorAll('#slide-6 .tenure-bar-fill');
+                fills.forEach(fill => {
+                    const h = fill.getAttribute('data-height');
+                    fill.style.height = '0%';
+                    setTimeout(() => {
+                        fill.style.height = h + '%';
+                    }, 100);
+                });
+            }
+
+            // Vertical Bar animations inside Slide 10
+            if (currentSlideIndex === 10) {
+                const vertBars = document.querySelectorAll('#slide-10 .trend-fill-v2');
+                vertBars.forEach(bar => {
+                    const h = bar.getAttribute('data-height');
+                    bar.style.height = '0%';
+                    setTimeout(() => {
+                        bar.style.height = h + '%';
+                    }, 100);
+                });
+            }
+        }
+
+        function nextSlide() {
+            if (currentSlideIndex < totalSlides) {
+                currentSlideIndex++;
+                updateSlideUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 1) {
+                currentSlideIndex--;
+                updateSlideUI();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlideIndex = index;
+            updateSlideUI();
+        }
+
+        function toggleViewMode() {
+            isDocumentView = !isDocumentView;
+            const container = document.getElementById('mainContainer');
+            const btn = document.getElementById('btnToggleMode');
+
+            if (isDocumentView) {
+                document.body.classList.add('document-mode');
+                btn.innerHTML = `<i class="fa-solid fa-desktop"></i> Switch to Presentation Mode`;
+                generateDocumentOutline();
+            } else {
+                document.body.classList.remove('document-mode');
+                btn.innerHTML = `<i class="fa-solid fa-file-invoice"></i> Switch to Document Outline`;
+                updateSlideUI();
+            }
+        }
+
+        function generateDocumentOutline() {
+            const container = document.getElementById('documentOutlineView');
+            container.innerHTML = ''; // Clean previous loads
+
+            for (let i = 1; i <= totalSlides; i++) {
+                const originalSlide = document.getElementById(`slide-${i}`);
+                if (originalSlide) {
+                    const clonedSlide = originalSlide.cloneNode(true);
+                    clonedSlide.id = `doc-slide-${i}`;
+                    clonedSlide.classList.add('doc-slide-card');
+                    clonedSlide.classList.add('active'); // Force visible layout
+
+                    // Re-trigger visual animations on cloned bars
+                    const barFills = clonedSlide.querySelectorAll('.bar-fill-v2');
+                    barFills.forEach(fill => {
+                        fill.style.width = fill.getAttribute('data-percent') + '%';
+                    });
+
+                    const tenureFills = clonedSlide.querySelectorAll('.tenure-bar-fill');
+                    tenureFills.forEach(fill => {
+                        fill.style.height = fill.getAttribute('data-height') + '%';
+                    });
+
+                    const vertBars = clonedSlide.querySelectorAll('.trend-fill-v2');
+                    vertBars.forEach(bar => {
+                        bar.style.height = bar.getAttribute('data-height') + '%';
+                    });
+
+                    container.appendChild(clonedSlide);
+                }
+            }
+        }
+
+        // Initialize UI Elements
+        window.addEventListener('DOMContentLoaded', () => {
+            // Build Bottom Bullets dynamically
+            const bulletsBox = document.getElementById('navBullets');
+            for (let i = 1; i <= totalSlides; i++) {
+                const bullet = document.createElement('div');
+                bullet.classList.add('bullet');
+                if (i === 1) bullet.classList.add('active');
+                bullet.onclick = () => goToSlide(i);
+                bulletsBox.appendChild(bullet);
+            }
+
+            // Keyboard Arrow Actions Setup
+            document.addEventListener('keydown', (e) => {
+                if (!isDocumentView) {
+                    if (e.key === 'ArrowRight' || e.key === ' ') {
+                        nextSlide();
+                    } else if (e.key === 'ArrowLeft') {
+                        prevSlide();
+                    }
+                }
+            });
+
+            // Start first view build
+            updateSlideUI();
+        });
+    </script>
+</body>
+</html>
